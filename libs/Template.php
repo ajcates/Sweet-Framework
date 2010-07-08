@@ -30,15 +30,11 @@ class B {
 		include(LOC . '/sweet-framework/blocks/' . $reallyHopeNoOneNamesThereVaribleThis . '.php' );
 		/*
 		f_first
-
 		if(is_array($values[0])) {
 			$attributes 
 		}
-
-
 		'<' . $tagName . '>'
 		*/
-
 		return ob_get_clean();
 	}
 	
@@ -65,14 +61,6 @@ class B {
 	}
 }
 
-
-
-
-
-
-
-
-
 class Template extends App {
 	
 	private $data = array();
@@ -84,6 +72,9 @@ class Template extends App {
 	}
 	
 	public function __get($name) {
+		if($name == 'navLocation') {
+			D::log($this->data, 'nav data');
+		}
 		return $this->data[$name];
 	}
 	
@@ -95,12 +86,12 @@ class Template extends App {
 	public function render($fileNameThatNoOneBetterUse, $data=null) {
 		if(isset($data)) {
 			extract($data);
+			include(T::$loc . '/templates/' . SweetFramework::fileLoc($fileNameThatNoOneBetterUse));
 		} else {
 			extract($this->data);
+			include(T::$loc . '/templates/' . SweetFramework::fileLoc($fileNameThatNoOneBetterUse));	
 			$this->data = array();
 		}
-		include(T::$loc . '/templates/' . SweetFramework::fileLoc($fileNameThatNoOneBetterUse));
-		
 	}
 	
 	public function get($file, $data=array()) {
