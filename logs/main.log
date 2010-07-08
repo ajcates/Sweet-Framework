@@ -1,0 +1,61 @@
+
+SweetFramework - July 7, 2010, 5:16 pm | App Started : 0
+
+
+URI Request: 
+
+
+new Place: /Users/ajcates/Sites/egghead/crad-db/app/themes/default
+
+
+DB Connected
+
+
+Session is starting
+
+
+Sql call: SELECT *
+ FROM Sessions
+ WHERE (
+id = '1783')
+
+
+Sql call: SELECT *
+ FROM SessionData
+ WHERE (
+session = '1783')
+
+
+cookie is good. heres some data:: Array
+(
+)
+
+
+
+Controller Loading: Main
+
+
+Sql call: SELECT Pages.id, Pages.user, Pages.slug, Pages.title, Pages.description, Pages.content, Pages.dateCreated, user.id AS 'user.id', user.username AS 'user.username', user.email AS 'user.email', user.fullname AS 'user.fullname', user.password AS 'user.password', tags.page AS 'tags.page', tags.tag AS 'tags.tag', tags.user AS 'tags.user', tags_tag.id AS 'tags.tag.id', tags_tag.name AS 'tags.tag.name', tags_user.id AS 'tags.user.id', tags_user.username AS 'tags.user.username', tags_user.email AS 'tags.user.email', tags_user.fullname AS 'tags.user.fullname', tags_user.password AS 'tags.user.password'
+ FROM Pages
+
+ LEFT JOIN Users AS user
+	ON Pages.user = user.id 
+ LEFT JOIN PageTags AS tags
+	ON Pages.id = tags.page 
+ LEFT JOIN Tags AS tags_tag
+	ON tags.tag = tags_tag.id 
+ LEFT JOIN Users AS tags_user
+	ON tags.user = tags_user.id
+
+
+saving session
+
+
+data: Array
+(
+)
+
+
+
+App | End: 0.0154480934143
+
