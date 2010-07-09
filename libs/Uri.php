@@ -13,12 +13,14 @@ class Uri extends App {
 	function __construct() {
 		/*
 		@todo:
-			# Make this library work with the new config set up.
-			- Simplify out the functions
-				- Add in a callRoute() function that essenitally calls up the correct controller
-				- Maybe rewrite the loadUrl function to make it more modular
+			X Make this library work with the new config set up.
+			- Simplify out the class
+				- Clean up the functions and remove the ones that im not useing
+				- Clean up the classes varibles
+				X Add in a callRoute() function that essenitally calls up the correct controller
+				X Maybe rewrite the loadUrl function to make it more modular
 			- Make it clearer to as what is happening in this code
-			- Don't make it so coupled with $_SERVER['QUERY']
+			X Don't make it so coupled with $_SERVER['QUERY']
 		*/
 		//[0] => helldsdfs34&what=4
 		$this->request = $_SERVER['QUERY_STRING'];
@@ -52,8 +54,7 @@ class Uri extends App {
 		//D::log($this->loadController(), 'controller funcj');
 		f_call($this->loadController());
 	}
-	
-	
+		
 	var $contorllerFile = 'Main.php';
 	var $count = 0;
 	var $contorller;
