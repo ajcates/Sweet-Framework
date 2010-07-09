@@ -1,5 +1,5 @@
 
-SweetFramework - July 8, 2010, 5:42 pm | App Started : 0
+SweetFramework - July 9, 2010, 1:29 am | App Started : 0
 
 
 URI Request: login/
@@ -28,6 +28,7 @@ session = '749')
 
 cookie is good. heres some data:: Array
 (
+    [loggedIn] => 0
 )
 
 
@@ -40,8 +41,8 @@ Controller Function: login
 
 teh info: Array
 (
-    [name] => fail
-    [password] => fail
+    [name] => ajcates
+    [password] => dworkram
 )
 
 
@@ -50,204 +51,9 @@ find args: Array
 (
     [0] => Array
         (
-            [name] => fail
+            [name] => ajcates
         )
 
-)
-
-
-
-query: Query Object
-(
-    [_mode:Query:private] => select
-    [_whereData:Query:private] => Array
-        (
-        )
-
-    [_selectData:Query:private] => 
-    [_joinData:Query:private] => 
-    [_setData:Query:private] => 
-    [_joins:Query:private] => 
-    [_joinOns:Query:private] => 
-    [_whereValue:Query:private] => 
-    [_limit:Query:private] => 
-    [_orderBy:Query:private] => 
-    [_updateValue:Query:private] => 
-    [_insert:Query:private] => 
-    [_selectFunction:Query:private] => 
-    [libs:protected] => stdClass Object
-        (
-            [Databases] => Databases Object
-                (
-                    [databases:protected] => Array
-                        (
-                            [default] => My_SQL Object
-                                (
-                                    [prepared] => 
-                                    [queries] => Array
-                                        (
-                                            [0] => SELECT *
- FROM Sessions
- WHERE (
-id = '749')
-                                            [1] => SELECT *
- FROM SessionData
- WHERE (
-session = '749')
-                                        )
-
-                                    [settings] => Array
-                                        (
-                                            [driver] => My_SQL
-                                            [host] => localhost
-                                            [username] => root
-                                            [password] => dworkram
-                                            [databaseName] => crad-db
-                                        )
-
-                                    [connection] => Resource id #20
-                                    [result] => Resource id #23
-                                    [connected] => 1
-                                )
-
-                        )
-
-                    [currentDatabase:protected] => default
-                    [libs:protected] => stdClass Object
-                        (
-                            [Config] => Config Object
-                                (
-                                    [configs:Config:private] => Array
-                                        (
-                                            [Debug] => Array
-                                                (
-                                                    [debug] => 1
-                                                    [warnings] => 1
-                                                    [logfile] => /Users/ajcates/Sites/egghead/crad-db/sweet-framework/logs/main.log
-                                                    [growl] => Array
-                                                        (
-                                                            [host] => localhost
-                                                            [password] => 
-                                                        )
-
-                                                )
-
-                                            [SweetFramework] => Array
-                                                (
-                                                    [benchMark] => 
-                                                    [niceUrls] => 
-                                                    [autoload] => Array
-                                                        (
-                                                            [0] => Session
-                                                            [1] => SweetModel
-                                                        )
-
-                                                    [app] => Array
-                                                        (
-                                                            [folder] => app
-                                                            [paths] => Array
-                                                                (
-                                                                    [config] => settings
-                                                                    [lib] => libs
-                                                                    [model] => models
-                                                                    [helper] => helpers
-                                                                    [controller] => controllers
-                                                                )
-
-                                                        )
-
-                                                )
-
-                                            [site] => Array
-                                                (
-                                                    [name] => CRAD-DB
-                                                    [tagline] => Club Research & Development Database
-                                                    [prettyUrls] => 
-                                                    [url] => http://localhost/projects/sweet-framework/?
-                                                    [database] => default
-                                                    [theme] => default
-                                                    [salt] => 8b350e497==RANDOM CRAP IS THE SALT==dc21c3017a8ff
-                                                )
-
-                                            [databases] => Array
-                                                (
-                                                    [default] => Array
-                                                        (
-                                                            [driver] => My_SQL
-                                                            [host] => localhost
-                                                            [username] => root
-                                                            [password] => dworkram
-                                                            [databaseName] => crad-db
-                                                        )
-
-                                                )
-
-                                            [Session] => Array
-                                                (
-                                                    [timeout] => 31536000
-                                                    [hashFunction] => sha512
-                                                    [cookieSecret] => h07rsouY43hSNpNAVvcEKDrXkzs4rasdfasdfkOL9iUe3Vx5RjTfrthw49BC6xeGNvw2nI55z1RH
-                                                    [cookieName] => crad-token
-                                                    [use] => Array
-                                                        (
-                                                            [0] => fe80::5ab0:35ff:fe7f:7b12
-                                                        )
-
-                                                    [sslCookies] => 
-                                                    [tableName] => Sessions
-                                                    [dataTableName] => SessionData
-                                                )
-
-                                        )
-
-                                    [paths:Config:private] => Array
-                                        (
-                                            [0] => /sweet-framework/settings/
-                                        )
-
-                                )
-
-                        )
-
-                    [models] => 
-                )
-
-        )
-
-    [models] => 
-    [_driver:protected] => My_SQL Object
-        (
-            [prepared] => 
-            [queries] => Array
-                (
-                    [0] => SELECT *
- FROM Sessions
- WHERE (
-id = '749')
-                    [1] => SELECT *
- FROM SessionData
- WHERE (
-session = '749')
-                )
-
-            [settings] => Array
-                (
-                    [driver] => My_SQL
-                    [host] => localhost
-                    [username] => root
-                    [password] => dworkram
-                    [databaseName] => crad-db
-                )
-
-            [connection] => Resource id #20
-            [result] => Resource id #23
-            [connected] => 1
-        )
-
-    [sql] => SELECT *
- FROM SessionData
- WHERE (
-session = '749')
 )
 
 
@@ -257,5 +63,8 @@ Sql call: SELECT Users.id, Users.name, Users.email, Users.password, Users.firstN
 
  WHERE (
 (
-name = 'fail') AND Users.name = 'fail')
+name = 'ajcates') AND Users.name = 'ajcates')
+
+
+password: 7785134b0535b9f59e3f79e01076b2cd45cd451f
 

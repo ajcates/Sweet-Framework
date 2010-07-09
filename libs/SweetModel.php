@@ -65,9 +65,9 @@ class SweetModel extends App {
 			$where = $this->_buildFind($this->_buildOptions['find']);
 		}
 		
-		D::log($this->lib('Query'), 'query');
+		//D::log(, 'query');
 		
-		return $this->libs->Query->select($select)->join($join)->from($this->tableName, @$this->_buildOptions['limit'])->where($where)->results();
+		return $this->lib('Query')->select($select)->join($join)->from($this->tableName, @$this->_buildOptions['limit'])->where($where)->results();
 	}
 	
 	function _buildFind($find=array()) {
@@ -163,7 +163,7 @@ class SweetModel extends App {
 	
 	function create($item) {
 		//@todo change this to func_get_args ?
-		if($this->libs->Query->insert($item)->into($this->tableName)->go()) {
+		if($this->lib('Query')->insert($item)->into($this->tableName)->go()) {
 			if(is_array($item)) {
 				return new SweetRow($this, arrayToObj($item));
 			} else {
@@ -174,7 +174,7 @@ class SweetModel extends App {
 	}
 	
 	function delete() {
-		return $this->libs->Query->delete()->from($this->tableName)->where($where)->limit(@$this->_buildOptions['limit'])->go();
+		return $this->lib('Query')->delete()->from($this->tableName)->where($where)->limit(@$this->_buildOptions['limit'])->go();
 	}
 	
 	function all() {

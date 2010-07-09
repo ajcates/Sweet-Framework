@@ -369,7 +369,7 @@ class Query extends App {
 			return 'null';
 		}
 		if(is_bool($var) || is_int($var)) {
-			return $var;
+			return intval($var);
 		}
 		return $sep . self::escape($var) . $sep;
 	}
@@ -378,7 +378,7 @@ class Query extends App {
 		//Databases::f('query', array($sql, $type));
 		//@todo change this.
 		if(is_bool($var) || is_int($var)) {
-			return $var;
+			return intval($var);
 		}
 		return mysql_escape_string($var);
 	}
