@@ -65,6 +65,8 @@ class SweetModel extends App {
 			$where = $this->_buildFind($this->_buildOptions['find']);
 		}
 		
+		D::log($this->lib('Query'), 'query');
+		
 		return $this->libs->Query->select($select)->join($join)->from($this->tableName, @$this->_buildOptions['limit'])->where($where)->results();
 	}
 	
@@ -177,9 +179,9 @@ class SweetModel extends App {
 	
 	function all() {
 		//foreach( as )
+		$returnItems = array();
 		$items = $this->_build();
 		if(!empty($items)) {
-			$returnItems = array();
 			$i = 0;
 			$last = null;
 			foreach($items as $item) {
