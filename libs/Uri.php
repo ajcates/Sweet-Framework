@@ -48,8 +48,9 @@ class Uri extends App {
 	}
 	
 	function callRoute($request=null) {
-		if(!isset($request)) {
-			$request = $this->getRequest();
+		if(isset($request)) {
+			//$request = $this->getRequest();
+			$this->request = $request;
 		}
 		//D::log($this->loadController(), 'controller funcj');
 		f_call($this->loadController());
@@ -63,6 +64,7 @@ class Uri extends App {
 		if(isset($controller)) {
 			$this->contorllerFile = $controller;
 		}
+		D::log($this->contorllerFile, 'c file');
 		$class = SweetFramework::className($this->contorllerFile);
 		
 		if(!SweetFramework::loadFileType('controller', $class)) {
@@ -127,7 +129,7 @@ class Uri extends App {
 	function regexArray($regexs) {
 		$matches = array();
 		foreach($regexs as $regex => $func) {
-			preg_match_all($regex, $_SERVER['QUERY_STRING'], $matches);
+			preg_match_all($regex, $this->request, $matches);
 			if(f_first($matches)) {
 				D::log($regex, 'regex');
 				return f_push(
@@ -156,13 +158,13 @@ class Uri extends App {
 			str_replace(
 				'index.php&',
 				'',
-				$_SERVER['QUERY_STRING']
+				$this->request
 			)
 		);
 	}
 	
 	function getUglyUrl() {
-		$queryString = $_SERVER['QUERY_STRING'];
+		$queryString = $this->request;
 		if(@substr_count($queryString, '/', 0, 1) == 1) {
 			$queryString = substr($queryString, 1, strlen($queryString) - 1);
 		}
@@ -183,12 +185,12 @@ class Uri extends App {
 	}
 	
 	function niceUrl() {
-		$this->queryString = str_replace('index.php&', '', $_SERVER['QUERY_STRING']);
+		$this->queryString = str_replace('index.php&', '', $this->request);
 		$this->uriArray = explode('/', $this->queryString);
 	}
 	
 	function uglyUrl() {
-		$this->queryString = $_SERVER['QUERY_STRING'];
+		$this->queryString = $this->request;
 		if(@substr_count($this->queryString, '/', 0, 1) == 1) {
 			$this->queryString = substr($this->queryString, 1, strlen($this->queryString) - 1);
 		}
