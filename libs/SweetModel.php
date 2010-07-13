@@ -1,10 +1,8 @@
 <?
 class SweetModel extends App {
 
-
 	var $model;
-	var $items;
-	
+	var $items;	
 	
 	function __construct() {
 		$this->lib('Query');
@@ -16,6 +14,15 @@ class SweetModel extends App {
 		$this->_buildOptions['find'] = D::log(func_get_args(), 'find args');
 		
 		return $this;
+	}
+	
+	function relative($field) {
+		$pullRel = $this->relationships[$field];
+		if(is_string($fKey = f_first(array_keys($pullRel)) )) {
+			return $this->model(f_first($pullRel[$fKey]));
+		} else {
+			return $this->model(f_first($pullRel));
+		}		
 	}
 	
 	var $_filter;
@@ -319,8 +326,8 @@ class SweetRow {
 			- use cases for backwards relationships?
 				- m2m relationships are backwards fk relationships. they already work.
 		*/
-		
-		if(array_key_exists($var, $this->_model->relationships)) {			
+		//)
+		if(property_exists($this->_model, 'relationships') && array_key_exists($var, $this->_model->relationships)) {
 			////// KEYS:
 			$varL = strlen($var);
 			$keys = array_filter(

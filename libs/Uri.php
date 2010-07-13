@@ -52,7 +52,7 @@ class Uri extends App {
 			$request = $this->getRequest();
 		}
 		//D::log($this->loadController(), 'controller funcj');
-		f_call($this->loadController());
+		echo f_call($this->loadController());
 	}
 		
 	var $contorllerFile = 'Main.php';
