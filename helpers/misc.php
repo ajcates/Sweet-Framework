@@ -2,9 +2,37 @@
 //misc functions n stuff that help me
 define('EMPTY_STRING', '');
 
+
+/*
 function chain($baseItem, $items=array()) {
-	return eval(D::log('return ' . join('->', f_construct('$baseItem', (array)$items)) . ';', 'evalers') );
+	return eval('return ' . join('->', f_construct('$baseItem', (array)$items)) . ';');
 }
+*/
+
+
+function chain($baseItem, $items=array()) {
+	if(!empty($items)) {
+		return chain($baseItem->{f_first($items)}, f_rest($items));	
+	} else {
+		return $baseItem;
+	}
+}
+
+function get($var, $fetch=false) {
+	if(is_array($var) && 1 < count($var)) {
+		return $this->{f_first($var)}->get(f_rest($var), $fetch);
+	}
+	if($fetch) {
+		return $this->_data[f_first((array)$var)];
+	} else {
+		return $this->{f_first((array)$var)};
+	}
+	//}
+}
+
+
+
+
 
 function ifthereshow($test, $show) {
 	if(!empty($test)) { return $show; }

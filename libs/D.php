@@ -57,7 +57,7 @@ class D {
 	static function log($var=null, $label=null) {
 		if(self::$config['debug']) {
 			if(!isset(self::$handle)) {
-				self::$handle = fopen(self::$config['logfile'], 'w+');
+				self::$handle = fopen(self::$config['logfile'], 'a+');
 			}
 			if(!isset($label)) {
 				$label = '';
