@@ -219,6 +219,10 @@ class SweetModel extends App {
 		return f_first($this->all());
 	}
 	
+	function getTotalRows() {
+		return f_first(f_flatten($this->lib('Query')->select('*')->from($this->tableName)->count()->results('assoc')));
+	}
+	
 	
 }
 
