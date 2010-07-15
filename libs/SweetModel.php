@@ -1,10 +1,8 @@
 <?
 class SweetModel extends App {
 
-
 	var $model;
-	var $items;
-	
+	var $items;	
 	
 	function __construct() {
 		$this->lib('Query');
@@ -16,6 +14,15 @@ class SweetModel extends App {
 		$this->_buildOptions['find'] = D::log(func_get_args(), 'find args');
 		
 		return $this;
+	}
+	
+	function relative($field) {
+		$pullRel = $this->relationships[$field];
+		if(is_string($fKey = f_first(array_keys($pullRel)) )) {
+			return $this->model(f_first($pullRel[$fKey]));
+		} else {
+			return $this->model(f_first($pullRel));
+		}		
 	}
 	
 	var $_filter;
@@ -96,13 +103,20 @@ class SweetModel extends App {
 					$flName = $fKey;
 					$model = $this->model(f_first($pullRel[$fKey]));
 				} else {
-					$flName = $pull;
+					$flName = $k;
 					$model = $this->model(f_first($pullRel));
 				}
 				
 				if(is_array($rfName = f_last($pullRel))) {
 					$rfName = f_last(f_last($pullRel));
 				}
+				
+				/*
+				if $flName is an array
+					then $k is where its at?
+				 				 */
+				
+				
 				$builtPulls[] = $model->_buildPull($k, $pullRel, $on, $flName, $rfName);
 				
 				$builtPulls = array_merge($builtPulls, $model->_buildPulls((array)$pull, $k, f_push($k, (array)$with) ));
@@ -140,6 +154,12 @@ class SweetModel extends App {
 		
 		if(is_array($tableName)) {
 			$tableName = join('_', ($tableName));
+		}
+		
+		if(is_array($lfName)) {
+			D::log($pull, '$pull aka $k');
+			D::log($lfName, 'lfName');
+			D::stack();
 		}
 		
 		$join[$this->tableName . ' AS ' . $pull] = array(
@@ -210,6 +230,10 @@ class SweetModel extends App {
 	
 	function one() {
 		return f_first($this->all());
+	}
+	
+	function getTotalRows() {
+		return f_first(f_flatten($this->lib('Query')->select('*')->from($this->tableName)->count()->results('assoc')));
 	}
 	
 	
@@ -319,8 +343,8 @@ class SweetRow {
 			- use cases for backwards relationships?
 				- m2m relationships are backwards fk relationships. they already work.
 		*/
-		
-		if(array_key_exists($var, $this->_model->relationships)) {			
+		//)
+		if(property_exists($this->_model, 'relationships') && array_key_exists($var, $this->_model->relationships)) {
 			////// KEYS:
 			$varL = strlen($var);
 			$keys = array_filter(

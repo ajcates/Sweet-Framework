@@ -140,10 +140,10 @@ class D {
 	static function stack($label='Label') {
 		return D::log(
 			"\n" . join(
-				'->',
+				"\n",
 				array_reverse(array_map(
 					function($v) {
-						return $v['function'] . '()';
+						return $v['function'] . '()' . "\n----> " . substr(@$v['file'], strlen(LOC)) . ': ' . @$v['line'];
 					},
 					debug_backtrace()
 				))
