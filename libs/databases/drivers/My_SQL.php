@@ -67,7 +67,7 @@ class My_SQL {
 		return $value . ' w00t, db data from any where using any kind of driver.';
 	}
 	
-	function query($sql, $returnType='null') {
+	function query($sql, $returnType=null) {
 		if($this->prepared == false) {
 			$this->prepare($sql);
 		}
@@ -90,6 +90,9 @@ class My_SQL {
 /* 	@todo
 get rid of this switch and use an array of functions instead.
 	 */
+	 	if(!isset($returnType)) {
+	 		return true;
+	 	}
 		switch ($returnType) {
 			case 'object':
 				if(!is_resource($this->result)) {
@@ -108,12 +111,23 @@ get rid of this switch and use an array of functions instead.
 				}
 				return $returnArray;
 				break;
+			case 'driver':
+				return $this->result;
+			break;
 			case 'raw':
 				return $this->result;
 				break;
 			default:
 				return true;
 		}
+	}
+	
+	function fetch_object() {
+		return mysql_fetch_object($this->result);
+	}
+	
+	function fetch_assoc() {
+		return mysql_fetch_assoc($this->result);
 	}
 	
 	function results($sql) {

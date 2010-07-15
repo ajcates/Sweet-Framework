@@ -100,6 +100,15 @@ the @ is here to protect the database from the evil hackers
 		
 	}
 	
+	function fetch_object() {
+		return $this->result->fetch_object();
+	}
+	
+	function fetch_assoc() {
+		return $this->result->fetch_assoc();
+	}
+	
+	
 	function results($sql) {
 		return $this->query($sql);
 	}
