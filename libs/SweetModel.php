@@ -270,7 +270,7 @@ class SweetRow {
 			ability to save data back into the db
 				do this keep edited data sperate main data
 	*/
-	private $_data = array();
+	protected $_data = array();
 	private $_errors = array();
 	private $_model;
 	
