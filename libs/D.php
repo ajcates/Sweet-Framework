@@ -78,7 +78,7 @@ class D {
 			return D::log(0, $label . ' | ' . $timer . ' Started ');
 		}
 		self::$timers[$timer]->clock();
-	    return $label . ' | ' .D::log(self::$timers[$timer]->elapsed(), $timer . ' | ' . $label);
+	    return $label . ' | ' .D::log(round(self::$timers[$timer]->elapsed(), 4) . 's', $timer . ' | ' . $label);
 	}
 
 	static function growl($var, $label='') {
