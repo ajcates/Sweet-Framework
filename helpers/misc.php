@@ -9,6 +9,14 @@ function chain($baseItem, $items=array()) {
 }
 */
 
+function chain($baseItem, $items=array()) {
+	if(!empty($items)) {
+		return chain($baseItem->{f_first($items)}, f_rest($items));	
+	} else {
+		return $baseItem;
+	}
+}
+
 function ifthereshow($test, $show, $else=null) {
 	if(!empty($test)) {
 		return $show;
