@@ -157,8 +157,8 @@ class SweetModel extends App {
 		}
 		
 		if(is_array($lfName)) {
-			D::log($pull, '$pull aka $k');
-			D::log($lfName, 'lfName');
+			//D::log($pull, '$pull aka $k');
+			//D::log($lfName, 'lfName');
 			D::stack();
 		}
 		
@@ -219,7 +219,6 @@ class SweetModel extends App {
 					f_call(array($returnItems[$i], 'pass'), array($item));
 				} else {
 					$i++;
-					D::log($item, 'the item thing i need to trace and make sure its getting into the sweet rows');
 					$returnItems[$i] = new SweetRow($this, $item);
 					$last = $item->{$this->pk};
 				}
@@ -227,7 +226,7 @@ class SweetModel extends App {
 			}
 		}
 	
-		return $returnItems;
+		return array_values($returnItems);
 	}
 	
 	function one() {
@@ -235,7 +234,7 @@ class SweetModel extends App {
 	}
 	
 	function getTotalRows() {
-		return f_first(f_flatten($this->lib('Query')->select('*')->from($this->tableName)->count()->results('assoc')));
+		return intval(f_first(f_flatten($this->lib('Query')->select('*')->from($this->tableName)->count()->results('assoc'))));
 	}
 	
 	
@@ -369,7 +368,7 @@ class SweetRow {
 						//D::log(substr($key, $varL), 'subkey');
 						$item->{substr($key, $varL)} = $row->$key;
 					}
-					D::log($item, 'm2m item');
+					//D::log($item, 'm2m item');
 					$returnItems[] = new SweetRow($model, $item);
 				}
 				return $returnItems;
