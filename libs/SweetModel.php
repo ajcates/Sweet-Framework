@@ -103,13 +103,20 @@ class SweetModel extends App {
 					$flName = $fKey;
 					$model = $this->model(f_first($pullRel[$fKey]));
 				} else {
-					$flName = $pull;
+					$flName = $k;
 					$model = $this->model(f_first($pullRel));
 				}
 				
 				if(is_array($rfName = f_last($pullRel))) {
 					$rfName = f_last(f_last($pullRel));
 				}
+				
+				/*
+				if $flName is an array
+					then $k is where its at?
+				 				 */
+				
+				
 				$builtPulls[] = $model->_buildPull($k, $pullRel, $on, $flName, $rfName);
 				
 				$builtPulls = array_merge($builtPulls, $model->_buildPulls((array)$pull, $k, f_push($k, (array)$with) ));
@@ -147,6 +154,12 @@ class SweetModel extends App {
 		
 		if(is_array($tableName)) {
 			$tableName = join('_', ($tableName));
+		}
+		
+		if(is_array($lfName)) {
+			D::log($pull, '$pull aka $k');
+			D::log($lfName, 'lfName');
+			D::stack();
 		}
 		
 		$join[$this->tableName . ' AS ' . $pull] = array(

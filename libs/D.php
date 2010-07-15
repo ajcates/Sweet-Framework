@@ -57,7 +57,7 @@ class D {
 	static function log($var=null, $label=null) {
 		if(self::$config['debug']) {
 			if(!isset(self::$handle)) {
-				self::$handle = fopen(self::$config['logfile'], 'a+');
+				self::$handle = fopen(self::$config['logfile'], 'w+');
 			}
 			if(!isset($label)) {
 				$label = '';
@@ -140,10 +140,10 @@ class D {
 	static function stack($label='Label') {
 		return D::log(
 			"\n" . join(
-				'->',
+				"\n",
 				array_reverse(array_map(
 					function($v) {
-						return $v['function'] . '()';
+						return $v['function'] . '()' . "\n----> " . substr(@$v['file'], strlen(LOC)) . ': ' . @$v['line'];
 					},
 					debug_backtrace()
 				))
