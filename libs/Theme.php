@@ -5,7 +5,7 @@ class T {
 	static $url;
 	static $loc;
 	public static function get($name, $arguments=array()) {
-		return SweetFramework::getClass('lib', 'Template')->get($name);
+		return SweetFramework::getClass('lib', 'Template')->get($name, $arguments);
 	}
 	public static function __callStatic($name, $arguments=array()) {
 		return SweetFramework::getClass('lib', 'Template')->$name;
