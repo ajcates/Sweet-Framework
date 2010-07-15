@@ -165,9 +165,9 @@ class Query extends App {
 			function($v, $k) {
 				if(is_string($k)) {
 					if(is_array($v)) {
-						return $k . '(' . join(',', $v) . ')';
+						return Query::escape($k) . '(' . join(',', array_map('Query::escape', $v)) . ')';
 					}
-					return $k . ' AS \'' . $v . '\'';
+					return Query::escape($k) . ' AS \'' . Query::escape($v) . '\'';
 				}
 				return $v;
 			},
@@ -371,16 +371,16 @@ class Query extends App {
 		if(is_bool($var) || is_int($var)) {
 			return intval($var);
 		}
-		return $sep . self::escape($var) . $sep;
+		return self::escape($var, $sep);
 	}
 	
-	public static function escape($var) {
+	public static function escape($var, $sep='') {
 		//Databases::f('query', array($sql, $type));
 		//@todo change this.
 		if(is_bool($var) || is_int($var)) {
 			return intval($var);
 		}
-		return mysql_escape_string($var);
+		return $sep . mysql_escape_string($var)  . $sep;
 	}
 	
 	

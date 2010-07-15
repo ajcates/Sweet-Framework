@@ -140,7 +140,7 @@ class SweetModel extends App {
 				if(is_array($rfName = f_last($pullRel))) {
 					$rfName = f_last(f_last($pullRel));
 				}
-				$builtPulls[] = $model->_buildPull(join('_', f_push($pull, $with)), $pullRel, $on, $flName, $rfName);
+				$builtPulls[] = $model->_buildPull(join('$', f_push($pull, $with)), $pullRel, $on, $flName, $rfName);
 			}
 		}
 		
@@ -153,7 +153,7 @@ class SweetModel extends App {
 		//JOIN CODE:
 		
 		if(is_array($tableName)) {
-			$tableName = join('_', ($tableName));
+			$tableName = join('$', ($tableName));
 		}
 		
 		if(is_array($lfName)) {
@@ -168,7 +168,7 @@ class SweetModel extends App {
 		
 		//SELECT CODE:
 		foreach(array_keys($this->fields) as $field) {
-			$select[$pull . '.' . $field] = str_replace('_', '.', $pull) . '.' . $field;
+			$select[$pull . '.' . $field] = str_replace('$', '.', $pull) . '.' . $field;
 		}
 	//	D::log($select, 'built select');
 		return array(
@@ -201,6 +201,7 @@ class SweetModel extends App {
 		//foreach( as )
 		$returnItems = array();
 		$items = $this->_build();
+		//D::log($items, 'raw sweets');
 		if(!empty($items)) {
 			$i = 0;
 			$last = null;
@@ -218,6 +219,7 @@ class SweetModel extends App {
 					f_call(array($returnItems[$i], 'pass'), array($item));
 				} else {
 					$i++;
+					D::log($item, 'the item thing i need to trace and make sure its getting into the sweet rows');
 					$returnItems[$i] = new SweetRow($this, $item);
 					$last = $item->{$this->pk};
 				}
