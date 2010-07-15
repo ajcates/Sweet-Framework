@@ -74,7 +74,7 @@ class SweetModel extends App {
 		
 		//D::log(, 'query');
 		
-		return $this->lib('Query')->select($select)->join($join)->from($this->tableName, @$this->_buildOptions['limit'])->where($where)->results();
+		return $this->lib('Query')->select($select)->join($join)->from($this->tableName, @$this->_buildOptions['limit'])->where($where)->go()->getDriver();
 	}
 	
 	function _buildFind($find=array()) {
@@ -198,31 +198,18 @@ class SweetModel extends App {
 	}
 	
 	function all() {
-		//foreach( as )
 		$returnItems = array();
-		$items = $this->_build();
-		//D::log($items, 'raw sweets');
-		if(!empty($items)) {
-			$i = 0;
-			$last = null;
-			foreach($items as $item) {
-				
-				/*
-				if(array_key_exists($item->{$this->pk}, $returnItems)) {
-					f_call(array($returnItems[$item->{$this->pk}], 'pass'), array($item));
-				} else {
-					$returnItems[$item->{$this->pk}] = new SweetRow($this, $item);
-				}
-				*/
-				
-				if($item->{$this->pk} == $last) {
-					f_call(array($returnItems[$i], 'pass'), array($item));
-				} else {
-					$i++;
-					$returnItems[$i] = new SweetRow($this, $item);
-					$last = $item->{$this->pk};
-				}
-				
+		$i = 0;
+		$last = null;
+		$driver = $this->_build();
+	
+		while($item = $driver->fetch_object()) {
+			if($item->{$this->pk} == $last) {
+				f_call(array($returnItems[$i], 'pass'), array($item));
+			} else {
+				$i++;
+				$returnItems[$i] = new SweetRow($this, $item);
+				$last = $item->{$this->pk};
 			}
 		}
 	
