@@ -232,9 +232,12 @@ class Query extends App {
 	}
 	
 	function _buildOrderBy() {
-		if(isset($this->_orderBy)) {
+		D::log($this->_orderBy, 'orderby');
+		if(!empty($this->_orderBy)) {
 			return "\n" . ' ORDER BY ' . join(' , ', f_keyMap(
 				function($v, $k) {
+					D::log($v, '$v build');
+					D::log($k, '$k build');
 					return Query::escape($k) . ' ' . Query::escape($v);
 				},
 				$this->_orderBy

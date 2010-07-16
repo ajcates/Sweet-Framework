@@ -12,7 +12,7 @@ function f_call($func, $args=array()) {
 function f_callable($func) {
 	//helps turn methods into real functions.
 	if(!is_callable($func)) {
-        throw new Exception("Hey that's not a function!");
+        throw new Exception("Hey that's not a function! What kinda tricks you try'n to play hoe?");
     } 
     if(!is_array($func)) {
     	return $func;
@@ -240,16 +240,18 @@ function f_qsort($in) {
 
 
 function f_flatten($in) {
-	return f_reduce(
+	return array_reduce(
+		$in,
 		function($a, $b) {
 			if(is_array($a)) {
 				$a = f_flatten($a);
 			}
 			return array_merge((array)$a, (array)$b);
-		},
-		$in
+		}
 	);
 }
+
+
 //array_reduce(array input, callback function [, int initial])
 
 function f_untree($in) {

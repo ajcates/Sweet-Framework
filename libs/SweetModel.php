@@ -38,7 +38,8 @@ class SweetModel extends App {
 	}
 	
 	function sort() {
-		$this->_buildOptions['sort'] = func_get_args();
+		//)
+		$this->_buildOptions['sort'] = f_flatten(func_get_args());
 		return $this;
 	}
 	
@@ -72,9 +73,7 @@ class SweetModel extends App {
 			$where = $this->_buildFind($this->_buildOptions['find']);
 		}
 		
-		//D::log(, 'query');
-		
-		return $this->lib('Query')->select($select)->join($join)->from($this->tableName, @$this->_buildOptions['limit'])->where($where)->go()->getDriver();
+		return $this->lib('Query')->select($select)->join($join)->from($this->tableName, @$this->_buildOptions['limit'])->where($where)->orderBy(@$this->_buildOptions['sort'])->go()->getDriver();
 	}
 	
 	function _buildFind($find=array()) {
