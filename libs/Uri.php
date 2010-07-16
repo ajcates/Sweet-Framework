@@ -70,8 +70,12 @@ class Uri extends App {
 		if(!SweetFramework::loadFileType('controller', $class)) {
 			D::error('No Controller Found');
 		}
-
-		$page = $this->loadUrl($class::$urlPattern, $this->count);
+		if(!empty($class::$urlPattern)) {
+			$page = $this->loadUrl($class::$urlPattern, $this->count);
+		} else {
+			$page = $this->loadUrl(array(), $this->count);
+		}
+		
 		
 		if(is_array(f_last($page))) {
 			if(is_array( f_first(f_last($page)) )) {
