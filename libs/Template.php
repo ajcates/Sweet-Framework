@@ -72,9 +72,6 @@ class Template extends App {
 	}
 	
 	public function __get($name) {
-		if($name == 'navLocation') {
-			D::log($this->data, 'nav data');
-		}
 		return $this->data[$name];
 	}
 	

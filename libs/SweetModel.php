@@ -158,7 +158,7 @@ class SweetModel extends App {
 		if(is_array($lfName)) {
 			//D::log($pull, '$pull aka $k');
 			//D::log($lfName, 'lfName');
-			D::stack();
+			D::stack('is_array($lfName)');
 		}
 		
 		$join[$this->tableName . ' AS ' . $pull] = array(
@@ -257,7 +257,7 @@ class SweetRow {
 			ability to save data back into the db
 				do this keep edited data sperate main data
 	*/
-	protected $_data = array();
+	public $_data = array();
 	private $_errors = array();
 	private $_model;
 	

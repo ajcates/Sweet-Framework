@@ -9,6 +9,19 @@ function chain($baseItem, $items=array()) {
 }
 */
 
+//print_r( get_tree_arr3(LOC . '/app'), true)
+function get_tree_arr1( $dr = '', $tree = array() ) {
+	foreach((array) glob($dr . '*') as $fl ) {
+		$fl_nice = str_replace( dirname( $fl ).'/' , '' , $fl );
+		if ( is_dir( $fl ) ) { //if there's a dir, go deeper
+			$tree[ $fl_nice ] = get_tree_arr1( $fl . '*/'); 
+		} else {
+			$tree[] = $fl_nice ;
+		}
+    }
+	return $tree;
+}
+
 function chain($baseItem, $items=array()) {
 	if(!empty($items)) {
 		return chain($baseItem->{f_first($items)}, f_rest($items));	
@@ -52,10 +65,11 @@ function properJsonDecode($json) {
 	return $return;
 }
 
-function foxy_utf8_to_nce($utf = '') { 
+function foxy_utf8_to_nce($utf = '') {
+	//Orignally written by limalopex.eisfux.de - http://us2.php.net/manual/en/function.imagettftext.php#57416
 	if(empty($utf)) {
 		return($utf);
-	}  
+	}
 
 	$max_count = 5; // flag-bits in $max_mark ( 1111 1000 == 5 times 1) 
 	$max_mark = 248; // marker for a (theoretical ;-)) 5-byte-char and mask for a 4-byte-char; 
