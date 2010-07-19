@@ -16,3 +16,8 @@ Testing
 -------
 - Test the latest version against my Sweet-Dashboard application
 - Start building out unit tests
+
+
+SweetORM
+--------
+- relatives() function for SweetRow objects
