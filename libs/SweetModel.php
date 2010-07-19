@@ -44,6 +44,7 @@ class SweetModel extends App {
 	}
 	
 	function pull() {
+		//What am I gonna do here? id you just call pull() with out anything the world flips as it makes an array with 1 flipping null item.
 		$this->_buildOptions['pull'] = func_get_args();
 		return $this;
 	}
@@ -63,7 +64,8 @@ class SweetModel extends App {
 		foreach(array_keys($this->fields) as $field) {
 			$select[] = $this->tableName . '.' . $field;
 		}
-		if(array_key_exists('pull', $this->_buildOptions)) {
+		//array_key_exists('pull', $this->_buildOptions) && 
+		if(!empty($this->_buildOptions['pull'])) {
 			foreach($this->_buildPulls($this->_buildOptions['pull'], $this->tableName) as $build) {
 				$join += (array)$build['join'];
 				$select += (array)$build['select'];
@@ -91,6 +93,7 @@ class SweetModel extends App {
 	}
 	
 	function _buildPulls($pulls, $on=null, $with=array()) {
+		D::log($pulls, '$pulls');
 		$builtPulls = array();
 		foreach($pulls as $k => $pull) {
 			if(is_string($k)) {
@@ -126,6 +129,7 @@ class SweetModel extends App {
 					continue;
 				}
 				//regular join
+				D::log($pull, '$pull');
 				$pullRel = $this->relationships[$pull];
 				
 				if(is_string($fKey = f_first(array_keys($pullRel)) )) {
@@ -257,17 +261,17 @@ class SweetRow {
 			ability to save data back into the db
 				do this keep edited data sperate main data
 	*/
-	public $_data = array();
-	private $_errors = array();
-	private $_model;
+	public $__data = array();
+	public $__errors = array();
+	public $__model;
 	
 	function __construct($model, $item) {
-		$this->_data[] = $item;
-		$this->_model = $model;
+		$this->__data[] = $item;
+		$this->__model = $model;
 	}
 	
 	function pass($item) {
-		$this->_data[] = $item; 
+		$this->__data[] = $item; 
 	}
 	
 	function __set($var, $value) {
@@ -331,11 +335,11 @@ class SweetRow {
 				- m2m relationships are backwards fk relationships. they already work.
 		*/
 		//)
-		if(property_exists($this->_model, 'relationships') && array_key_exists($var, $this->_model->relationships)) {
+		if(property_exists($this->__model, 'relationships') && array_key_exists($var, $this->__model->relationships)) {
 			////// KEYS:
 			$varL = strlen($var);
 			$keys = array_filter(
-				array_keys((array)f_first($this->_data)),
+				array_keys((array)f_first($this->__data)),
 				function($k) use($var, $varL) {
 					return ($var == substr($k, 0, $varL));
 				}
@@ -343,12 +347,12 @@ class SweetRow {
 			//D::log($keys, 'keys');
 			
 			$varL++;
-			$pullRel = $this->_model->relationships[$var];
+			$pullRel = $this->__model->relationships[$var];
 			
 			if(is_string($fKey = f_first(array_keys($pullRel)) )) {
 				//m2m
 				$model = SweetFramework::getClass('model', f_first($pullRel[$fKey]));
-				foreach($this->_data as $row) {
+				foreach($this->__data as $row) {
 					$item = new stdClass();
 					foreach($keys as $key) {
 						//D::log(substr($key, $varL), 'subkey');
@@ -362,7 +366,7 @@ class SweetRow {
 				$model = SweetFramework::getClass('model', f_first($pullRel));
 				$last = null;
 				$returnItems = array();
-				foreach($this->_data as $row) {
+				foreach($this->__data as $row) {
 					$item = new stdClass();
 					foreach($keys as $key) {
 						if($subKey = substr($key, $varL)) {
@@ -443,8 +447,8 @@ if(!isset($model->pk)) {
 			
 			//$fields = array_keys( SweetFramework::getClass('model', f_first($pullRel[$fKey]) )->fields ) //SweetFramework::getClass('model', f_first($pullRel[$fKey]) )->relationships;
 			//
-		} else if(array_key_exists($var, $this->_model->fields)) {
-			return f_first($this->_data)->$var;
+		} else if(array_key_exists($var, $this->__model->fields)) {
+			return f_first($this->__data)->$var;
 		}
 		/*
 		$model = $this->_model;
@@ -503,7 +507,7 @@ if(!isset($model->pk)) {
 	}
 	
 	public function delete() {
-		return $this->_model->find($this->_model->pk)->delete();
+		return $this->__model->find($this->__model->pk)->delete();
 	}
 }
 

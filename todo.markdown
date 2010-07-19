@@ -20,4 +20,7 @@ Testing
 
 SweetORM
 --------
-- relatives() function for SweetRow objects
+- !Fix the array(null) bug that happens because buildOptions['pull'] is loaded with func_get_args()
+
+# relatives() function for SweetRow objects
+	//made the sweetrow's model public instead

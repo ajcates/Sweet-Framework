@@ -143,12 +143,12 @@ class D {
 				"\n",
 				array_reverse(array_map(
 					function($v) {
-						return $v['function'] . '()' . "\n----> " . substr(@$v['file'], strlen(LOC)) . ': ' . @$v['line'];
+						return ' ' . $v['function'] . '();' . "\n    →" . substr(substr(@$v['file'], strlen(LOC)), 1, -4) . ' | line:' . @$v['line'];
 					},
 					debug_backtrace()
 				))
 			),
-			$label . ' - Stack Trace: '
+			$label . ' - Stack Trace'
 		);
 	}
 
