@@ -40,11 +40,13 @@ class Uri extends App {
 		define('URL', $this->protocol . '://' . $this->domain . substr($folder, 0, strrpos($folder, '/')) . '/');
 		
 		
+		
 		if($this->lib('Config')->get('site', 'prettyUrls')) {
 			define('SITE_URL', URL);
 		} else {
 			define('SITE_URL', URL . '?');
 		}
+		$this->contorllerFile = $this->libs->Config->get('site', 'mainController');
 	}
 	
 	function callRoute($request=null) {
@@ -56,7 +58,7 @@ class Uri extends App {
 		echo f_call($this->loadController());
 	}
 		
-	var $contorllerFile = 'Main.php';
+	var $contorllerFile;
 	var $count = 0;
 	var $contorller;
 	
@@ -202,15 +204,11 @@ class Uri extends App {
 	}
 	
 	function getPart($index) {
-		if(!isset($this->uriArray[$index])) {
-			//@todo make the E::warn() work to warn people when they could be coding something bad.
-			return null;
-		}
-		return $this->uriArray[$index];
+		return isset($this->uriArray[$index]) ? $this->uriArray[$index] : null;
 	}
 	
 	function get($index) {
-		return f_first((array)$this->getPart($index));
+		return $this->getPart($index);
 	}
 	
 	function getArray() {

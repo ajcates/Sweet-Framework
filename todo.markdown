@@ -24,3 +24,7 @@ SweetORM
 
 # relatives() function for SweetRow objects
 	//made the sweetrow's model public instead
+
+Config Library
+--------------
+- Fix the way the app settings are loaded in.
