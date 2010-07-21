@@ -42,6 +42,10 @@ function same($a, $b) {
 	return ($a == $b);
 }
 
+function gravatar($email, $options=null) {
+	return 'http://www.gravatar.com/avatar/' . md5(strtolower($email)) . '?' . http_build_query(isset($options) ? $options : array('s' => 50, 'd' => 'identicon', 'r' => 'g'));
+}
+
 function properJsonDecode($json) {
 	//maybe if we check something on the left we can validate that the value on the right is actaully a value and not part of a string.
 	$return = json_decode(D::log(preg_replace('@"(\w*)"\s*:\s*(-?\d{9,})\s*([,|\}])@', '"$1":"$2"$3', $json), 'raw json') );
