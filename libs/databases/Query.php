@@ -272,6 +272,7 @@ class Query extends App {
 	}
 	
 	function _buildSet($values, $separator='=') {
+		D::log($values, 'buildset values');
 		return join(
 			', ',
 			f_keyMap(

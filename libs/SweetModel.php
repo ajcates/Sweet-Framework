@@ -8,7 +8,11 @@ class SweetModel extends App {
 		$this->lib('Query');
 	}
 	
-	var $_buildOptions = array();
+	var $_buildOptions = array(
+		'saveMode' => 'update',
+		'find' => array(),
+		'update' => array()
+	);
 	
 	function find() {
 		$this->_buildOptions['find'] = D::log(func_get_args(), 'find args');
@@ -45,7 +49,7 @@ class SweetModel extends App {
 	
 	function pull() {
 		//What am I gonna do here? id you just call pull() with out anything the world flips as it makes an array with 1 flipping null item.
-		$this->_buildOptions['pull'] = func_get_args();
+		$this->_buildOptions['pull'] = array_filter(func_get_args());
 		return $this;
 	}
 	
@@ -55,12 +59,13 @@ class SweetModel extends App {
 	}
 	
 	function update() {
-		$this->_buildOptions['update'] = func_get_args();
+		$this->_buildOptions['update'] = f_flatten(func_get_args());
+		$this->_buildOptions['savemode'] = 'update';
 		return $this;
 	}
 	
 	function _build() {
-		$where = $join = $select = array();
+		$join = $select = array();
 		foreach(array_keys($this->fields) as $field) {
 			$select[] = $this->tableName . '.' . $field;
 		}
@@ -71,11 +76,10 @@ class SweetModel extends App {
 				$select += (array)$build['select'];
 			}
 		}
-		if(array_key_exists('find', $this->_buildOptions)) {
-			$where = $this->_buildFind($this->_buildOptions['find']);
-		}
+		//if(array_key_exists('find', $this->_buildOptions)) {
+			//$where = $this->_buildFind($this->_buildOptions['find']);
 		
-		return $this->lib('Query')->select($select)->join($join)->from($this->tableName, @$this->_buildOptions['limit'])->where($where)->orderBy(@$this->_buildOptions['sort'])->go()->getDriver();
+		return $this->lib('Query')->select($select)->join($join)->from($this->tableName, @$this->_buildOptions['limit'])->where($this->_buildFind($this->_buildOptions['find']))->orderBy(@$this->_buildOptions['sort'])->go()->getDriver();
 	}
 	
 	function _buildFind($find=array()) {
@@ -93,7 +97,7 @@ class SweetModel extends App {
 	}
 	
 	function _buildPulls($pulls, $on=null, $with=array()) {
-		D::log($pulls, '$pulls');
+		//D::log($pulls, '$pulls');
 		$builtPulls = array();
 		foreach($pulls as $k => $pull) {
 			if(is_string($k)) {
@@ -181,7 +185,10 @@ class SweetModel extends App {
 	}
 	
 	function save() {
-		
+		if($this->_buildOptions['savemode'] == 'update') {
+			return $this->lib('Query')->update($this->tableName)->where($this->_buildFind($this->_buildOptions['find']))->set($this->_buildOptions['update'])->go();
+		}
+		return false;
 	}
 	
 	function create($item) {

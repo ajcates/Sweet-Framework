@@ -239,6 +239,7 @@ function f_qsort($in) {
 }
 
 
+/*
 function f_flatten($in) {
 	return array_reduce(
 		$in,
@@ -249,6 +250,28 @@ function f_flatten($in) {
 			return array_merge((array)$a, (array)$b);
 		}
 	);
+}
+
+function array_flatten($a,$f=array()){
+  if(!$a||!is_array($a))return '';
+  foreach($a as $k=>$v){
+    if(is_array($v))$f=array_flatten($v,$f);
+    else $f[$k]=$v;
+  }
+  return $f;
+}
+*/
+
+function f_flatten($a, $f=array()){
+	if(!$a || !is_array($a)) return $a;
+	foreach($a as $k=>$v) {
+		if(is_array($v)) {
+			$f = array_merge(f_flatten($v), $f);
+		} else {
+			$f[$k] = $v;
+		}
+	}
+	return $f;
 }
 
 
