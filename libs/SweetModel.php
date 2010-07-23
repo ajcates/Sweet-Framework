@@ -297,6 +297,111 @@ class SweetRow {
 		*/
 	}
 	
+	function export($skip=null) {
+		$item = array();
+		
+		foreach(array_keys(array_merge($this->__model->fields, $this->__model->relationships)) as $field) {
+			//$item->$field = $this->$field;
+			if($field == $skip) {
+				D::log($skip, 'GGGGGGGGGGGGGGGRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR');
+				continue;
+			}
+			
+			D::stack('!isset feild= ' . $field . ' - ' . $this->__model->tableName);
+			
+			$o = $this->__get($field);
+			
+			if(is_scalar($o)) {
+				$item[$field] = $o;
+			} else {
+				if(is_a($o, 'SweetRow')) {
+					
+					$item[$field] = $o->export();
+				} elseif(is_array($o)) {
+					//D::show('what the truc');
+					//D::log($o, 'OOOO');
+					
+					$eskip = f_last($this->__model->relationships[$field][$this->__model->pk]);
+					
+					
+					$item[$field] = array_map(
+						function($v) use ($field, $eskip) {
+							
+							//D::show($field);
+							//D::log(gettype($v), 'vtype');
+							
+							/*
+D::log($v->__model->relationships, 'relationships');
+							D::log($v->__model->fields, 'fields');
+							
+							
+							if(is_a($v, 'SweetRow')) {
+								D::log(array_keys(array_merge($v->__model->fields, $v->__model->relationships)), 'WTTTTTTTTTTTTTTTFFFFFFFFFFFFFFFF');
+							}
+*/							D::log($v->__data, 'pppppdata');
+							//D::log($v->page, 'pppppppppage');							
+							//return $v->tag->name;
+							return $v->export($eskip);
+						},
+						$o
+					);
+					
+					
+					/*
+					foreach($o as $v) {
+						$item[$field][] = $v->__model->fields;
+					}
+					*/
+					
+					
+					
+					//Lets say that SweetRows can only have arrays of other SweetRows
+					//most likely a flipping array
+				} else {
+					//mixed var)
+					D::show('fup' . gettype($o) . ' ' . $field);
+					//D::warn('OMG something in the fields list was Scalar and NOT an array or a SweetRow');
+				}
+			//	if($o)
+			}
+			
+			//if($item->)
+		}
+		
+		//How do you add tags to a page item
+		
+			//Every pagetag you want to add needs a refernce to a tag and a user.
+			
+			
+			
+		
+		
+		//$item->save();
+		
+		
+		D::log($item, 'export data');
+		return $item;
+		
+		
+		/*
+		
+		
+		$rArray = array();
+		foreach($this->_data as $k => $v) {
+			if(is_scalar($v)) {
+				$rArray[$k] = $v;
+			} else if(method_exists($v, 'export')) {
+				$rArray[$k] = $v->export();
+			} else {
+				$rArray[$k] = gettype($v);
+			}
+		}
+		
+		return $rArray;
+
+		 		 */
+	}
+	
 	function __get($var) {
 		/* 
 		ORM TODO:
@@ -372,13 +477,13 @@ class SweetRow {
 			} else {
 				$model = SweetFramework::getClass('model', f_first($pullRel));
 				$last = null;
-				$returnItems = array();
+			//	$returnItems = array();
 				foreach($this->__data as $row) {
 					$item = new stdClass();
 					foreach($keys as $key) {
 						if($subKey = substr($key, $varL)) {
-							$item->$subKey = $row->$key;	
-						}	
+							$item->$subKey = $row->$key;
+						}
 					}
 					if(isset($returnItem) && $returnItem->{$model->pk} == $last) {
 						$returnItem->pass($item);
@@ -386,6 +491,8 @@ class SweetRow {
 					} else {
 						$returnItem = new SweetRow($model, $item);
 						$last = $item->{$model->pk};
+						
+						
 					}
 					
 					//$return[] = $r;
