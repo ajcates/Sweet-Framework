@@ -212,13 +212,13 @@ class SweetModel extends App {
 		$i = 0;
 		$last = null;
 		$driver = $this->_build();
-	
+		//$pullRefernce = ;
 		while($item = $driver->fetch_object()) {
 			if($item->{$this->pk} == $last) {
 				f_call(array($returnItems[$i], 'pass'), array($item));
 			} else {
 				$i++;
-				$returnItems[$i] = new SweetRow($this, $item);
+				$returnItems[$i] = new SweetRow($this, $item, $this->_buildOptions['pull']);
 				$last = $item->{$this->pk};
 			}
 		}
@@ -270,11 +270,15 @@ class SweetRow {
 	*/
 	public $__data = array();
 	public $__errors = array();
+	public $__pull; 
 	public $__model;
 	
-	function __construct($model, $item) {
+	function __construct($model, $item, $pull=array()) {
 		$this->__data[] = $item;
 		$this->__model = $model;
+		$this->__pull = $pull;
+		
+		D::log($this->__pull, 'sweet row pull');
 	}
 	
 	function pass($item) {
@@ -298,12 +302,16 @@ class SweetRow {
 	}
 	
 	function export($skip=null) {
-		$item = array();
 		
+		if(isEmpty(f_first($this->__data))) {
+			D::log('data is on export is EMPTY');
+			return null;
+		}
+		$item = array();
 		foreach(array_keys(array_merge($this->__model->fields, $this->__model->relationships)) as $field) {
 			//$item->$field = $this->$field;
 			if($field == $skip) {
-				D::log($skip, 'GGGGGGGGGGGGGGGRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR');
+				D::log($skip, 'GGGGGGGGGGGGGGGRR-skip-RRRRRRRRRRRRRRRR');
 				continue;
 			}
 			
@@ -338,10 +346,19 @@ D::log($v->__model->relationships, 'relationships');
 							if(is_a($v, 'SweetRow')) {
 								D::log(array_keys(array_merge($v->__model->fields, $v->__model->relationships)), 'WTTTTTTTTTTTTTTTFFFFFFFFFFFFFFFF');
 							}
-*/							D::log($v->__data, 'pppppdata');
+*/							D::log($v->__data, 'field:' . $field . ' - __data');
 							//D::log($v->page, 'pppppppppage');							
 							//return $v->tag->name;
-							return $v->export($eskip);
+							
+							
+							if(is_a($v, 'SweetRow')) {					
+								return $v->export($eskip);
+							} elseif(!empty($v)) {
+								return $v;
+							} else {
+								return null;
+							}
+							
 						},
 						$o
 					);
@@ -447,6 +464,10 @@ D::log($v->__model->relationships, 'relationships');
 				- m2m relationships are backwards fk relationships. they already work.
 		*/
 		//)
+		if(isEmpty(f_first($this->__data))) {
+			D::log('data is EMPTY');
+			return null;
+		}
 		if(property_exists($this->__model, 'relationships') && array_key_exists($var, $this->__model->relationships)) {
 			////// KEYS:
 			$varL = strlen($var);
@@ -471,7 +492,7 @@ D::log($v->__model->relationships, 'relationships');
 						$item->{substr($key, $varL)} = $row->$key;
 					}
 					//D::log($item, 'm2m item');
-					$returnItems[] = new SweetRow($model, $item);
+					$returnItems[] = new SweetRow($model, $item, &$this->__pull[$var]);
 				}
 				return $returnItems;
 			} else {
@@ -489,7 +510,7 @@ D::log($v->__model->relationships, 'relationships');
 						$returnItem->pass($item);
 						//f_call(array($returnItem, 'pass'), array($item));
 					} else {
-						$returnItem = new SweetRow($model, $item);
+						$returnItem = new SweetRow($model, $item, &$this->__pull[$var]);
 						$last = $item->{$model->pk};
 						
 						

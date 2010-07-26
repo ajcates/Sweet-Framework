@@ -75,6 +75,7 @@ class Session extends App {
 	}
 	
 	function getCheckString($uid) {
+		//return hash_hmac($this->libs->Config->get('Session', 'hashFunction'), $checkString, $this->libs->Config->get('Session', 'cookieSecret'));
 		return $uid . '_' . join('', $this->libs->Config->get('Session', 'use'));
 	}
 	function encryptCheckString($checkString) {
