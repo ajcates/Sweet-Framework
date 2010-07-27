@@ -247,11 +247,6 @@ class SweetRow {
 			- how do i tell what pull was called?
 		- How do i update things with out pk's?
 	- How do i get rid of null tags?
-		
-	
-	
-	
-	
 	////////
 	
 		what if I came up with the concept of sweet data?
@@ -279,8 +274,6 @@ class SweetRow {
 		$this->__data[] = $item;
 		$this->__model = $model;
 		$this->__pull = $pull;
-		
-		D::log($this->__pull, 'sweet row pull');
 	}
 	
 	function pass($item) {
@@ -314,43 +307,29 @@ class SweetRow {
 	}
 	
 	function export() {
-		
+		/*
 		if(isEmpty(f_first($this->__data))) {
 			D::log('data is on export is EMPTY');
 			return null;
 		}
+		*/
 		$item = array();
 		//$this->__model->relationships
 		//array_values()
 		foreach(array_keys($this->__model->fields) as $field) {
 			//$item->$field = $this->$field;
-			
-			D::stack('!isset feild= ' . $field . ' - ' . $this->__model->tableName);
-			
 			$o = $this->__get($field);
-			
-			if(is_scalar($o)) {
-				$item[$field] = $o;
-			} else {
-				if(is_a($o, 'SweetRow')) {
-					$item[$field] = $o->export();
-				} elseif(is_array($o)) {					
-					$item[$field] = array_map(
-						function($v) {
-							if(is_a($v, 'SweetRow')) {					
-								return $v->export();
-							} elseif(!empty($v)) {
-								return $v;
-							} else {
-								return null;
-							}
-						},
-						$o
-					);
+			if(isset($o)) {			
+				if(is_scalar($o)) {
+					$item[$field] = $o;
 				} else {
-					//mixed var)
-					D::show('fup' . gettype($o) . ' ' . $field);
-					//D::warn('OMG something in the fields list was Scalar and NOT an array or a SweetRow');
+					if(is_a($o, 'SweetRow')) {
+						$item[$field] = $o->export();
+					} elseif(is_array($o)) {					
+						$item[$field] = array_map('SweetRow::mapExport', $o);
+					} else {
+						D::show('sweet model fup = ' . gettype($o) . ' ' . $field . B::br());
+					}
 				}
 			}
 		}
@@ -368,49 +347,16 @@ class SweetRow {
 			}
 			$o = $this->__get($p);
 			
-			
-			
-			
 			if(is_a($o, 'SweetRow')) {
 				$item[$p] = $o->export();
 			} elseif(is_array($o)) {					
-				$item[$p] = array_map(
-					function($v) {					
-						if(is_a($v, 'SweetRow')) {					
-							return $v->export();
-						} elseif(!empty($v)) {
-							return $v;
-						} else {
-							return null;
-						}
-					},
-					$o
-				);
+				$item[$p] = array_map('SweetRow::mapExport', $o);
 			}
 			
 		}
 		
-		D::log($item, 'export data');
+		//D::log($item, 'export data');
 		return $item;
-		
-		
-		/*
-		
-		
-		$rArray = array();
-		foreach($this->_data as $k => $v) {
-			if(is_scalar($v)) {
-				$rArray[$k] = $v;
-			} else if(method_exists($v, 'export')) {
-				$rArray[$k] = $v->export();
-			} else {
-				$rArray[$k] = gettype($v);
-			}
-		}
-		
-		return $rArray;
-
-		 		 */
 	}
 	
 	function __get($var) {
@@ -458,10 +404,6 @@ class SweetRow {
 				- m2m relationships are backwards fk relationships. they already work.
 		*/
 		//)
-		if(isEmpty(f_first($this->__data))) {
-			D::log('data is EMPTY');
-			return null;
-		}
 		if(!empty($this->__pull) && (array_key_exists($var, $this->__pull) || in_array($var, $this->__pull)) ) {
 			
 			////// KEYS:
@@ -509,88 +451,14 @@ class SweetRow {
 					} else {
 						//if()
 						$returnItem = new SweetRow($model, $item, $pull);
-						$last = $item->{$model->pk};
-						
-						
+						$last = $item->{$model->pk};	
 					}
-					
-					//$return[] = $r;
 				}
 				return $returnItem;
 			}
-			
-			/*
-if(!isset($model->pk)) {
-				foreach($this->_data as $row) {
-					$item = new stdClass();
-					foreach($keys as $key) {
-						D::log(substr($key, $varL), 'subkey');
-						$item->{substr($key, $varL)} = $row->$key;
-					}
-					$returnItems[] = new SweetRow($model, $item);
-				}
-			} else {
-				foreach($this->_data as $row) {
-					$item = new stdClass();
-					foreach($keys as $key) {
-						if($subKey = substr($key, $varL)) {
-							$item->$subKey = $row->$key;	
-						}	
-					}
-					if($item->{$model->pk} == $last) {
-						f_call(array($returnItems[$i], 'pass'), array($item));
-					} else {
-						$i++;
-						$returnItems[$i] = new SweetRow($model, $item);
-						$last = $item->{$model->pk};
-					}
-					
-					//$return[] = $r;
-				}
-			}
-			
-			if(count($returnItems) > 1) {
-				D::log($var, 'var many');
-				return $returnItems;
-			} else {
-				D::log($var, 'var single');
-				return f_first($returnItems);
-			}
-*/
-			
-			
-			/*
-			$i = 0;
-			$last = null;
-			foreach($return as $item) {
-			
-				if($item->{$this->pk} == $last) {
-					f_call(array($returnItems[$i], 'pass'), array($item));
-				} else {
-					$i++;
-					$returnItems[$i] = new SweetRow($this, $item);
-					$last = $item->{$this->pk};
-				}
-			
-			}
-			*/
-			
-		//	D::log($newSweetRow, '$newSweetRow');
-			////////////
-			
-			//$fields = array_keys( SweetFramework::getClass('model', f_first($pullRel[$fKey]) )->fields ) //SweetFramework::getClass('model', f_first($pullRel[$fKey]) )->relationships;
-			//
 		} else if(array_key_exists($var, $this->__model->fields)) {
 			return f_first($this->__data)->$var;
 		}
-		/*
-		$model = $this->_model;
-		if(method_exists($this->getLibrary(f_first($model::$objects[$var])), 'get_' . $model::$objects[$var][1])) {
-    		return $this->getLibrary(f_first($model::$objects[$var]))->{'get_' . $model::$objects[$var][1]}($this->_data[$var], f_last($model::$objects[$var]) );
-    	}
-    	
-		return $this->_data[$var];
-		*/
 	}
 	
 	function __call($var, $args=array()) {
