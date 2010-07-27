@@ -212,13 +212,15 @@ class SweetModel extends App {
 		$i = 0;
 		$last = null;
 		$driver = $this->_build();
+		
+		$pull = f_untree($this->_buildOptions['pull']);
 		//$pullRefernce = ;
 		while($item = $driver->fetch_object()) {
 			if($item->{$this->pk} == $last) {
 				f_call(array($returnItems[$i], 'pass'), array($item));
 			} else {
 				$i++;
-				$returnItems[$i] = new SweetRow($this, $item, $this->_buildOptions['pull']);
+				$returnItems[$i] = new SweetRow($this, $item, $pull);
 				$last = $item->{$this->pk};
 			}
 		}
@@ -301,19 +303,27 @@ class SweetRow {
 		*/
 	}
 	
-	function export($skip=null) {
+	static function mapExport($v) {
+		if(is_a($v, 'SweetRow')) {					
+			return $v->export();
+		} elseif(!empty($v)) {
+			return $v;
+		} else {
+			return null;
+		}
+	}
+	
+	function export() {
 		
 		if(isEmpty(f_first($this->__data))) {
 			D::log('data is on export is EMPTY');
 			return null;
 		}
 		$item = array();
-		foreach(array_keys(array_merge($this->__model->fields, $this->__model->relationships)) as $field) {
+		//$this->__model->relationships
+		//array_values()
+		foreach(array_keys($this->__model->fields) as $field) {
 			//$item->$field = $this->$field;
-			if($field == $skip) {
-				D::log($skip, 'GGGGGGGGGGGGGGGRR-skip-RRRRRRRRRRRRRRRR');
-				continue;
-			}
 			
 			D::stack('!isset feild= ' . $field . ' - ' . $this->__model->tableName);
 			
@@ -323,78 +333,62 @@ class SweetRow {
 				$item[$field] = $o;
 			} else {
 				if(is_a($o, 'SweetRow')) {
-					
 					$item[$field] = $o->export();
-				} elseif(is_array($o)) {
-					//D::show('what the truc');
-					//D::log($o, 'OOOO');
-					
-					$eskip = f_last($this->__model->relationships[$field][$this->__model->pk]);
-					
-					
+				} elseif(is_array($o)) {					
 					$item[$field] = array_map(
-						function($v) use ($field, $eskip) {
-							
-							//D::show($field);
-							//D::log(gettype($v), 'vtype');
-							
-							/*
-D::log($v->__model->relationships, 'relationships');
-							D::log($v->__model->fields, 'fields');
-							
-							
-							if(is_a($v, 'SweetRow')) {
-								D::log(array_keys(array_merge($v->__model->fields, $v->__model->relationships)), 'WTTTTTTTTTTTTTTTFFFFFFFFFFFFFFFF');
-							}
-*/							D::log($v->__data, 'field:' . $field . ' - __data');
-							//D::log($v->page, 'pppppppppage');							
-							//return $v->tag->name;
-							
-							
+						function($v) {
 							if(is_a($v, 'SweetRow')) {					
-								return $v->export($eskip);
+								return $v->export();
 							} elseif(!empty($v)) {
 								return $v;
 							} else {
 								return null;
 							}
-							
 						},
 						$o
 					);
-					
-					
-					/*
-					foreach($o as $v) {
-						$item[$field][] = $v->__model->fields;
-					}
-					*/
-					
-					
-					
-					//Lets say that SweetRows can only have arrays of other SweetRows
-					//most likely a flipping array
 				} else {
 					//mixed var)
 					D::show('fup' . gettype($o) . ' ' . $field);
 					//D::warn('OMG something in the fields list was Scalar and NOT an array or a SweetRow');
 				}
-			//	if($o)
+			}
+		}
+		//How do you add tags to a page item
+			//Every pagetag you want to add needs a refernce to a tag and a user.		
+		//$item->save();
+		foreach($this->__pull as $pkey => $p) {
+			if(is_string($pkey)) {
+				$p = $pkey;
+			} elseif(is_array($p)) {
+				continue;
+			}
+			if(array_key_exists($p, $item)) {
+				continue;
+			}
+			$o = $this->__get($p);
+			
+			
+			
+			
+			if(is_a($o, 'SweetRow')) {
+				$item[$p] = $o->export();
+			} elseif(is_array($o)) {					
+				$item[$p] = array_map(
+					function($v) {					
+						if(is_a($v, 'SweetRow')) {					
+							return $v->export();
+						} elseif(!empty($v)) {
+							return $v;
+						} else {
+							return null;
+						}
+					},
+					$o
+				);
 			}
 			
-			//if($item->)
 		}
-		
-		//How do you add tags to a page item
-		
-			//Every pagetag you want to add needs a refernce to a tag and a user.
-			
-			
-			
-		
-		
-		//$item->save();
-		
 		
 		D::log($item, 'export data');
 		return $item;
@@ -468,7 +462,8 @@ D::log($v->__model->relationships, 'relationships');
 			D::log('data is EMPTY');
 			return null;
 		}
-		if(property_exists($this->__model, 'relationships') && array_key_exists($var, $this->__model->relationships)) {
+		if(!empty($this->__pull) && (array_key_exists($var, $this->__pull) || in_array($var, $this->__pull)) ) {
+			
 			////// KEYS:
 			$varL = strlen($var);
 			$keys = array_filter(
@@ -481,10 +476,12 @@ D::log($v->__model->relationships, 'relationships');
 			
 			$varL++;
 			$pullRel = $this->__model->relationships[$var];
+			$pull = array_key_exists($var, $this->__pull) ? $this->__pull[$var] : array();
 			
 			if(is_string($fKey = f_first(array_keys($pullRel)) )) {
 				//m2m
 				$model = SweetFramework::getClass('model', f_first($pullRel[$fKey]));
+				
 				foreach($this->__data as $row) {
 					$item = new stdClass();
 					foreach($keys as $key) {
@@ -492,7 +489,7 @@ D::log($v->__model->relationships, 'relationships');
 						$item->{substr($key, $varL)} = $row->$key;
 					}
 					//D::log($item, 'm2m item');
-					$returnItems[] = new SweetRow($model, $item, &$this->__pull[$var]);
+					$returnItems[] = new SweetRow($model, $item, $pull);
 				}
 				return $returnItems;
 			} else {
@@ -510,7 +507,8 @@ D::log($v->__model->relationships, 'relationships');
 						$returnItem->pass($item);
 						//f_call(array($returnItem, 'pass'), array($item));
 					} else {
-						$returnItem = new SweetRow($model, $item, &$this->__pull[$var]);
+						//if()
+						$returnItem = new SweetRow($model, $item, $pull);
 						$last = $item->{$model->pk};
 						
 						
