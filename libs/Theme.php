@@ -12,6 +12,20 @@ class T {
 	}
 }
 
+class V {
+	//view?
+	static function get($reallyHopeNoOneNamesThereVaribleThis, $values=array()) {
+		extract($values);
+		ob_start();
+		include(T::$loc . '/views/' . $reallyHopeNoOneNamesThereVaribleThis . '.php' );
+		return ob_get_clean();
+	}
+	public static function __callStatic($varName, $values=array()) {
+		return SweetFramework::getClass('lib', 'Template')->$varName;
+		//f_call(array(, 'get'), $args)
+	}
+}
+
 class Theme extends App {
 	
 	var $themeUrl;
@@ -50,11 +64,10 @@ class Theme extends App {
 	}
 	
 	function showView($name, $options=array()) {
-		extract($options);
-		require_once(T::$loc . 'snippets/' . $name . '.php' );
+		echo V::get($name, $options);
 	}
 	
-	function getView() {
-		
+	function getView($name, $options=array()) {
+		return V::get($name, $options);
 	}
 }

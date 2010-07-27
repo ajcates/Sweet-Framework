@@ -7,20 +7,6 @@ class M {
 	}
 }
 
-class V {
-	//view?
-	static function get($reallyHopeNoOneNamesThereVaribleThis, $values=array()) {
-		extract($values);
-		ob_start();
-		include(T::$loc . '/views/' . $reallyHopeNoOneNamesThereVaribleThis . '.php' );
-		return ob_get_clean();
-	}
-	public static function __callStatic($varName, $values=array()) {
-		return SweetFramework::getClass('lib', 'Template')->$varName;
-		//f_call(array(, 'get'), $args)
-	}
-}
-
 class B {
 	//get ya blocks!
 	
