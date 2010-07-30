@@ -5,7 +5,7 @@ class SweetModel extends App {
 	var $items;	
 	
 	function __construct() {
-		$this->lib('Query');
+		$this->lib('databases/Query');
 	}
 	
 	var $_buildOptions = array(
