@@ -41,20 +41,6 @@ class Query extends App {
 		$this->_driver = $this->lib('databases/Databases')->getCurrentDb();
 	}
 	
-	public function connect($config=null) {
-		/*
-		if(!isset($config)) {
-			$config = $this->lib->Config->get('Site', 'database');
-		}
-		if(is_string($config)) {
-			$config = $this->lib->Config->get('Databases', $config);
-		}
-		//@todo enable support for multiple drivers at one time
-		self::$_driver = $this->getLibrary('Databases/Drivers/' . $config['driver'] . '.php');
-		self::$_driver->connect($config);
-		*/
-	}
-	
 	function insert($values) {
 		$this->_insert = $values;
 		//D::show($this->_insert, 'Incert');
@@ -389,26 +375,33 @@ class Query extends App {
 	
 	
 	/*
-	->where()
-		$this->select('*')->where(array('item' => 5)) //SELECT * FROM table WHERE item = '5'
-		$this->select('*')->where(array('item' => 5, 'thing' => 'what')) //SELECT * FROM table WHERE item = '5' AND thing = 'what'
-		$this->select('*')->where(array('OR', 'item' => 5, 'thing' => 'what')) //SELECT * FROM table WHERE item = '5' OR thing = 'what'
-		$this->select('*')->where(array('item' => 5, 'thing' => 'what', '!=')) //SELECT * FROM table WHERE item != '5' OR thing != 'what'
-		$this->select('*')->where(array('item' => array('what', 'who')) //SELECT * FROM table WHERE item IN ('what', 'who')
+	- where()
+		- $this->select('*')->where(array('item' => 5))->from('table')
+			- //SELECT * FROM table WHERE item = '5'
+		- $this->select('*')->where(array('item' => 5, 'thing' => 'what'))->from('table')
+			- //SELECT * FROM table WHERE item = '5' AND thing = 'what'
+		- $this->select('*')->where(array('OR', 'item' => 5, 'thing' => 'what'))->from('table')
+			- //SELECT * FROM table WHERE item = '5' OR thing = 'what'
+		- $this->select('*')->where(array('item' => 5, 'thing' => 'what', '!='))->from('table')
+			- //SELECT * FROM table WHERE item != '5' OR thing != 'what'
+		- $this->select('*')->where(array('item' => array('what', 'who'))->from('table')
+			- //SELECT * FROM table WHERE item IN ('what', 'who')
 	
-	->join()
-		$this->select('*')->from('Club_RnD.dbo.Posts')->join('Club_RnD.dbo.Comments', array('Club_RnD.dbo.Posts.comments' => 'Club_RnD.dbo.Comments.id'))
-		//SELECT * FROM Club_RnD.dbo.Posts LEFT JOIN Club_RnD.dbo.Comments ON Club_RnD.dbo.Posts.comments = Club_RnD.dbo.Comments.id
-			//would a binary try be better for table.collumn name?
-		//$this->query->select('*')->from('Posts')->join('Club_RnD.dbo.Comments', array('Club_RnD.dbo.Posts.comments' => 'Club_RnD.dbo.Comments.id'));
+	- join()
+		- $this->select('*')->from('Club_RnD.dbo.Posts')->join('Club_RnD.dbo.Comments', array('Club_RnD.dbo.Posts.comments' => 'Club_RnD.dbo.Comments.id'))
+			- //SELECT * FROM Club_RnD.dbo.Posts LEFT JOIN Club_RnD.dbo.Comments ON Club_RnD.dbo.Posts.comments = Club_RnD.dbo.Comments.id
 	
-	->select()
-		$this->select('*') //SELECT *
-		$this->select('colName', 'otherCol') //SELECT colName, otherCol
-		$this->select(array('colName', 'otherCol')) //SELECT colName, otherCol
+	- select()
+		- $this->select('*')
+			- //SELECT *
+		- $this->select('colName', 'otherCol')
+			- //SELECT colName, otherCol
+		- $this->select(array('colName', 'otherCol'))
+			- //SELECT colName, otherCol
 	
 	->delete()
-		$this->delete() //DELETE FROM tableName
+		- $this->delete()->from('tableName')
+			- //DELETE FROM tableName
 	
 	->set()
 		$this->set(array('key' => 'value') //SET key = 'value'

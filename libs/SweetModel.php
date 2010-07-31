@@ -5,7 +5,7 @@ class SweetModel extends App {
 	var $items;	
 	
 	function __construct() {
-		$this->lib('Query');
+		$this->lib('databases/Query');
 	}
 	
 	var $_buildOptions = array(
@@ -213,7 +213,7 @@ class SweetModel extends App {
 		$last = null;
 		$driver = $this->_build();
 		
-		$pull = f_untree($this->_buildOptions['pull']);
+		$pull = f_untree((array)@$this->_buildOptions['pull']);
 		//$pullRefernce = ;
 		while($item = $driver->fetch_object()) {
 			if($item->{$this->pk} == $last) {
@@ -226,6 +226,15 @@ class SweetModel extends App {
 		}
 	
 		return array_values($returnItems);
+	}
+	
+	function export() {
+		return array_map(
+			function($r) {
+				return $r->export();
+			},
+			$this->all()
+		);
 	}
 	
 	function one() {
@@ -336,23 +345,24 @@ class SweetRow {
 		//How do you add tags to a page item
 			//Every pagetag you want to add needs a refernce to a tag and a user.		
 		//$item->save();
-		foreach($this->__pull as $pkey => $p) {
-			if(is_string($pkey)) {
-				$p = $pkey;
-			} elseif(is_array($p)) {
-				continue;
+		if(!empty($this->__pull)) {		
+			foreach($this->__pull as $pkey => $p) {
+				if(is_string($pkey)) {
+					$p = $pkey;
+				} elseif(is_array($p)) {
+					continue;
+				}
+				if(array_key_exists($p, $item)) {
+					continue;
+				}
+				$o = $this->__get($p);
+				
+				if(is_a($o, 'SweetRow')) {
+					$item[$p] = $o->export();
+				} elseif(is_array($o)) {					
+					$item[$p] = array_map('SweetRow::mapExport', $o);
+				}
 			}
-			if(array_key_exists($p, $item)) {
-				continue;
-			}
-			$o = $this->__get($p);
-			
-			if(is_a($o, 'SweetRow')) {
-				$item[$p] = $o->export();
-			} elseif(is_array($o)) {					
-				$item[$p] = array_map('SweetRow::mapExport', $o);
-			}
-			
 		}
 		
 		//D::log($item, 'export data');
