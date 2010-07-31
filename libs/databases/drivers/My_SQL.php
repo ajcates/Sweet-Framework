@@ -44,6 +44,7 @@ class My_SQL {
 		
 /* 	@todo make the @ be able to be turned on and off by debug mode	 */
 		$this->connection = @mysql_connect($this->settings['host'], $this->settings['username'], $this->settings['password']);
+		mysql_set_charset('utf8');
 		if (!$this->connection)	{
 			D::warn("Couldn't to the db dude, check the settings man.\nHost: " . $this->settings['host'] . "\nUser: " . $this->settings['username'] . "\nDatabase: " . $this->settings['host']);
 			return false;
