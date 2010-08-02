@@ -520,7 +520,7 @@ class SweetRow {
 	}
 	
 	public function delete() {
-		return $this->__model->find($this->__model->pk)->delete();
+		return $this->__model->find($this->{$this->__model->pk})->delete();
 	}
 }
 
