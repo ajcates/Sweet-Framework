@@ -41,6 +41,11 @@ class SweetModel extends App {
 		return $this;
 	}
 	
+	function jlimit() {
+		$this->_buildOptions['jlimit'] = func_get_args();
+		return $this;
+	}
+	
 	function sort() {
 		//)
 		$this->_buildOptions['sort'] = f_flatten(func_get_args());
@@ -55,6 +60,11 @@ class SweetModel extends App {
 	
 	function offset($a) {
 		$this->_buildOptions['limit'][1] = $a;
+		return $this;
+	}
+	
+	function joffset($a) {
+		$this->_buildOptions['jlimit'][1] = $a;
 		return $this;
 	}
 	
@@ -78,8 +88,10 @@ class SweetModel extends App {
 		}
 		//if(array_key_exists('find', $this->_buildOptions)) {
 			//$where = $this->_buildFind($this->_buildOptions['find']);
+		//array_reverse()
+		//@todo replace @ with ternaries.
 		
-		return $this->lib('Query')->select($select)->join($join)->from($this->tableName, @$this->_buildOptions['limit'])->where($this->_buildFind($this->_buildOptions['find']))->orderBy(@$this->_buildOptions['sort'])->go()->getDriver();
+		return $this->lib('Query')->select($select)->join($join)->from($this->tableName, @$this->_buildOptions['limit'])->where($this->_buildFind($this->_buildOptions['find']))->limit( @$this->_buildOptions['jlimit'] )->orderBy(@$this->_buildOptions['sort'])->go()->getDriver();
 	}
 	
 	function _buildFind($find=array()) {

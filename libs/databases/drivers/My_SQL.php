@@ -76,7 +76,7 @@ class My_SQL {
 		
 		$this->queries[] = $sql;
 	//	$this->result = $this->connection->query($sql);
-		D::log($sql, 'Sql call');
+		D::log("\n" . $sql, 'SQL call');
 		
 		$this->result = mysql_query($sql, $this->connection);
 		

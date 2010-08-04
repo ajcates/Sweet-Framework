@@ -91,9 +91,9 @@ class Query extends App {
 			);
 		} else {
 			Query::$_fromValue = $val;
-			if(isset($limit)) {
-				Query::$_fromLimit = array_map('intval', (array)$limit);
-			}
+		}
+		if(isset($limit)) {
+			Query::$_fromLimit = array_map('intval', (array)$limit);
 		}
 		return $this;
 	}
@@ -139,7 +139,12 @@ class Query extends App {
 	}
 
 	public function limit() {
-		$this->_limit = array_reverse(f_flatten(func_get_args()));
+		$this->_limit = array_filter(f_flatten(func_get_args()));
+		//D::log($this->_limit, 'limit');
+		//D::log(array_filter($this->_limit), 'limit filtered');
+		if(empty($this->_limit)) {
+			$this->_limit = null;
+		}
 		return $this;
 	}
 	
@@ -249,11 +254,9 @@ class Query extends App {
 	}
 	
 	function _buildLimit($limit=null) {
-		if(!isset($limit)) {
-			$limit = $this->_limit;
-		}
+		//D::show($limit );
 		if(!empty($limit)) {
-			return "\n" . ' LIMIT ' . join(', ', $limit);
+			return "\n" . ' LIMIT ' . join(', ', array_reverse($limit));
 		}
 	}
 	
@@ -269,6 +272,7 @@ class Query extends App {
 			)
 		);
 	}
+	
 	function _buildWhereString($values) {
 		if(empty($values)) {
 			D::log('empty where');
@@ -280,18 +284,21 @@ class Query extends App {
 			return "\n" . ' WHERE ' . $whereContent;
 		}
 	}
+	
 	function _build() {
 		//puts all the stuff together in a magic happy fashion.
 		$sqlString = '';
 		switch ($this->_mode) {
 			case 'select':
 				//adds in our select values				
+				//@todo Make the second parameter in `form()` actaully be a real "sub query"
+					//$this->
 				if(isset(Query::$_fromLimit)) {
 					Query::$_fromValue = '(SELECT * FROM ' . Query::$_fromValue . $this->_buildLimit(Query::$_fromLimit) . ') AS ' . Query::$_fromValue;
 				}
 				
 				
-				$sqlString = 'SELECT ' . $this->_buildSelect() . "\n" . ' FROM ' . join(', ', (array)Query::$_fromValue) . $this->_buildJoins() .  $this->_buildWhereString($this->_whereValue) . $this->_buildOrderBy() . $this->_buildLimit();
+				$sqlString = 'SELECT ' . $this->_buildSelect() . "\n" . ' FROM ' . join(', ', (array)Query::$_fromValue) . $this->_buildJoins() .  $this->_buildWhereString($this->_whereValue) . $this->_buildOrderBy() . $this->_buildLimit($this->_limit);
 				break;
 			case 'update':
 				$sqlString = 'UPDATE ' . f_first(Query::$_fromValue) . "\n" . ' SET ' . $this->_buildSet($this->_setValue) . $this->_buildWhereString($this->_whereValue);
