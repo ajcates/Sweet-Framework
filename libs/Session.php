@@ -153,5 +153,12 @@ class Session extends App {
 	function destroy() {
 		setcookie ($this->libs->Config->get('Session', 'cookieName'), '', time() - 86400);
 		$this->libs->Query->delete()->where(array('id' => $this->_id))->from($this->libs->Config->get('Session', 'tableName'))->go();
+		$this->_changed = array();
+		$this->_new = array();
+		$this->_data = array();
+		$this->_flashRemove = array();
+		$this->_flashRemove = array();
+		$this->_flashAdd = array();
+		$this->_flash = array();
 	}
 }

@@ -102,20 +102,14 @@ function f_keyMap($transformer, $in, $keys=null) {
 			$keys = array_keys($in);
 		}
 		return f_construct(
-			$transformer(
-				f_first($in),
-				f_first($keys)
-			),
-			f_keyMap(
-				$transformer,
-				f_rest($in),
-				f_rest($keys)
-			)
+			call_user_func_array($transformer, array(f_first($in), f_first($keys))),
+			f_keyMap($transformer, f_rest($in), f_rest($keys))
 		);
 	} else {
 		return array();
 	}
 }
+
 
 function f_kkeyMap($transformer, $in, $keys=null) {
 	if(!isset($keys)) {

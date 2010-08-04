@@ -97,12 +97,14 @@ class SweetModel extends App {
 	function _buildFind($find=array()) {
 		foreach($find as $k => $arg) {
 			if(is_int($k) && is_array($arg)) {
+				unset($find[$k]);
 				$find = array_merge($find, $this->_buildFind($arg));
 			} else if(is_string($k) && array_key_exists($k, $this->fields)) {
 				unset($find[$k]);
 				$find[$this->tableName . '.' . $k] = $arg;
 			} else if(is_numeric($arg)) {
-				$find[$this->tableName . '.' . $this->pk][] = $arg;
+				unset($find[$k]);
+				$find[$this->tableName . '.' . $this->pk] = $arg;
 			}
 		}
 		return $find;
@@ -216,7 +218,7 @@ class SweetModel extends App {
 	}
 	
 	function delete() {
-		return $this->lib('Query')->delete()->from($this->tableName)->where($where)->limit(@$this->_buildOptions['limit'])->go();
+		return $this->lib('Query')->delete()->from($this->tableName)->where($this->_buildFind($this->_buildOptions['find']))->limit(@$this->_buildOptions['limit'])->go();
 	}
 	
 	function all() {
@@ -530,7 +532,7 @@ class SweetRow {
 	}
 	
 	public function delete() {
-		return $this->__model->find($this->__model->pk)->delete();
+		return $this->__model->find($this->{$this->__model->pk})->delete();
 	}
 }
 
