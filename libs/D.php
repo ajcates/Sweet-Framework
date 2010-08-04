@@ -81,15 +81,19 @@ class D {
 	    return $label . ' | ' .D::log(round(self::$timers[$timer]->elapsed(), 4) . 's', $timer . ' | ' . $label);
 	}
 
-	static function growl($var, $label='') {
-       if(self::$config['debug']) {
+	static function growl($var, $label=null) {
+		
+		if(self::$config['debug']) {
+		
             if(!isset(self::$growlr)) {
             	try {
             		require_once('growl.php');
 					self::$growlr = new Growl(self::$config['growl']['host'], self::$config['growl']['password']);
 					self::$growlr->addNotification('log');
 					self::$growlr->register();	
+					self::log(self::$growlr);
             	} catch (Exception $e) {
+            		self::warn($a, 'growl failed');
             		self::$growlr = false;
             	}
             }
@@ -98,7 +102,8 @@ class D {
             	try {
             		self::$growlr->notify('log', $label, print_r($var, true));	
             	} catch (Exception $e) {
-            			
+            		self::warn($a, 'growl failed');
+            		self::$growlr = false;
             	}
             	
             }
@@ -128,6 +133,7 @@ class D {
 	}
 	
 	static function warn($warning) {
+		D::show('WHAT');
 		if(self::$config['warnings']) {
 			D::show(D::stack(), $warning);
 		}		

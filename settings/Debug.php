@@ -5,6 +5,6 @@ SweetFramework::getClass('lib', 'Config')->setAll('Debug', array(
 	'logfile' => LOC . '/sweet-framework/logs/main.log',
 	'growl' => array(
 		'host' => 'localhost',
-		'password' => ''
+		'password' => 'aldo20'
 	)
 ));
