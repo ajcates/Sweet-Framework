@@ -2,7 +2,7 @@
 
 class M {
 	//short cuts for model access
-	public static function __callStatic($name, $arguments) {
+	public static function __callStatic($name, $arguments=array()) {
 		return SweetFramework::getClass('model', $name);
 	}
 }
