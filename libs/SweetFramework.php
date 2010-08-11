@@ -40,7 +40,7 @@ class SweetFramework extends App {
 		$this->lib(array_merge(array('Uri', 'Theme'), $this->libs->Config->get('site', 'autoload') ));
 
 		$this->libs->Uri->callRoute();
-		self::end();
+		//self::end();
 	}
 	
 	static protected $paths = array(
@@ -125,6 +125,7 @@ class SweetFramework extends App {
 		}
 		D::time('App', 'End');
 		D::close();
+		
 		exit;
 	}
 }

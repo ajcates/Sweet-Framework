@@ -10,11 +10,11 @@ function chain($baseItem, $items=array()) {
 */
 
 //print_r( get_tree_arr3(LOC . '/app'), true)
-function get_tree_arr1( $dr = '', $tree = array() ) {
+function getTreeDir( $dr = '', $tree = array() ) {
 	foreach((array) glob($dr . '*') as $fl ) {
 		$fl_nice = str_replace( dirname( $fl ).'/' , '' , $fl );
 		if ( is_dir( $fl ) ) { //if there's a dir, go deeper
-			$tree[ $fl_nice ] = get_tree_arr1( $fl . '*/'); 
+			$tree[ $fl_nice ] = getTreeDir( $fl . '*/'); 
 		} else {
 			$tree[] = $fl_nice ;
 		}
