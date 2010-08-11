@@ -23,14 +23,17 @@ class SweetFramework extends App {
 
 	static $urlPattern;
 
-	function __construct($appSettingName) {
+	function __construct() {
 		//crap we need for the framework
 		//$GLOBALS['app'] = $this; //stop this.
 		$this->helper('functional'); //makes my life oh so much easier :)
 		$this->lib(array('D', 'Config')); //Get the debuger and the config loader
 		D::initialize($this->libs->Config->get('Debug')); //start the debugger up with some config options
-		D::time('App', 'SweetFramework - ' . date("F j, Y, g:i a")); //Write what time the app starts to the log
-		
+		D::time('App', 'SweetFramework - ' . date('F j, Y, g:i a')); //Write what time the framework starts to the log
+	}
+	
+	function loadApp($appSettingName) {
+	
 		$appInfo = $this->libs->Config->get('SweetFramework', $appSettingName); //get the current app's settings
 		define('APP_FOLDER', $appInfo['folder']);
 		foreach($appInfo['paths'] as $k => $v) {
@@ -45,7 +48,6 @@ class SweetFramework extends App {
 		$this->lib(array_merge(array('Uri', 'Theme'), $this->libs->Config->get('site', 'autoload') ));
 
 		$this->libs->Uri->callRoute();
-		self::end();
 	}
 	
 	static protected $paths = array(
@@ -73,12 +75,14 @@ class SweetFramework extends App {
 		return false;
 	}
 	
+/*
 	public static function fileLoc($name) {
 		if(substr($name, -4) != '.php') {
 			$name .= '.php';
 		}
 		return $name;
 	}
+*/
 	
 	public static function loadFileType($type, $name) {
 		/*  @todo
