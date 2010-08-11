@@ -8,6 +8,13 @@ require_once('App.php');
 	- 
 */
 
+
+function __autoload($class) {
+
+
+
+}
+
 class SweetFramework extends App {
 
 	var $site;
@@ -22,20 +29,13 @@ class SweetFramework extends App {
 		$this->helper('functional'); //makes my life oh so much easier :)
 		$this->lib(array('D', 'Config')); //Get the debuger and the config loader
 		D::initialize($this->libs->Config->get('Debug')); //start the debugger up with some config options
-<<<<<<< HEAD
-		D::time('App', 'SweetFramework - ' . date("F j, Y, g:i a")); //Write what time the app starts to the log
-		
-		
-=======
 		D::time('App', 'SweetFramework - ' . date('F j, Y, g:i a')); //Write what time the framework starts to the log
 	}
 	
 	function loadApp($appSettingName) {
 	
->>>>>>> stash@{0}
 		$appInfo = $this->libs->Config->get('SweetFramework', $appSettingName); //get the current app's settings
-		define('APP_FOLDER', $appInfo['folder']); //@todo make this load from the __construct, then get the apps settings from its settings folder…
-		
+		define('APP_FOLDER', $appInfo['folder']);
 		foreach($appInfo['paths'] as $k => $v) {
 			if(!is_array(self::$paths[$k])) {
 				self::$paths[$k] = array();
@@ -48,10 +48,6 @@ class SweetFramework extends App {
 		$this->lib(array_merge(array('Uri', 'Theme'), $this->libs->Config->get('site', 'autoload') ));
 
 		$this->libs->Uri->callRoute();
-<<<<<<< HEAD
-		//self::end();
-=======
->>>>>>> stash@{0}
 	}
 	
 	static protected $paths = array(
@@ -138,7 +134,6 @@ class SweetFramework extends App {
 		}
 		D::time('App', 'End');
 		D::close();
-		
 		exit;
 	}
 }
