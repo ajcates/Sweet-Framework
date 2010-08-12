@@ -46,8 +46,13 @@ class SweetFramework extends App {
 		}
 		
 		$this->lib(array_merge(array('Uri', 'Theme'), $this->libs->Config->get('site', 'autoload') ));
-
-		$this->libs->Uri->callRoute();
+		
+		return $this;
+		
+	}
+	
+	function run($route=null) {
+		$this->libs->Uri->callRoute($route);
 	}
 	
 	static protected $paths = array(
@@ -75,14 +80,14 @@ class SweetFramework extends App {
 		return false;
 	}
 	
-/*
+
 	public static function fileLoc($name) {
 		if(substr($name, -4) != '.php') {
 			$name .= '.php';
 		}
 		return $name;
 	}
-*/
+
 	
 	public static function loadFileType($type, $name) {
 		/*  @todo

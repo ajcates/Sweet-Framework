@@ -37,15 +37,46 @@ class Uri extends App {
 		//$_SERVER['REQUEST_URI']
 		$folder = strstr($_SERVER['REQUEST_URI'] .'?', '?', true);
 		
-		define('URL', $this->protocol . '://' . $this->domain . substr($folder, 0, strrpos($folder, '/')) . '/');
+		D::log($folder, 'folder');
+		
+/*
+
+		if(substr($folder, -1) == '/') {
+			$folder .= '/';//substr($folder, 0, -1);
+		}
+*/
+
+		
+		//D::log();
+		//(string string)
+/*
+		if($this->request) {
+			define('URL', $this->protocol . '://' . $this->domain . substr($folder, 0, -strlen($this->request)) );
+		} else {
+			define('URL', $this->protocol . '://' . $this->domain . $folder );
+		}
+*/
+		
 		
 		
 		
 		if($this->lib('Config')->get('site', 'prettyUrls')) {
+		
+			if($this->request) {
+				define('URL', $this->protocol . '://' . $this->domain . substr($folder, 0, -strlen($this->request)) );
+			} else {
+				define('URL', $this->protocol . '://' . $this->domain . $folder );
+			}
+		
+		
 			define('SITE_URL', URL);
 		} else {
+			define('URL', $this->protocol . '://' . $this->domain . $folder );
 			define('SITE_URL', URL . '?');
 		}
+		
+		D::log(URL, 'URL');
+		
 		$this->contorllerFile = $this->libs->Config->get('site', 'mainController');
 	}
 	

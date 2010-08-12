@@ -133,7 +133,7 @@ class D {
 	}
 	
 	static function warn($warning) {
-		D::show('WHAT');
+		//D::show('WHAT');
 		if(self::$config['warnings']) {
 			D::show(D::stack(), $warning);
 		}		
