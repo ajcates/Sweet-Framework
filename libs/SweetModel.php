@@ -230,7 +230,7 @@ class SweetModel extends App {
 		$pull = f_untree((array)@$this->_buildOptions['pull']);
 		//$pullRefernce = ;
 		while($item = $driver->fetch_object()) {
-			if($item->{$this->pk} == $last) {
+			if($item->{$this->pk} === $last) {
 				f_call(array($returnItems[$i], 'pass'), array($item));
 			} else {
 				$i++;

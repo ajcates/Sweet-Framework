@@ -35,20 +35,19 @@ class SweetFramework extends App {
 	function loadApp($appSettingName) {
 	
 		$appInfo = $this->libs->Config->get('SweetFramework', $appSettingName); //get the current app's settings
-		define('APP_FOLDER', $appInfo['folder']);
-		foreach($appInfo['paths'] as $k => $v) {
-			if(!is_array(self::$paths[$k])) {
-				self::$paths[$k] = array();
+		if(!defined('APP_FOLDER')) {
+			define('APP_FOLDER', $appInfo['folder']);
+			foreach($appInfo['paths'] as $k => $v) {
+				if(!is_array(self::$paths[$k])) {
+					self::$paths[$k] = array();
+				}
+				//add in the applications folders to the frameworks file loader
+				self::$paths[$k][] = '/' . APP_FOLDER . '/' . $v .'/';
+				//self::$paths[$k][] = join('/', array(LOC, $appInfo['folder'], $v)) .'/'; @todo A/B test these two.
 			}
-			//add in the applications folders to the frameworks file loader
-			self::$paths[$k][] = '/' . APP_FOLDER . '/' . $v .'/';
-			//self::$paths[$k][] = join('/', array(LOC, $appInfo['folder'], $v)) .'/'; @todo A/B test these two.
-		}
-		
+		}		
 		$this->lib(array_merge(array('Uri', 'Theme'), $this->libs->Config->get('site', 'autoload') ));
-		
 		return $this;
-		
 	}
 	
 	function run($route=null) {

@@ -1,14 +1,14 @@
 <?php
 class Uri extends App {
-	var $uriArray;
-	var $queryString;
-	var $match;
-	var $defaultPart;
-	var $controller;
+
+	public $uriArray;
+	public $controller;
+	public $contorllerFile;
+	public $protocol;
 	
 	//new:
-	var $domain;
-	var $request;
+	public $domain;
+	public $request;
 
 	function __construct() {
 		/*
@@ -157,8 +157,18 @@ class Uri extends App {
 			$pop = true;
 		}
 		if(empty($this->uriArray)) {
-			$this->uriArray = $this->regularUrl();
-			
+			$this->uriArray = explode('/', $this->request);
+		}
+		return $this->uriArray;
+	}
+	
+	function getUriArray($request, $regexs=null) {
+		$this->uriArray = null;
+		if(!empty($regexs)) {
+			$this->uriArray = $this->regexArray($regexs);
+		}
+		if(empty($this->uriArray)) {
+			$this->uriArray = explode('/', $this->request);
 		}
 		return $this->uriArray;
 	}
@@ -172,10 +182,7 @@ class Uri extends App {
 				D::log($regex, 'regex');
 				return f_push(
 					array($func),
-					f_map(
-						'f_first',
-						f_rest($matches)
-					)
+					array_map('f_first', f_rest($matches))
 				);
 			}
 		}
@@ -183,13 +190,20 @@ class Uri extends App {
 	}
 	
 	function regularUrl() {
+/*
 		if($this->libs->Config->get('site', 'prettyUrls')) {
 			return $this->getNiceUrl();
 		} else {
 			return $this->getUglyUrl();
 		}
+*/
+		return explode(
+			'/',
+			$this->request
+		);
 	}
 
+/*
 	function getNiceUrl() {
 		return explode(
 			'/',
@@ -208,7 +222,9 @@ class Uri extends App {
 		}
 		return explode('/', $queryString);
 	}
+*/
 	
+/*
 	function niceornot() {
 		if($this->config->get('SweetFramework', 'niceUrls')) {
 			$this->niceUrl();
@@ -221,12 +237,16 @@ class Uri extends App {
 			$this->controller = null;
 		}
 	}
+*/
 	
+/*
 	function niceUrl() {
 		$this->queryString = str_replace('index.php&', '', $this->request);
 		$this->uriArray = explode('/', $this->queryString);
 	}
+*/
 	
+/*
 	function uglyUrl() {
 		$this->queryString = $this->request;
 		if(@substr_count($this->queryString, '/', 0, 1) == 1) {
@@ -234,6 +254,7 @@ class Uri extends App {
 		}
 		$this->uriArray = explode('/', $this->queryString);
 	}
+*/
 	
 	function getPart($index) {
 		return isset($this->uriArray[$index]) ? $this->uriArray[$index] : null;
@@ -250,10 +271,19 @@ class Uri extends App {
 	function redirect($uri = '', $http_response_code = 302) {
 		if(substr($uri, 0, 7) != 'http://') {
 			//@todo fix this so it works with https
-			$uri = SITE_URL . $uri;
+/*
+			$this->callRoute($uri);
+			exit;
+*/
+			if($uri == '/') {
+				$uri = SITE_URL;	
+			} else {
+				$uri = SITE_URL . $uri;
+			}
 		}
 		//@todo make this be set off with the debug switch. and if debugging is on it should show a link to the page it would have forwarded to.
  		header("Location: " . $uri, TRUE, $http_response_code);
+
 		/* @todo you should call an app end event here.*/
 		SweetFramework::end();
 	}	

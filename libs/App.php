@@ -1,7 +1,7 @@
 <?
 class App {
 
-	protected $libs;
+	public $libs;
 	public $models;
 
 	function __construct() {}

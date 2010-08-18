@@ -78,7 +78,7 @@ class Query extends App {
 		return $this;
 	}
 	
-	function from($val, $limit=null) {	
+	function from($val, $limit=null) {
 		if(is_array($val)) {
 			Query::$_fromValue = f_keyMap(
 				function($v, $k) {
