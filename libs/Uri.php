@@ -9,6 +9,8 @@ class Uri extends App {
 	//new:
 	public $domain;
 	public $request;
+	public $count = 0;
+	public $contorller;
 
 	function __construct() {
 		/*
@@ -89,9 +91,7 @@ class Uri extends App {
 		echo f_call($this->loadController());
 	}
 		
-	var $contorllerFile;
-	var $count = 0;
-	var $contorller;
+//	var $contorllerFile;
 	
 	function loadController($controller=null) {
 		if(isset($controller)) {
@@ -261,7 +261,11 @@ class Uri extends App {
 	}
 	
 	function get($index) {
-		return $this->getPart($index);
+		return rawurldecode($this->rawGet($index));
+	}
+	
+	function rawGet($index) {
+		return isset($this->uriArray[$index]) ? $this->uriArray[$index] : null;
 	}
 	
 	function getArray() {
