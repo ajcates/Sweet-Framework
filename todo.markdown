@@ -14,8 +14,9 @@ Template/Themes
 
 Testing
 -------
-- Test the latest version against my Sweet-Dashboard application
-- Start building out unit tests
+# Start building out unit tests
+	- Finish the Uri library unit tests.
+	- 
 
 
 SweetORM
