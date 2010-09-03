@@ -27,3 +27,9 @@ function addLinks($text) {
 function baseUrl($url) {
 	return preg_replace('/(http:\/\/.*?)\/.*/i', '$1', $url);
 }
+
+function parseQuery($queryString) {
+	$returnArray = array();
+	parse_str($queryString, $returnArray);
+	return $returnArray;
+}
