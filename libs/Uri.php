@@ -109,7 +109,6 @@ class Uri extends App {
 			$page = $this->loadUrl(array(), $this->count);
 		}
 		
-//		D::show($page, 'Controller Page');
 		if(is_array(f_last($page))) {
 			if(is_array( f_first(f_last($page)) )) {
 				return $this->loadController(f_first(f_first(f_last($page))), $this->count+=1);
@@ -117,7 +116,6 @@ class Uri extends App {
 			$page[$this->count] = f_first(f_last($page));
 		}
 		D::log($class, 'Controller Loading');
-//		D::show($page, 'Controller Page');
 		
 		$this->controller = new $class();
 		
@@ -162,6 +160,7 @@ class Uri extends App {
 		return $this->uriArray;
 	}
 	
+/*
 	function getUriArray($request, $regexs=null) {
 		$this->uriArray = null;
 		if(!empty($regexs)) {
@@ -172,6 +171,7 @@ class Uri extends App {
 		}
 		return $this->uriArray;
 	}
+*/
 	
 	
 	function regexArray($regexs) {

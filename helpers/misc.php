@@ -69,6 +69,28 @@ function properJsonDecode($json) {
 	return $return;
 }
 
+
+
+
+
+/*
+function sup($output) {
+	$output = str_replace('®', '<sup>®</sup>', $output);
+	$output = str_replace('®', '<sup>®</sup>', $output);
+	$output = str_replace('™', '<sup>™</sup>', $output);
+	$output = str_replace('™', '<sup>™</sup>', $output);
+	
+    return str_replace('™', '<sup>™</sup>', $output);
+    array('™', '®', '&reg;', '&trade;')
+   	
+}
+*/
+
+
+
+
+
+
 function foxy_utf8_to_nce($utf = '') {
 	//Orignally written by limalopex.eisfux.de - http://us2.php.net/manual/en/function.imagettftext.php#57416
 	if(empty($utf)) {
