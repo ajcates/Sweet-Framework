@@ -15,7 +15,7 @@ class SweetModel extends App {
 	);
 	
 	function find() {
-		$this->_buildOptions['find'] = D::log(func_get_args(), 'find args');
+		$this->_buildOptions['find'] = func_get_args();
 		
 		return $this;
 	}
@@ -147,7 +147,6 @@ class SweetModel extends App {
 					continue;
 				}
 				//regular join
-				D::log($pull, '$pull');
 				$pullRel = $this->relationships[$pull];
 				
 				if(is_string($fKey = f_first(array_keys($pullRel)) )) {
