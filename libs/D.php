@@ -111,13 +111,14 @@ class D {
 		return $var;
 	}
 	static function show($var, $label='') {
-		echo "\n";
+		echo '<div class="debug">' . "\n";
 		if(!empty($label)) {
-			echo $label . ":\n";
+			echo '<h4>' . $label . "</h4>\n";
 		}
 		//@todo make this only go if the debugging is enabled.
+		echo '<pre>';
 		print_r(self::log($var, $label));
-		echo "\n";
+		echo '</pre>' . "\n</div>";
 		return $var;
 	}
 	static function report($context, $error) {
@@ -132,7 +133,7 @@ class D {
 		//exit(self::log("\n	There has been an error. Message: \n" . $error . "\n	Back trace:" . print_r(stacktrace(), true), 'Fatal and expected error'));
 	}
 	
-	static function warn($warning) {
+	static function warn($warning='Warning') {
 		//D::show('WHAT');
 		if(self::$config['warnings']) {
 			D::show(D::stack(), $warning);
