@@ -7,12 +7,23 @@ require_once('App.php');
 	- Make sure the app/framework split is working correctly
 	- 
 */
+class SweetEvent {
+	static $events = array();
+	
+	static function bind($name, $func) {
+		if(!isset(self::$events[$name])) {
+			self::$events[$name] = array($func);
+		} else {
+			self::$events[$name][] = $func;
+		}
+	}
 
-
-function __autoload($class) {
-
-
-
+	static function trigger($name) {
+		D::log('Triggering Event: ' . $name);
+		if(isset(self::$events[$name])) {
+			array_map('call_user_func', (array)self::$events[$name]);
+		}
+	}
 }
 
 class SweetFramework extends App {
@@ -131,16 +142,13 @@ class SweetFramework extends App {
 	 * @return void
 	 */
 	static function end() {
-		if(isset(self::$classes['libSession'] )) {
-		
-			//@todo make this more module and not so HARDcoded. :)
-			self::$classes['libSession']->save();
-		}
+		SweetEvent::trigger('SweetFrameworkEnd');
 		D::time('App', 'End');
 		D::close();
 		exit;
 	}
 }
+
 /*
 Notes:
 	File load types:
