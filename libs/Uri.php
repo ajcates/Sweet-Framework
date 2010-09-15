@@ -81,17 +81,39 @@ class Uri extends App {
 			$page = $this->loadUrl(array(), $this->count);
 		}
 		
+		D::log($this->count, 'COUNT');
+		D::log($page, 'page');
+		
+		
 		if(is_array(f_last($page))) {
 			if(is_array( f_first(f_last($page)) )) {
-				$this->request = $page[$this->count];
-				D::log($this->request, 'request reduced');
+				$this->request = f_first($page);
+				D::log($this->request, 'Request Reduced');
 				return $this->loadController(f_first(f_first(f_last($page))), $this->count+=1);
 			}
 			$page[$this->count] = f_first(f_last($page));
 		}
 		
-		$this->controller = new $class();
 		
+		//
+		//;
+		$fpage = f_first($page);
+		$this->controller = new $class();
+		if(empty($fpage)) {
+			return f_callable(array($this->controller, D::log('index', 'Controller Function')));
+		} else {
+			if(method_exists($class, $fpage)) {
+				return f_callable(array($this->controller, D::log($fpage, 'Controller Function')));
+			}
+		}
+		
+/*
+		if(D::log($fpage = f_first($page), 'Controller Function') && method_exists($class, $fpage) {
+			
+		}
+*/
+		//
+/*
 		if(empty($page[$this->count])) {
 			return f_callable(array($this->controller, 'index'));
 		} else {
@@ -102,14 +124,18 @@ class Uri extends App {
 				));
 			}
 		}
+*/
+		//D::show($class, 'controller');
 		if(method_exists($class, '__DudeWheresMyCar')) {
 			return f_callable(array(
 				$this->controller,
 				'__DudeWheresMyCar'
 			));
 		}
+		//@todo find a way to check for __DudeWheresMyCar functions higher up the controller tree.
+		
 		return function() {
-			header("HTTP/1.0 404 Not Found");
+			header('HTTP/1.0 404 Not Found');
 			echo '<h1>404 error</h1>'; //todo check for some sort of custom 404…
 			return false;
 		};

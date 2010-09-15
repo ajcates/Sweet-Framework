@@ -56,12 +56,14 @@ class SweetFramework extends App {
 				self::$paths[$k][] = '/' . APP_FOLDER . '/' . $v .'/';
 				//self::$paths[$k][] = join('/', array(LOC, $appInfo['folder'], $v)) .'/'; @todo A/B test these two.
 			}
-		}		
+		}
+		D::log('Preload');
 		$this->lib(array_merge(array('Uri', 'Theme'), $this->libs->Config->get('site', 'autoload') ));
 		return $this;
 	}
 	
 	function run($route=null) {
+		D::log('App Run');
 		$this->libs->Uri->callRoute($route);
 	}
 	

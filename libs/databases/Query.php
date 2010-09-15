@@ -223,12 +223,9 @@ class Query extends App {
 	}
 	
 	function _buildOrderBy() {
-		D::log($this->_orderBy, 'orderby');
 		if(!empty($this->_orderBy)) {
 			return "\n" . ' ORDER BY ' . join(' , ', f_keyMap(
 				function($v, $k) {
-					D::log($v, '$v build');
-					D::log($k, '$k build');
 					return Query::escape($k) . ' ' . Query::escape($v);
 				},
 				$this->_orderBy
@@ -261,7 +258,6 @@ class Query extends App {
 	}
 	
 	function _buildSet($values, $separator='=') {
-		D::log($values, 'buildset values');
 		return join(
 			', ',
 			f_keyMap(
@@ -275,7 +271,6 @@ class Query extends App {
 	
 	function _buildWhereString($values) {
 		if(empty($values)) {
-			D::log('empty where');
 			return '';
 		}
 		$whereContent = $this->_buildWhere($values);
@@ -332,7 +327,7 @@ class Query extends App {
 							$cols
 						)) . ')';
 					},
-					D::log($this->_insert, 'raw incert')
+					D::log($this->_insert, 'Insert Data')
 				));
 				break;
 			case 'delete':
