@@ -72,7 +72,7 @@ class Uri extends App {
 		$class = SweetFramework::className($this->contorllerFile);
 		D::log($class, 'Controller Loaded');
 		
-		if(!SweetFramework::loadFileType('controller', $class)) {
+		if(!SweetFramework::loadFileType('controller', $this->contorllerFile)) {
 			D::error('No Controller Found');
 		}
 		if(!empty($class::$urlPattern)) {
