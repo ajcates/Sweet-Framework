@@ -30,37 +30,8 @@ class Uri extends App {
 		$this->domain = $_SERVER['HTTP_HOST'];
 		//http or https?
 		$this->protocol = strtolower(strstr($_SERVER['SERVER_PROTOCOL'], '/', true));;
-		//$_SERVER['REQUEST_URI']
-		//
-		
-		D::log($this->request, 'URI Request');
-		
-		//$_SERVER['REQUEST_URI'], '/')
-		//$_SERVER['REQUEST_URI']
+
 		$folder = strstr($_SERVER['REQUEST_URI'] .'?', '?', true);
-		
-		D::log($folder, 'folder');
-		
-/*
-
-		if(substr($folder, -1) == '/') {
-			$folder .= '/';//substr($folder, 0, -1);
-		}
-*/
-
-		
-		//D::log();
-		//(string string)
-/*
-		if($this->request) {
-			define('URL', $this->protocol . '://' . $this->domain . substr($folder, 0, -strlen($this->request)) );
-		} else {
-			define('URL', $this->protocol . '://' . $this->domain . $folder );
-		}
-*/
-		
-		
-		
 		
 		if($this->lib('Config')->get('site', 'prettyUrls')) {
 		
@@ -70,14 +41,14 @@ class Uri extends App {
 				define('URL', $this->protocol . '://' . $this->domain . $folder );
 			}
 		
-		
 			define('SITE_URL', URL);
 		} else {
 			define('URL', $this->protocol . '://' . $this->domain . $folder );
 			define('SITE_URL', URL . '?');
 		}
-		
-		D::log(URL, 'URL');
+		D::log(SITE_URL . $this->request, 'URI Library Loaded');
+		D::log(SITE_URL, 'SITE_URL');
+		D::log($this->request, 'Request');
 		
 		$this->contorllerFile = $this->libs->Config->get('site', 'mainController');
 	}
@@ -97,8 +68,9 @@ class Uri extends App {
 		if(isset($controller)) {
 			$this->contorllerFile = $controller;
 		}
-		D::log($this->contorllerFile, 'c file');
+		
 		$class = SweetFramework::className($this->contorllerFile);
+		D::log($class, 'Controller Loaded');
 		
 		if(!SweetFramework::loadFileType('controller', $class)) {
 			D::error('No Controller Found');
@@ -111,11 +83,12 @@ class Uri extends App {
 		
 		if(is_array(f_last($page))) {
 			if(is_array( f_first(f_last($page)) )) {
+				$this->request = $page[$this->count];
+				D::log($this->request, 'request reduced');
 				return $this->loadController(f_first(f_first(f_last($page))), $this->count+=1);
 			}
 			$page[$this->count] = f_first(f_last($page));
 		}
-		D::log($class, 'Controller Loading');
 		
 		$this->controller = new $class();
 		
@@ -148,7 +121,7 @@ class Uri extends App {
 		return $this->request;
 	}
 	
-	function loadUrl($regexs=array(), $controllerPart=0) {
+	function loadUrl($regexs=array()) {
 		$this->uriArray = null;
 		if(!empty($regexs)) {
 			$this->uriArray = $this->regexArray($regexs);
@@ -159,20 +132,6 @@ class Uri extends App {
 		}
 		return $this->uriArray;
 	}
-	
-/*
-	function getUriArray($request, $regexs=null) {
-		$this->uriArray = null;
-		if(!empty($regexs)) {
-			$this->uriArray = $this->regexArray($regexs);
-		}
-		if(empty($this->uriArray)) {
-			$this->uriArray = explode('/', $this->request);
-		}
-		return $this->uriArray;
-	}
-*/
-	
 	
 	function regexArray($regexs) {
 		$matches = array();
@@ -188,74 +147,7 @@ class Uri extends App {
 		}
 		return false;
 	}
-	
-	function regularUrl() {
-/*
-		if($this->libs->Config->get('site', 'prettyUrls')) {
-			return $this->getNiceUrl();
-		} else {
-			return $this->getUglyUrl();
-		}
-*/
-		return explode(
-			'/',
-			$this->request
-		);
-	}
-
-/*
-	function getNiceUrl() {
-		return explode(
-			'/',
-			str_replace(
-				'index.php&',
-				'',
-				$this->request
-			)
-		);
-	}
-	
-	function getUglyUrl() {
-		$queryString = $this->request;
-		if(@substr_count($queryString, '/', 0, 1) == 1) {
-			$queryString = substr($queryString, 1, strlen($queryString) - 1);
-		}
-		return explode('/', $queryString);
-	}
-*/
-	
-/*
-	function niceornot() {
-		if($this->config->get('SweetFramework', 'niceUrls')) {
-			$this->niceUrl();
-		} else {
-			$this->uglyUrl();
-		}
-		if(isset($this->uriArray[$this->defaultPart])) {
-			$this->controller = str_replace('-', '_', $this->uriArray[$this->defaultPart]);
-		} else {
-			$this->controller = null;
-		}
-	}
-*/
-	
-/*
-	function niceUrl() {
-		$this->queryString = str_replace('index.php&', '', $this->request);
-		$this->uriArray = explode('/', $this->queryString);
-	}
-*/
-	
-/*
-	function uglyUrl() {
-		$this->queryString = $this->request;
-		if(@substr_count($this->queryString, '/', 0, 1) == 1) {
-			$this->queryString = substr($this->queryString, 1, strlen($this->queryString) - 1);
-		}
-		$this->uriArray = explode('/', $this->queryString);
-	}
-*/
-	
+		
 	function getPart($index) {
 		return isset($this->uriArray[$index]) ? $this->uriArray[$index] : null;
 	}
@@ -286,7 +178,7 @@ class Uri extends App {
 			}
 		}
 		//@todo make this be set off with the debug switch. and if debugging is on it should show a link to the page it would have forwarded to.
- 		header("Location: " . $uri, TRUE, $http_response_code);
+ 		header('Location: ' . $uri, TRUE, $http_response_code);
 
 		/* @todo you should call an app end event here.*/
 		SweetFramework::end();

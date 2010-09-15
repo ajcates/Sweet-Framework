@@ -53,7 +53,7 @@ class My_SQL {
 				D::warn('Could not select the database: ' . $this->settings['databaseName']);
 				return false;
 			}
-			D::log('DB Connected');
+			D::log($this->settings['databaseName'], 'Connected to the MYSQL database');
 			$this->connected = true;
 			return true;
 		}
