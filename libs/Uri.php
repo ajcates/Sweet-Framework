@@ -52,7 +52,10 @@ class Uri extends App {
 		
 		$this->contorllerFile = $this->libs->Config->get('site', 'mainController');
 	}
-	
+	/*
+	Calls a specfic route. As in you type in a relative url inside your application and the framework will fire up the controller and call its function and everything for you.
+	Watch out it actaully Echos out the content of the controller that is called.
+	*/
 	function callRoute($request=null) {
 		if(isset($request)) {
 			//$request = $this->getRequest();
@@ -62,85 +65,7 @@ class Uri extends App {
 		echo f_call($this->loadController());
 	}
 		
-//	var $contorllerFile;
-	
-	function loadController($controller=null) {
-		if(isset($controller)) {
-			$this->contorllerFile = $controller;
-		}
-		
-		$class = SweetFramework::className($this->contorllerFile);
-		D::log($class, 'Controller Loaded');
-		
-		if(!SweetFramework::loadFileType('controller', $this->contorllerFile)) {
-			D::error('No Controller Found');
-		}
-		if(!empty($class::$urlPattern)) {
-			$page = $this->loadUrl($class::$urlPattern, $this->count);
-		} else {
-			$page = $this->loadUrl(array(), $this->count);
-		}
-		
-		D::log($this->count, 'COUNT');
-		D::log($page, 'page');
-		
-		
-		if(is_array(f_last($page))) {
-			if(is_array( f_first(f_last($page)) )) {
-				$this->request = f_first($page);
-				D::log($this->request, 'Request Reduced');
-				return $this->loadController(f_first(f_first(f_last($page))), $this->count+=1);
-			}
-			$page[$this->count] = f_first(f_last($page));
-		}
-		
-		
-		//
-		//;
-		$fpage = f_first($page);
-		$this->controller = new $class();
-		if(empty($fpage)) {
-			return f_callable(array($this->controller, D::log('index', 'Controller Function')));
-		} else {
-			if(method_exists($class, $fpage)) {
-				return f_callable(array($this->controller, D::log($fpage, 'Controller Function')));
-			}
-		}
-		
-/*
-		if(D::log($fpage = f_first($page), 'Controller Function') && method_exists($class, $fpage) {
-			
-		}
-*/
-		//
-/*
-		if(empty($page[$this->count])) {
-			return f_callable(array($this->controller, 'index'));
-		} else {
-			if(method_exists($class, D::log($page[$this->count], 'Controller Function')) ) {
-				return f_callable(array(
-					$this->controller,
-					$page[$this->count]
-				));
-			}
-		}
-*/
-		//D::show($class, 'controller');
-		if(method_exists($class, '__DudeWheresMyCar')) {
-			return f_callable(array(
-				$this->controller,
-				'__DudeWheresMyCar'
-			));
-		}
-		//@todo find a way to check for __DudeWheresMyCar functions higher up the controller tree.
-		
-		return function() {
-			header('HTTP/1.0 404 Not Found');
-			echo '<h1>404 error</h1>'; //todo check for some sort of custom 404…
-			return false;
-		};
-	}
-	
+//	var $contorllerFile;	
 	
 	
 	function getRequest() {
@@ -173,11 +98,21 @@ class Uri extends App {
 		}
 		return false;
 	}
-		
+	/* Leagcy function */
 	function getPart($index) {
 		return isset($this->uriArray[$index]) ? $this->uriArray[$index] : null;
 	}
+	/*
+	returns part of the url. by default they are seperated by "/" but can also be split by a regular expression.
+	so for example:
 	
+	Uri: /hello/what/you
+	
+	echo $this->libs->Uri->get(0);
+	"hello"
+	echo $this->libs->Uri->get(3);
+	"you"
+	*/
 	function get($index) {
 		return rawurldecode($this->rawGet($index));
 	}
@@ -185,7 +120,7 @@ class Uri extends App {
 	function rawGet($index) {
 		return isset($this->uriArray[$index]) ? $this->uriArray[$index] : null;
 	}
-	
+	/* returns the entire array of uri parts */
 	function getArray() {
 		return $this->uriArray;
 	}
@@ -208,6 +143,78 @@ class Uri extends App {
 
 		/* @todo you should call an app end event here.*/
 		SweetFramework::end();
-	}	
+	}
+	
+	/*
+	Loads a controller. HOLY FLIPPING SMOKES! yes this thing loads a controller. Just type in the file name like you do when you load libraries, helpers or other things in Sweet-Framework.
+	So for example:
+	
+	$this->libs->Uri->request = '';
+	$output = $this->libs->Uri->loadController('admin/main');
+	
+	echo $output;
+	//<!DOCTYPE>…(the rest out the html for the main admin page)…
+	
+	That would echo out the index page of the Admin controller.
+	
+	This function uses the current request to detrime what controller function it needs to call.
+	This is a really low level framework uri routing feature that not many will need to use.
+	*/
+	
+	function loadController($controller=null) {
+		if(isset($controller)) {
+			$this->contorllerFile = $controller;
+		}
+		
+		$class = SweetFramework::className($this->contorllerFile);
+		D::log($class, 'Controller Loaded');
+		
+		if(!SweetFramework::loadFileType('controller', $this->contorllerFile)) {
+			D::error('No Controller Found');
+		}
+		if(!empty($class::$urlPattern)) {
+			$page = $this->loadUrl($class::$urlPattern, $this->count);
+		} else {
+			$page = $this->loadUrl(array(), $this->count);
+		}
+		
+		D::log($this->count, 'COUNT');
+		D::log($page, 'page');
+		
+		if(is_array(f_last($page))) {
+			if(is_array( f_first(f_last($page)) )) {
+				$this->request = f_first($page);
+				D::log($this->request, 'Request Reduced');
+				return $this->loadController(f_first(f_first(f_last($page))), $this->count+=1);
+			}
+			$page[$this->count] = f_first(f_last($page));
+		}
+		
+		$fpage = f_first($page);
+		$this->controller = new $class();
+		if(empty($fpage)) {
+			return f_callable(array($this->controller, D::log('index', 'Controller Function')));
+		} else {
+			if(method_exists($class, $fpage)) {
+				return f_callable(array($this->controller, D::log($fpage, 'Controller Function')));
+			}
+		}
+		
+		//D::show($class, 'controller');
+		if(method_exists($class, '__DudeWheresMyCar')) {
+			return f_callable(array(
+				$this->controller,
+				'__DudeWheresMyCar'
+			));
+		}
+		//@todo find a way to check for __DudeWheresMyCar functions higher up the controller tree.
+		
+		return function() {
+			header('HTTP/1.0 404 Not Found');
+			echo '<h1>404 error</h1>'; //todo check for some sort of custom 404…
+			return false;
+		};
+	}
+
 }
 ?>
