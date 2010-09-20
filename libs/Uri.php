@@ -34,13 +34,11 @@ class Uri extends App {
 		$folder = strstr($_SERVER['REQUEST_URI'] .'?', '?', true);
 		
 		if($this->lib('Config')->get('site', 'prettyUrls')) {
-		
 			if($this->request) {
 				define('URL', $this->protocol . '://' . $this->domain . substr($folder, 0, -strlen($this->request)) );
 			} else {
 				define('URL', $this->protocol . '://' . $this->domain . $folder );
 			}
-		
 			define('SITE_URL', URL);
 		} else {
 			define('URL', $this->protocol . '://' . $this->domain . $folder );
@@ -58,46 +56,16 @@ class Uri extends App {
 	*/
 	function callRoute($request=null) {
 		if(isset($request)) {
-			//$request = $this->getRequest();
 			$this->request = $request;
 		}
-		//D::log($this->loadController(), 'controller funcj');
 		echo f_call($this->loadController());
 	}
-		
-//	var $contorllerFile;	
 	
-	
+	/*	Just a little nicer way of asking for the request… I might take this thing out, I would suggest just useing `Uri->rquest` for now. */
 	function getRequest() {
 		return $this->request;
 	}
 	
-	function loadUrl($regexs=array()) {
-		$this->uriArray = null;
-		if(!empty($regexs)) {
-			$this->uriArray = $this->regexArray($regexs);
-			$pop = true;
-		}
-		if(empty($this->uriArray)) {
-			$this->uriArray = explode('/', $this->request);
-		}
-		return $this->uriArray;
-	}
-	
-	function regexArray($regexs) {
-		$matches = array();
-		foreach($regexs as $regex => $func) {
-			preg_match_all($regex, $this->request, $matches);
-			if(f_first($matches)) {
-				D::log($regex, 'regex');
-				return f_push(
-					array($func),
-					array_map('f_first', f_rest($matches))
-				);
-			}
-		}
-		return false;
-	}
 	/* Leagcy function */
 	function getPart($index) {
 		return isset($this->uriArray[$index]) ? $this->uriArray[$index] : null;
@@ -117,14 +85,16 @@ class Uri extends App {
 		return rawurldecode($this->rawGet($index));
 	}
 	
+	/* If you don't like you crap pre url decoded */
 	function rawGet($index) {
-		return isset($this->uriArray[$index]) ? $this->uriArray[$index] : null;
+		return array_key_exists($index, $this->uriArray) ? $this->uriArray[$index] : null;
 	}
 	/* returns the entire array of uri parts */
 	function getArray() {
 		return $this->uriArray;
 	}
 	
+	/* Takes you to a differnent Url immedaditily. Shuts down the framework and everything. */
 	function redirect($uri = '', $http_response_code = 302) {
 		if(substr($uri, 0, 7) != 'http://') {
 			//@todo fix this so it works with https
@@ -215,6 +185,34 @@ class Uri extends App {
 			return false;
 		};
 	}
+	
+	private function loadUrl($regexs=array()) {
+		$this->uriArray = null;
+		if(!empty($regexs)) {
+			$this->uriArray = $this->regexArray($regexs);
+			$pop = true;
+		}
+		if(empty($this->uriArray)) {
+			$this->uriArray = explode('/', $this->request);
+		}
+		return $this->uriArray;
+	}
+	
+	private function regexArray($regexs) {
+		$matches = array();
+		foreach($regexs as $regex => $func) {
+			preg_match_all($regex, $this->request, $matches);
+			if(f_first($matches)) {
+				D::log($regex, 'regex');
+				return f_push(
+					array($func),
+					array_map('f_first', f_rest($matches))
+				);
+			}
+		}
+		return false;
+	}
+
 
 }
 ?>

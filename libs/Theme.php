@@ -15,7 +15,7 @@ class T {
 class V {
 	//view?
 	static function get($reallyHopeNoOneNamesThereVaribleThis, $values=array()) {
-		extract($values);
+		extract($values, EXTR_OVERWRITE);
 		ob_start();
 		include(T::$loc . '/views/' . $reallyHopeNoOneNamesThereVaribleThis . '.php' );
 		return ob_get_clean();
