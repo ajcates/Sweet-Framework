@@ -117,7 +117,7 @@ class SweetModel extends App {
 				$last = $item->{$this->pk};
 			}
 		}
-	
+		$this->_buildOptions = array();
 		return array_values($returnItems);
 	}
 	
@@ -342,14 +342,14 @@ class SweetRow {
 		foreach(array_keys($this->__model->fields) as $field) {
 			//$item->$field = $this->$field;
 			$o = $this->__get($field);
-			if(isset($o)) {			
+			if(isset($o)) {
 				if(is_scalar($o)) {
 					$item[$field] = $o;
 				} else {
 					if(is_a($o, 'SweetRow')) {
 						$item[$field] = $o->export();
-					} elseif(is_array($o)) {					
-						$item[$field] = array_map('SweetRow::mapExport', $o);
+					} elseif(is_array($o)) {
+						$item[$field] = array_filter(array_map('SweetRow::mapExport', $o));
 					} else {
 						D::show('sweet model fup = ' . gettype($o) . ' ' . $field . B::br());
 					}
@@ -374,7 +374,7 @@ class SweetRow {
 				if(is_a($o, 'SweetRow')) {
 					$item[$p] = $o->export();
 				} elseif(is_array($o)) {					
-					$item[$p] = array_map('SweetRow::mapExport', $o);
+					$item[$p] = array_filter(array_map('SweetRow::mapExport', $o));
 				}
 			}
 		}
