@@ -15,7 +15,7 @@ class T {
 class V {
 	//view?
 	static function get($reallyHopeNoOneNamesThereVaribleThis, $values=array()) {
-		extract($values);
+		extract($values, EXTR_OVERWRITE);
 		ob_start();
 		include(T::$loc . '/views/' . $reallyHopeNoOneNamesThereVaribleThis . '.php' );
 		return ob_get_clean();
@@ -41,7 +41,7 @@ class Theme extends App {
 	function set($name) {
 		//@todo rename this to just set
 		$newPlace = APP_FOLDER . '/themes/' . $name;
-		D::log(LOC . '/' . $newPlace, 'new Place');
+		D::log($name, 'Theme Set');
 	//	D::log(URL, 'URL');
 		if(is_dir(LOC . '/' . $newPlace)) {
 			if(substr(URL, -1) == '?') {

@@ -5,7 +5,7 @@ class SweetModel extends App {
 	var $items;	
 	
 	function __construct() {
-		$this->lib('databases/Query');
+		//$this->lib('databases/Query');
 	}
 	
 	var $_buildOptions = array(
@@ -72,6 +72,70 @@ class SweetModel extends App {
 		$this->_buildOptions['update'] = f_flatten(func_get_args());
 		$this->_buildOptions['savemode'] = 'update';
 		return $this;
+	}
+		
+	function save() {
+		if($this->_buildOptions['savemode'] == 'update') {
+			return $this->lib('Query')->update($this->tableName)->where($this->_buildFind($this->_buildOptions['find']))->set($this->_buildOptions['update'])->go();
+		}
+		return false;
+	}
+	/*
+	Takes in an array or an object and inserts it into the db.
+	returns back a SweetRow that has all the props you inserted, so like if you didn't inset the id of the item, its not safe to call $item->delete().
+	 	 */
+	function create($item) {
+		//@todo change this to func_get_args ?
+		if($this->lib('Query')->insert($item)->into($this->tableName)->go()) {
+			if(is_array($item)) {
+				return new SweetRow($this, arrayToObj($item));
+			} else {
+				return new SweetRow($this, $item);
+			}
+		}
+		return false;
+	}
+	
+	function delete() {
+		return $this->lib('Query')->delete()->from($this->tableName)->where($this->_buildFind($this->_buildOptions['find']))->limit(@$this->_buildOptions['limit'])->go();
+	}
+	
+	function all() {
+		$returnItems = array();
+		$i = 0;
+		$last = null;
+		$driver = $this->_build();
+		
+		$pull = f_untree((array)@$this->_buildOptions['pull']);
+		//$pullRefernce = ;
+		while($item = $driver->fetch_object()) {
+			if($item->{$this->pk} === $last) {
+				f_call(array($returnItems[$i], 'pass'), array($item));
+			} else {
+				$i++;
+				$returnItems[$i] = new SweetRow($this, $item, $pull);
+				$last = $item->{$this->pk};
+			}
+		}
+		$this->_buildOptions = array();
+		return array_values($returnItems);
+	}
+	
+	function export() {
+		return array_map(
+			function($r) {
+				return $r->export();
+			},
+			$this->all()
+		);
+	}
+	
+	function one() {
+		return f_first($this->all());
+	}
+	
+	function getTotalRows() {
+		return intval(f_first(f_flatten($this->lib('Query')->select('*')->from($this->tableName)->count()->results('assoc'))));
 	}
 	
 	function _build() {
@@ -195,70 +259,7 @@ class SweetModel extends App {
 			'join' => $join,
 			'select' => $select
 		);
-	}
-	
-	function save() {
-		if($this->_buildOptions['savemode'] == 'update') {
-			return $this->lib('Query')->update($this->tableName)->where($this->_buildFind($this->_buildOptions['find']))->set($this->_buildOptions['update'])->go();
-		}
-		return false;
-	}
-	
-	function create($item) {
-		//@todo change this to func_get_args ?
-		if($this->lib('Query')->insert($item)->into($this->tableName)->go()) {
-			if(is_array($item)) {
-				return new SweetRow($this, arrayToObj($item));
-			} else {
-				return new SweetRow($this, $item);
-			}
-		}
-		return false;
-	}
-	
-	function delete() {
-		return $this->lib('Query')->delete()->from($this->tableName)->where($this->_buildFind($this->_buildOptions['find']))->limit(@$this->_buildOptions['limit'])->go();
-	}
-	
-	function all() {
-		$returnItems = array();
-		$i = 0;
-		$last = null;
-		$driver = $this->_build();
-		
-		$pull = f_untree((array)@$this->_buildOptions['pull']);
-		//$pullRefernce = ;
-		while($item = $driver->fetch_object()) {
-			if($item->{$this->pk} === $last) {
-				f_call(array($returnItems[$i], 'pass'), array($item));
-			} else {
-				$i++;
-				$returnItems[$i] = new SweetRow($this, $item, $pull);
-				$last = $item->{$this->pk};
-			}
-		}
-	
-		return array_values($returnItems);
-	}
-	
-	function export() {
-		return array_map(
-			function($r) {
-				return $r->export();
-			},
-			$this->all()
-		);
-	}
-	
-	function one() {
-		return f_first($this->all());
-	}
-	
-	function getTotalRows() {
-		return intval(f_first(f_flatten($this->lib('Query')->select('*')->from($this->tableName)->count()->results('assoc'))));
-	}
-	
-	
+	}	
 }
 
 class SweetRow {
@@ -341,14 +342,14 @@ class SweetRow {
 		foreach(array_keys($this->__model->fields) as $field) {
 			//$item->$field = $this->$field;
 			$o = $this->__get($field);
-			if(isset($o)) {			
+			if(isset($o)) {
 				if(is_scalar($o)) {
 					$item[$field] = $o;
 				} else {
 					if(is_a($o, 'SweetRow')) {
 						$item[$field] = $o->export();
-					} elseif(is_array($o)) {					
-						$item[$field] = array_map('SweetRow::mapExport', $o);
+					} elseif(is_array($o)) {
+						$item[$field] = array_filter(array_map('SweetRow::mapExport', $o));
 					} else {
 						D::show('sweet model fup = ' . gettype($o) . ' ' . $field . B::br());
 					}
@@ -373,7 +374,7 @@ class SweetRow {
 				if(is_a($o, 'SweetRow')) {
 					$item[$p] = $o->export();
 				} elseif(is_array($o)) {					
-					$item[$p] = array_map('SweetRow::mapExport', $o);
+					$item[$p] = array_filter(array_map('SweetRow::mapExport', $o));
 				}
 			}
 		}
@@ -480,7 +481,8 @@ class SweetRow {
 				return $returnItem;
 			}
 		} else if(array_key_exists($var, $this->__model->fields)) {
-			return f_first($this->__data)->$var;
+			//basicly this @ is here to make sure you call any field on a SweetRow and it will just return null unless it's been set.
+			return @f_first($this->__data)->$var;
 		}
 	}
 	

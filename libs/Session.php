@@ -24,6 +24,7 @@ class Session extends App {
 		D::log('Session is starting');
 		$this->start();
 		
+		SweetEvent::bind('SweetFrameworkEnd', array($this, 'save'));
 	}
 	
 	function start() {
