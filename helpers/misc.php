@@ -70,7 +70,10 @@ function properJsonDecode($json) {
 }
 
 
-
+function notRetardedParse_str($str, $r=array()) {
+	parse_str($str, $r);
+	return $r;
+}
 
 
 /*
@@ -85,10 +88,6 @@ function sup($output) {
    	
 }
 */
-
-
-
-
 
 
 function foxy_utf8_to_nce($utf = '') {
