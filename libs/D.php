@@ -43,6 +43,7 @@ class D {
 		'debug' => true,
 		'warnings' => true,
 		'logfile' => '../logs/main.log',
+		'logmode' => 'w+',
 		'growl' => array(
 			'host' => 'localhost',
 			'password' => 'aldo20'
@@ -52,13 +53,18 @@ class D {
 	
 	static function initialize($config) {
 		self::$config = array_merge(self::$config, (array)$config);
+		
+		self::$handle = fopen(self::$config['logfile'], self::$config['logmode']);
 	}
 
 	static function log($var=null, $label=null) {
 		if(self::$config['debug']) {
+			
 			if(!isset(self::$handle)) {
-				self::$handle = fopen(self::$config['logfile'], 'w+');
+				echo "<h3>Can't write to log.</h3>";
 			}
+			//realpath()
+			
 			if(!isset($label)) {
 				$label = '';
     		} else {
@@ -150,7 +156,8 @@ class D {
 				"\n",
 				array_reverse(array_map(
 					function($v) {
-						return ' ' . $v['function'] . '();' . "\n    →" . substr(substr(@$v['file'], strlen(LOC)), 1, -4) . ' | line:' . @$v['line'];
+						//)
+						return ' ' . $v['function'] . '();' . "\n    →" . substr(substr(@$v['file'], strlen(realpath(LOC))), 1, -4) . ' | line:' . @$v['line'];
 					},
 					debug_backtrace()
 				))

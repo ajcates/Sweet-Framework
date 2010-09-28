@@ -27,18 +27,15 @@ class SweetEvent {
 }
 
 class SweetFramework extends App {
-
-	var $site;
-	var $viewPrefix;
-	var $appShortcut;
-
-	static $urlPattern;
+	
+	static $classes = array();
 
 	function __construct() {
 		//crap we need for the framework
 		//$GLOBALS['app'] = $this; //stop this.
 		$this->helper('functional'); //makes my life oh so much easier :)
 		$this->lib(array('D', 'Config')); //Get the debuger and the config loader
+		
 		D::initialize($this->libs->Config->get('Debug')); //start the debugger up with some config options
 		D::time('App', 'SweetFramework - ' . date('F j, Y, g:i a')); //Write what time the framework starts to the log
 	}
@@ -46,18 +43,20 @@ class SweetFramework extends App {
 	function loadApp($appSettingName) {
 	
 		$appInfo = $this->libs->Config->get('SweetFramework', $appSettingName); //get the current app's settings
+		
+	//	D::show($this->libs->Config->get('SweetFramework'), 'sweet-framework settings');
+		
 		if(!defined('APP_FOLDER')) {
 			define('APP_FOLDER', $appInfo['folder']);
-			foreach($appInfo['paths'] as $k => $v) {
-				if(!is_array(self::$paths[$k])) {
-					self::$paths[$k] = array();
-				}
-				//add in the applications folders to the frameworks file loader
-				self::$paths[$k][] = '/' . APP_FOLDER . '/' . $v .'/';
-				//self::$paths[$k][] = join('/', array(LOC, $appInfo['folder'], $v)) .'/'; @todo A/B test these two.
-			}
 		}
-		D::log('Preload');
+		foreach($appInfo['paths'] as $k => $v) {
+			if(!is_array(self::$paths[$k])) {
+				self::$paths[$k] = array();
+			}
+			//add in the applications folders to the frameworks file loader
+			self::$paths[$k][] = '/' . APP_FOLDER . '/' . $v .'/';
+			//self::$paths[$k][] = join('/', array(LOC, $appInfo['folder'], $v)) .'/'; @todo A/B test these two.
+		}
 		$this->lib(array_merge(array('Uri', 'Theme'), $this->libs->Config->get('site', 'autoload') ));
 		return $this;
 	}
@@ -75,8 +74,6 @@ class SweetFramework extends App {
 		'config' => array('/sweet-framework/settings/')
 	);
 	
-	static $classes = array();
-	
 	public static function className($file) {
 		if(substr($file, -4) == '.php') {
 			return substr(strrchr('/' . $file, '/'), 1, -4);
@@ -84,9 +81,13 @@ class SweetFramework extends App {
 		return substr(strrchr('/' . $file, '/'), 1);
 	}
 	
-	public static function loadFile($path, $fileName) {
+	public static function loadFile($path, $fileName, $forceLoad=false) {
 		if(file_exists(LOC . $path . $fileName)) {
-			require_once(LOC . $path . $fileName);
+			if($forceLoad) {
+				require(LOC . $path . $fileName);
+			} else {
+				require_once(LOC . $path . $fileName);
+			}
 			return true;
 		}
 		return false;
@@ -101,13 +102,13 @@ class SweetFramework extends App {
 	}
 
 	
-	public static function loadFileType($type, $name) {
+	public static function loadFileType($type, $name, $forceLoad=false) {
 		/*  @todo
 			- need to use a FileName function here #Maybe
 		*/
 		//$loc = self::fileLoc($name);
 		foreach(self::$paths[$type] as $path) {
-			if(self::loadFile($path, $name. '.php')) {
+			if(self::loadFile($path, $name. '.php', $forceLoad)) {
 				return true;
 			}
 		}
@@ -134,7 +135,7 @@ class SweetFramework extends App {
 	
 	///////////////////
 		
-	static protected $sweetLibs = array();
+//	static protected $sweetLibs = array();
 	
 	/**
 	 * end function. Shuts the party down.
@@ -145,9 +146,22 @@ class SweetFramework extends App {
 	 */
 	static function end() {
 		SweetEvent::trigger('SweetFrameworkEnd');
+		
+		SweetEvent::$events = array();
+		
 		D::time('App', 'End');
 		D::close();
-		exit;
+		
+		self::$paths = array(
+			'lib' => array('/sweet-framework/libs/'),
+			'model' => array(),
+			'helper' => array('/sweet-framework/helpers/'),
+			'controller' => array(),
+			'config' => array('/sweet-framework/settings/')
+		);
+		self::$classes = array();
+		
+		//exit;
 	}
 }
 
