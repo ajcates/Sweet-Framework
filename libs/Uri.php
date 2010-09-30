@@ -31,9 +31,10 @@ class Uri extends App {
 		//http or https?
 		$this->protocol = strtolower(strstr($_SERVER['SERVER_PROTOCOL'], '/', true));;
 
-		$folder = strstr($_SERVER['REQUEST_URI'] .'?', '?', true);
+		
 		if(!defined('URL')) {
 			if($this->lib('Config')->get('site', 'prettyUrls')) {
+				$folder = $_SERVER['REQUEST_URI'];
 				if($this->request) {
 					define('URL', $this->protocol . '://' . $this->domain . substr($folder, 0, -strlen($this->request)) );
 				} else {
@@ -41,6 +42,7 @@ class Uri extends App {
 				}
 				define('SITE_URL', URL);
 			} else {
+				$folder = strstr($_SERVER['REQUEST_URI'] .'?', '?', true);
 				define('URL', $this->protocol . '://' . $this->domain . $folder );
 				define('SITE_URL', URL . '?');
 			}
