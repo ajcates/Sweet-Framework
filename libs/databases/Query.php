@@ -28,6 +28,7 @@ class Query extends App {
 	private $_whereValue;
 	private $_limit;
 	private $_orderBy;
+	private $_groupBy;
 	private $_updateValue;
 	private	$_insert;
 	private $_selectFunction;
@@ -64,6 +65,7 @@ class Query extends App {
 		$this->_whereValue = null;
 		$this->_limit = null;
 		$this->_orderBy = null;
+		$this->_groupBy = null;
 		$this->_updateValue = null;
 		$this->_insert = null;
 		$this->_selectFunction = null;
@@ -135,6 +137,11 @@ class Query extends App {
 	
 	public function orderBy($value=null) {
 		$this->_orderBy = $value;
+		return $this;
+	}
+	
+	public function groupBy($value=null) {
+		$this->_groupBy = $value;
 		return $this;
 	}
 
@@ -233,6 +240,12 @@ class Query extends App {
 		}
 	}
 	
+	function _buildGroupBy() {
+		if(!empty($this->_groupBy)) {
+			return "\n" . ' GROUP BY ' . join(' , ', array_map('Query::escape', $this->_groupBy));
+		}
+	}
+	
 	function _buildJoins() {
 	 	if(!empty($this->_joins)) {
 		 	return "\n" . join(' ', f_map(
@@ -293,7 +306,7 @@ class Query extends App {
 				}
 				
 				
-				$sqlString = 'SELECT ' . $this->_buildSelect() . "\n" . ' FROM ' . join(', ', (array)Query::$_fromValue) . $this->_buildJoins() .  $this->_buildWhereString($this->_whereValue) . $this->_buildOrderBy() . $this->_buildLimit($this->_limit);
+				$sqlString = 'SELECT ' . $this->_buildSelect() . "\n" . ' FROM ' . join(', ', (array)Query::$_fromValue) . $this->_buildJoins() .  $this->_buildWhereString($this->_whereValue) . $this->_buildGroupBy() . $this->_buildOrderBy() . $this->_buildLimit($this->_limit);
 				break;
 			case 'update':
 				$sqlString = 'UPDATE ' . f_first(Query::$_fromValue) . "\n" . ' SET ' . $this->_buildSet($this->_setValue) . $this->_buildWhereString($this->_whereValue);
