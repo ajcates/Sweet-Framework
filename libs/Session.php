@@ -34,10 +34,10 @@ class Session extends App {
 	function loadData($data) {
 		foreach($data as $d) {
 			if($d->flash) {
-				$this->_flash[$d->name] = $d->value;
+				$this->_flash[$d->name] = unserialize($d->value);
 				$this->_flashRemove[] = $d->name;
 			} else {
-				$this->_data[$d->name] = $d->value;
+				$this->_data[$d->name] = unserialize($d->value);
 			}
 		}
 	}
@@ -131,7 +131,7 @@ class Session extends App {
 				return $this->flash(f_last($key));
 			}
 			$this->_flash[$key] = $value;
-			$this->libs->Query->insert(array('name' => $key, 'value' => $this->_flash[$key], 'session' => $this->_id, 'flash' => 1))->into($this->libs->Config->get('Session', 'dataTableName'))->go();
+			$this->libs->Query->insert(array('name' => $key, 'value' => serialize($this->_flash[$key]), 'session' => $this->_id, 'flash' => 1))->into($this->libs->Config->get('Session', 'dataTableName'))->go();
 		//}
 	}
 	
@@ -140,10 +140,10 @@ class Session extends App {
 	//	if($this->checkCookie()) {
 			D::log($this->_data, 'data');
 			foreach($this->_changed as $key) {
-				$this->libs->Query->update($this->libs->Config->get('Session', 'dataTableName'))->where(array('name' => $key, 'session' => $this->_id))->set(array('value' => $this->_data[$key]))->go();
+				$this->libs->Query->update($this->libs->Config->get('Session', 'dataTableName'))->where(array('name' => $key, 'session' => $this->_id))->set(array('value' => serialize($this->_data[$key])))->go();
 			}
 			foreach($this->_new as $key) {
-				$this->libs->Query->insert(array('name' => $key, 'value' => $this->_data[$key], 'session' => $this->_id))->into($this->libs->Config->get('Session', 'dataTableName'))->go();
+				$this->libs->Query->insert(array('name' => $key, 'value' => serialize($this->_data[$key]), 'session' => $this->_id))->into($this->libs->Config->get('Session', 'dataTableName'))->go();
 			}
 			if(!empty($this->_flashRemove)) {
 				$this->libs->Query->delete()->where(array('name' => $this->_flashRemove, 'session' => $this->_id, 'flash' => 1))->from($this->libs->Config->get('Session', 'dataTableName'))->go();

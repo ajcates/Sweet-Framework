@@ -76,7 +76,7 @@ class SweetModel extends App {
 		
 	function save() {
 		if($this->_buildOptions['savemode'] == 'update') {
-			return $this->lib('Query')->update($this->tableName)->where($this->_buildFind($this->_buildOptions['find']))->set($this->_buildOptions['update'])->go();
+			return $this->lib('databases/Query')->update($this->tableName)->where($this->_buildFind($this->_buildOptions['find']))->set($this->_buildOptions['update'])->go();
 		}
 		return false;
 	}
@@ -86,7 +86,7 @@ class SweetModel extends App {
 	 	 */
 	function create($item) {
 		//@todo change this to func_get_args ?
-		if($this->lib('Query')->insert($item)->into($this->tableName)->go()) {
+		if($this->lib('databases/Query')->insert($item)->into($this->tableName)->go()) {
 			if(is_array($item)) {
 				return new SweetRow($this, arrayToObj($item));
 			} else {
@@ -97,7 +97,7 @@ class SweetModel extends App {
 	}
 	
 	function delete() {
-		return $this->lib('Query')->delete()->from($this->tableName)->where($this->_buildFind($this->_buildOptions['find']))->limit(@$this->_buildOptions['limit'])->go();
+		return $this->lib('databases/Query')->delete()->from($this->tableName)->where($this->_buildFind($this->_buildOptions['find']))->limit(@$this->_buildOptions['limit'])->go();
 	}
 	
 	function all() {
@@ -135,7 +135,7 @@ class SweetModel extends App {
 	}
 	
 	function getTotalRows() {
-		return intval(f_first(f_flatten($this->lib('Query')->select('*')->from($this->tableName)->count()->results('assoc'))));
+		return intval(f_first(f_flatten($this->lib('databases/Query')->select('*')->from($this->tableName)->count()->results('assoc'))));
 	}
 	
 	function _build() {
@@ -155,7 +155,7 @@ class SweetModel extends App {
 		//array_reverse()
 		//@todo replace @ with ternaries.
 		
-		return $this->lib('Query')->select($select)->join($join)->from($this->tableName, @$this->_buildOptions['limit'])->where($this->_buildFind($this->_buildOptions['find']))->limit( @$this->_buildOptions['jlimit'] )->orderBy(@$this->_buildOptions['sort'])->go()->getDriver();
+		return $this->lib('databases/Query')->select($select)->join($join)->from($this->tableName, @$this->_buildOptions['limit'])->where($this->_buildFind($this->_buildOptions['find']))->limit( @$this->_buildOptions['jlimit'] )->orderBy(@$this->_buildOptions['sort'])->go()->getDriver();
 	}
 	
 	function _buildFind($find=array()) {
@@ -528,7 +528,7 @@ class SweetRow {
 			return false;
 		}
 		$model = $this->_model;
-		return $this->getLibrary('Query')->update($model::$tableName)->where(array($model::$PK => $this->_data[$model::$PK]))->set($this->_data)->go();
+		return $this->getLibrary('databases/Query')->update($model::$tableName)->where(array($model::$PK => $this->_data[$model::$PK]))->set($this->_data)->go();
 		*/
 	}
 	

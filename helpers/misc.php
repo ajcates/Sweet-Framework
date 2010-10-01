@@ -209,6 +209,10 @@ function notRetardedSort($sort, $type=SORT_REGULAR) {
 	sort($sort, $type);
 	return $sort;
 }
+function notRetardedKSort($sort, $type=SORT_REGULAR) {
+	ksort($sort, $type);
+	return $sort;
+}
 
 function sortBy($objects_array, $p) {
 	uasort(

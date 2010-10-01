@@ -43,6 +43,7 @@ class D {
 		'debug' => true,
 		'warnings' => true,
 		'logfile' => '../logs/main.log',
+		'logmode' => 'w+',
 		'growl' => array(
 			'host' => 'localhost',
 			'password' => 'aldo20'
@@ -52,19 +53,24 @@ class D {
 	
 	static function initialize($config) {
 		self::$config = array_merge(self::$config, (array)$config);
+		self::$handle = fopen(self::$config['logfile'], self::$config['logmode']);
+		if(self::$config['debug']) {
+			//"God Mode" 
+			//error_reporting(E_ALL | E_DEPRECATED | E_STRICT);
+			error_reporting(E_ALL | E_DEPRECATED);
+			ini_set('display_errors', 1);	
+		} else {
+			error_reporting(0);
+			ini_set('display_errors', 0);
+		}
 	}
 
 	static function log($var=null, $label=null) {
 		if(self::$config['debug']) {
-			if(!isset(self::$handle)) {
-				self::$handle = fopen(self::$config['logfile'], 'w+');
+			if(!self::$handle) {
+				echo "<h3>Failed writing to the log. I'm sad. :(</h3>";
 			}
-			if(!isset($label)) {
-				$label = '';
-    		} else {
-    			$label .= ': ';
-    		}
-    		fwrite(self::$handle, "\n" . $label . stripcslashes(print_r($var, true)) . "\n\n");
+    		fwrite(self::$handle, self::getLogMessage($var, $label));
 		}
 		return $var;
 	}
@@ -111,16 +117,18 @@ class D {
 		return $var;
 	}
 	static function show($var, $label='') {
-		echo '<div class="debug">' . "\n";
-		if(!empty($label)) {
-			echo '<h4>' . $label . "</h4>\n";
-		}
-		//@todo make this only go if the debugging is enabled.
-		echo '<pre>';
-		print_r(self::log($var, $label));
-		echo '</pre>' . "\n</div>";
+		echo self::getDisplayMessage($var, $label);
 		return $var;
 	}
+	
+	static function getLogMessage($var, $label=null) {
+		return "\n" . (!empty($label) ? '# ' . $label . ': ' : '') . stripcslashes(print_r($var, true)) . "\n\n                 -~-";
+	}
+	
+	static function getDisplayMessage($var, $label=null) {
+		return '<div class="debug">' . "\n" . (!empty($label) ? '<h4>' . $label . "</h4>\n" : '') . '<pre>' . print_r($var, true) . '</pre>' . "\n</div>";
+	}
+	
 	static function report($context, $error) {
 		//$temp = "\n	There has been an error. Context: " . $context . "\n	" . "Error: " . $error . "\n	Back trace:" . print_r(stacktrace(), true);
 		//self::log($temp, 'Fatal and kinda expected error');
@@ -150,7 +158,8 @@ class D {
 				"\n",
 				array_reverse(array_map(
 					function($v) {
-						return ' ' . $v['function'] . '();' . "\n    →" . substr(substr(@$v['file'], strlen(LOC)), 1, -4) . ' | line:' . @$v['line'];
+						//)
+						return ' ' . $v['function'] . '();' . "\n    →" . substr(substr(@$v['file'], strlen(realpath(LOC))), 1, -4) . ' | line:' . @$v['line'];
 					},
 					debug_backtrace()
 				))

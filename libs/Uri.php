@@ -31,24 +31,28 @@ class Uri extends App {
 		//http or https?
 		$this->protocol = strtolower(strstr($_SERVER['SERVER_PROTOCOL'], '/', true));;
 
-		$folder = strstr($_SERVER['REQUEST_URI'] .'?', '?', true);
 		
-		if($this->lib('Config')->get('site', 'prettyUrls')) {
-			if($this->request) {
-				define('URL', $this->protocol . '://' . $this->domain . substr($folder, 0, -strlen($this->request)) );
+		if(!defined('URL')) {
+			if($this->lib('Config')->get('site', 'prettyUrls')) {
+				$folder = $_SERVER['REQUEST_URI'];
+				if($this->request) {
+					define('URL', $this->protocol . '://' . $this->domain . substr($folder, 0, -strlen($this->request)) );
+				} else {
+					define('URL', $this->protocol . '://' . $this->domain . $folder );
+				}
+				define('SITE_URL', URL);
 			} else {
+				$folder = strstr($_SERVER['REQUEST_URI'] .'?', '?', true);
 				define('URL', $this->protocol . '://' . $this->domain . $folder );
+				define('SITE_URL', URL . '?');
 			}
-			define('SITE_URL', URL);
-		} else {
-			define('URL', $this->protocol . '://' . $this->domain . $folder );
-			define('SITE_URL', URL . '?');
 		}
+		
 		D::log(SITE_URL . $this->request, 'URI Library Loaded');
 		D::log(SITE_URL, 'SITE_URL');
 		D::log($this->request, 'Request');
 		
-		$this->contorllerFile = $this->libs->Config->get('site', 'mainController');
+		$this->contorllerFile = $this->lib('Config')->get('site', 'mainController');
 	}
 	/*
 	Calls a specfic route. As in you type in a relative url inside your application and the framework will fire up the controller and call its function and everything for you.
@@ -155,6 +159,9 @@ class Uri extends App {
 			if(is_array( f_first(f_last($page)) )) {
 				$this->request = f_first($page);
 				D::log($this->request, 'Request Reduced');
+				if(method_exists($class, 'enRoute')) {
+					$class::enRoute();
+				}
 				return $this->loadController(f_first(f_first(f_last($page))), $this->count+=1);
 			}
 			$page[$this->count] = f_first(f_last($page));

@@ -39,7 +39,7 @@ class Query extends App {
 	public function __construct() {
 		//$this->getLibrary('Config');
 		$this->helper('misc');
-		$this->_driver = $this->lib('databases/Databases')->getCurrentDb();
+		self::$_driver = $this->lib('databases/Databases')->getCurrentDb();
 	}
 	
 	function insert($values) {
@@ -354,7 +354,7 @@ class Query extends App {
 	public function go() {
 		self::$last = $this->_build();
 		$this->reset();
-		if(!$this->_driver->query(self::$last)) {
+		if(!self::$_driver->query(self::$last)) {
 			return false;
 		}
 		return $this;
@@ -363,11 +363,11 @@ class Query extends App {
 	public function results($type='object') {
 		self::$last = $this->_build();
 		$this->reset();
-		return $this->_driver->query(self::$last, $type);
+		return self::$_driver->query(self::$last, $type);
 	}
 	
 	public function getDriver() {
-		return $this->_driver;
+		return self::$_driver;
 	}
 	public static function nullEscape($var, $sep="'") {
 		if(!isset($var)) {
