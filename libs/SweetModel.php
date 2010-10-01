@@ -252,7 +252,8 @@ class SweetModel extends App {
 		
 		//SELECT CODE:
 		foreach(array_keys($this->fields) as $field) {
-			$select[$pull . '.' . $field] = str_replace('$', '.', $pull) . '.' . $field;
+			//$select[$pull . '.' . $field] = str_replace('$', '.', $pull) . '.' . $field;
+			$select[str_replace('$', '.', $pull) . '.' . $field] = $pull . '.' . $field;
 		}
 	//	D::log($select, 'built select');
 		return array(
