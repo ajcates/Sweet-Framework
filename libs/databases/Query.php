@@ -6,6 +6,7 @@ abstract class dbDriver {
 	abstract function gettingRows();
 	abstract function getFieldCount();
 	abstract function getFieldTable($id);
+	abstract function getLastInsert();
 	
 	abstract function query($sql);
 	abstract function getErrors();
@@ -403,6 +404,11 @@ class Query extends App {
 	public function getDriver() {
 		return self::$_driver;
 	}
+	
+	public function getLastInsert() {
+		return self::$_driver->lastInsert();
+	}
+	
 	public static function nullEscape($var, $sep="'") {
 		if(!isset($var)) {
 			return 'null';

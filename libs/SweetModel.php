@@ -88,8 +88,10 @@ class SweetModel extends App {
 		//@todo change this to func_get_args ?
 		if($this->lib('databases/Query')->insert($item)->into($this->tableName)->go()) {
 			if(is_array($item)) {
+				$item[$this->pk] = $this->libs->Query->getLastInsert();
 				return new SweetRow($this, arrayToObj($item));
 			} else {
+				$item->{$this->pk} = $this->libs->Query->getLastInsert();
 				return new SweetRow($this, $item);
 			}
 		}
