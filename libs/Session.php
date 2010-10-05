@@ -102,7 +102,7 @@ class Session extends App {
 	function data($key, $value=null) {
 		//if($this->checkCookie()) {
 			if(!isset($value)) {
-				return @$this->_data[$key];
+				return array_key_exists($key, $this->_data) ? $this->_data[$key] : null;
 			}
 			if(is_array($key)) {
 				foreach($key as $k => $v) {

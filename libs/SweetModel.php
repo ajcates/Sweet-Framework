@@ -292,6 +292,7 @@ class SweetRow {
 	public $__errors = array();
 	public $__pull; 
 	public $__model;
+	public $__update = array();
 	
 	function __construct($model, $item, $pull=array()) {
 		$this->__data[] = $item;
@@ -303,7 +304,7 @@ class SweetRow {
 		$this->__data[] = $item; 
 	}
 	
-	function __set($var, $value) {
+	//function __set($var, $value) {
 		/*
 		$model = $this->_model;
 		if (is_callable(array($this->getLibrary(f_first($model::$objects[$var])), 'set_' . $model::$objects[$var][1]))) {
@@ -317,7 +318,7 @@ class SweetRow {
 			$this->$var = $this->_data[$var];
 		}
 		*/
-	}
+	//}
 	
 	static function mapExport($v) {
 		if(is_a($v, 'SweetRow')) {					
@@ -351,7 +352,7 @@ class SweetRow {
 					} elseif(is_array($o)) {
 						$item[$field] = array_filter(array_map('SweetRow::mapExport', $o));
 					} else {
-						D::show('sweet model fup = ' . gettype($o) . ' ' . $field . B::br());
+						D::warn('sweet model fup = ' . gettype($o) . ' ' . $field . B::br());
 					}
 				}
 			}
@@ -463,19 +464,21 @@ class SweetRow {
 				$last = null;
 			//	$returnItems = array();
 				foreach($this->__data as $row) {
-					$item = new stdClass();
-					foreach($keys as $key) {
-						if($subKey = substr($key, $varL)) {
-							$item->$subKey = $row->$key;
+					if(!empty($row)) {
+						$item = new stdClass();
+						foreach($keys as $key) {
+							if($subKey = substr($key, $varL)) {
+								$item->$subKey = $row->$key;
+							}
 						}
-					}
-					if(isset($returnItem) && $returnItem->{$model->pk} == $last) {
-						$returnItem->pass($item);
-						//f_call(array($returnItem, 'pass'), array($item));
-					} else {
-						//if()
-						$returnItem = new SweetRow($model, $item, $pull);
-						$last = $item->{$model->pk};	
+						if(isset($returnItem) && $returnItem->{$model->pk} == $last) {
+							$returnItem->pass($item);
+							//f_call(array($returnItem, 'pass'), array($item));
+						} else {
+							//if()
+							$returnItem = new SweetRow($model, $item, $pull);
+							$last = $item->{$model->pk};	
+						}
 					}
 				}
 				return $returnItem;
@@ -488,6 +491,9 @@ class SweetRow {
 	
 	function __call($var, $args=array()) {
 		/*
+		@todo:
+			I think I'll have the lazy loading happen if you use the __call
+		---
 		$model = $this->_model;
 		if(array_key_exists($var, $model::$belongsTo)) {
 			//->find(array($model::$belongsTo[$var] => $this->_data[$model::$PK] ))->all()
@@ -501,11 +507,45 @@ class SweetRow {
 		*/
 	}
 	
-	function set($var, $value) {
+	function __set($var, $value) {
 		/*
 		$this->_data[$var] = $value;
 		return $this;
 		*/
+		
+		
+		$this->__update[$var] = $value;
+		if(is_scalar($value)) {
+			$this->__data = array_map(
+				function($row) use($var, $value) {
+					$row->$var = $value;
+					return $row;
+				},
+				$this->__data
+			);
+		} else {
+			D::warn('SweetRows do not currently support non scalar values… yet.');
+		}
+		
+	}
+	
+	function update($vals) {
+		f_keyMap(	
+			array($this, '__set'),
+			array_flip((array)$vals)
+		);
+		return $this;
+	}
+	
+	function save() {
+		if(!empty($this->__update)) {
+			return $this->__model->find(array('id' => $this->{$this->__model->pk}))->update($this->__update)->save();
+		}
+	}
+	
+	function test() {
+		D::show($this->__pull, 'pull');
+		D::show(($this->__data), 'first data');
 	}
 	
 	function get($var, $fetch=false) {
@@ -518,17 +558,6 @@ class SweetRow {
 		} else {
 			return $this->{f_first((array)$var)};
 		}
-		*/
-	}
-	
-	function save() {
-		/* @todo figure out if this needs to return its self. */
-		/*
-		if(!empty($this->_errors)) {
-			return false;
-		}
-		$model = $this->_model;
-		return $this->getLibrary('databases/Query')->update($model::$tableName)->where(array($model::$PK => $this->_data[$model::$PK]))->set($this->_data)->go();
 		*/
 	}
 	

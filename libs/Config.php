@@ -37,7 +37,7 @@ class Config {
 			Sweetframework::loadFileType('config', $className, true);
 		}
 		if(isset($param)) {
-			return $this->configs[$className][$param];
+			return isset($this->configs[$className][$param]) ? $this->configs[$className][$param] : null;
 		} else {
 			return $this->configs[$className];
 		}
