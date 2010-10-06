@@ -157,20 +157,31 @@ class SweetModel extends App {
 		//array_reverse()
 		//@todo replace @ with ternaries.
 		
-		return $this->lib('databases/Query')->select($select)->join($join)->from($this->tableName, @$this->_buildOptions['limit'])->where($this->_buildFind($this->_buildOptions['find']))->limit( @$this->_buildOptions['jlimit'] )->orderBy(@$this->_buildOptions['sort'])->go()->getDriver();
+		return $this->lib('databases/Query')->select($select)->join($join)->from(
+				$this->tableName,
+				!empty($this->_buildOptions['limit']) ? $this->_buildOptions['limit'] : null
+			)->where(
+				$this->_buildFind(!empty($this->_buildOptions['find']) ? $this->_buildOptions['find'] : null)
+			)->limit(
+				!empty($this->_buildOptions['jlimit']) ? $this->_buildOptions['jlimit'] : null
+			)->orderBy(
+				!empty($this->_buildOptions['sort']) ? $this->_buildOptions['sort'] : null
+			)->go()->getDriver();
 	}
 	
-	function _buildFind($find=array()) {
-		foreach($find as $k => $arg) {
-			if(is_int($k) && is_array($arg)) {
-				unset($find[$k]);
-				$find = array_merge($find, $this->_buildFind($arg));
-			} else if(is_string($k) && array_key_exists($k, $this->fields)) {
-				unset($find[$k]);
-				$find[$this->tableName . '.' . $k] = $arg;
-			} else if(is_numeric($arg)) {
-				unset($find[$k]);
-				$find[$this->tableName . '.' . $this->pk] = $arg;
+	function _buildFind($find=null) {
+		if(isset($find)) {
+			foreach($find as $k => $arg) {
+				if(is_int($k) && is_array($arg)) {
+					unset($find[$k]);
+					$find = array_merge($find, $this->_buildFind($arg));
+				} else if(is_string($k) && array_key_exists($k, $this->fields)) {
+					unset($find[$k]);
+					$find[$this->tableName . '.' . $k] = $arg;
+				} else if(is_numeric($arg)) {
+					unset($find[$k]);
+					$find[$this->tableName . '.' . $this->pk] = $arg;
+				}
 			}
 		}
 		return $find;
