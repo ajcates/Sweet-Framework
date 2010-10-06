@@ -297,6 +297,8 @@ class SweetRow {
 	public $__model;
 	public $__update = array();
 	
+	public $__update = array();
+	
 	function __construct($model, $item, $pull=array()) {
 		$this->__data[] = $item;
 		$this->__model = $model;
@@ -510,12 +512,33 @@ class SweetRow {
 		*/
 	}
 	
+<<<<<<< HEAD
 	function __set($var, $value) {
+=======
+	function update($vars) {
+		/*
+		foreach($vars as $var) {
+		
+		}
+		*/
+		
+		/*
+		- most data is stored in $this->_data[0]
+		- I need to update the current vals as long as the ones in the db.
+		- how do i handle reading in other sweet models?
+			- Can i wait latter to figure this out when it makes sense?
+		
+		*/
+	}
+	
+	function set($var, $value) {
+>>>>>>> 165fbf5e26fcea143eafbfee4adddbd77f104c30
 		/*
 		$this->_data[$var] = $value;
 		return $this;
 		*/
 		
+<<<<<<< HEAD
 		
 		$this->__update[$var] = $value;
 		if(is_scalar($value)) {
@@ -549,6 +572,8 @@ class SweetRow {
 	function test() {
 		D::show($this->__pull, 'pull');
 		D::show(($this->__data), 'first data');
+=======
+>>>>>>> 165fbf5e26fcea143eafbfee4adddbd77f104c30
 	}
 	
 	function get($var, $fetch=false) {

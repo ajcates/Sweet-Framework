@@ -137,6 +137,11 @@ get rid of this switch and use an array of functions instead.
 		return $this->query($sql);
 	}
 	
+	function lastInsert() {
+		return mysql_insert_id($this->connection);
+		
+	}
+	
 	function escape($value) {
 		return mysql_real_escape_string((string)$value, $this->connection);
 	}
