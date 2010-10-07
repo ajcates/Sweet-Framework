@@ -181,7 +181,7 @@ class Query extends App {
  				if(is_array($v)) {
 					$v = join(', ', f_keyMap(
 						function($vV, $vK) {
-							return Query::escape($vK) . '(' . join(',', array_map('Query::escape', $vV)) . ')';
+							return Query::escape($vK) . '(' . join(',', array_map('Query::escape', (array) $vV)) . ')';
 						},
 						$v
 					));
