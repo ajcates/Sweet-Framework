@@ -121,6 +121,11 @@ class D {
 		return $var;
 	}
 	
+	static function export($var, $label='') {
+		echo self::getDisplayMessage(var_export($var, true), $label);
+		return $var;
+	}
+	
 	static function getLogMessage($var, $label=null) {
 		return "\n" . (!empty($label) ? '# ' . $label . ': ' : '') . stripcslashes(print_r($var, true)) . "\n\n                 -~-";
 	}

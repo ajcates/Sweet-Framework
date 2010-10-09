@@ -191,7 +191,9 @@ function objToArray($obj) {
 function arrayToObj($array) {
 	$obj = new stdClass();
 	foreach($array as $k => $v) {
-		$obj->$k = $v;
+		if(!empty($k)) {
+			$obj->$k = $v;
+		}
 	}
 	return $obj;
 }
