@@ -149,7 +149,10 @@ class D {
 	static function warn($warning='Warning') {
 		//D::show('WHAT');
 		if(self::$config['warnings']) {
-			D::show(D::stack(), $warning);
+			if(!extension_loaded('xdebug')) {
+				D::show(D::stack(), $warning);
+			}
+			trigger_error($warning);
 		}		
 	}
 
