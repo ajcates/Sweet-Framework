@@ -110,15 +110,15 @@ class SweetModel extends App {
 		
 		$pull = f_untree((array)@$this->_buildOptions['pull']);
 		//$pullRefernce = ;
-		while($item = $driver->fetch_object()) {
+		while($item = $driver->fetch_assoc()) {
 			D::log($item, 'item');
 			if(!empty($item)) {
-				if(isset($item->{$this->pk}) && $item->{$this->pk} === $last) {
+				if(isset($item[$this->pk]) && $item[$this->pk] === $last) {
 					f_call(array($returnItems[$i], 'pass'), array($item));
 				} else {
 					$i++;
 					$returnItems[$i] = new SweetRow($this, $item, $pull);
-					$last = isset($item->{$this->pk}) ? $item->{$this->pk} : null;
+					$last = isset($item[$this->pk]) ? $item[$this->pk] : null;
 				}
 			}
 		}
@@ -465,20 +465,20 @@ class SweetRow {
 			if(is_string($fKey = f_first(array_keys($pullRel)) )) {
 				//m2m
 				$model = SweetFramework::getClass('model', f_first($pullRel[$fKey]));
-				
+				$returnItems = array();
 				foreach($this->__data as $row) {
-					$item = new stdClass();
+					$item = array();
 					
 					foreach($keys as $key) {
 						//D::log(substr($key, $varL), 'subkey');
-						D::log($key, 'key');
-						$item->{substr($key, $varL)} = $row->$key;
+						if(!empty($row[$key])) {
+							$item[substr($key, $varL)] = $row[$key];
+						}
 					}
 					//D::log($item, 'm2m item');
-					D::log($item, 'row');
-					//if(!empty((array) $item)) {
+					if(!empty($item)) {
 						$returnItems[] = new SweetRow($model, $item, $pull);
-					//}
+					}
 				}
 				return $returnItems;
 			} else {
@@ -487,10 +487,10 @@ class SweetRow {
 			//	$returnItems = array();
 				foreach($this->__data as $row) {
 					if(!empty($row)) {
-						$item = new stdClass();
+						$item = array();
 						foreach($keys as $key) {
 							if($subKey = substr($key, $varL)) {
-								$item->$subKey = $row->$key;
+								$item[$subKey] = $row[$key];
 							}
 						}
 						if(isset($returnItem) && $returnItem->{$model->pk} == $last) {
@@ -499,7 +499,7 @@ class SweetRow {
 						} else {
 							//if()
 							$returnItem = new SweetRow($model, $item, $pull);
-							$last = $item->{$model->pk};	
+							$last = $item[$model->pk];
 						}
 					}
 				}
@@ -507,7 +507,7 @@ class SweetRow {
 			}
 		} else if(array_key_exists($var, $this->__model->fields)) {
 			//basicly this @ is here to make sure you call any field on a SweetRow and it will just return null unless it's been set.
-			return !empty($this->__data[0]->$var) ? $this->__data[0]->$var : null;
+			return !empty($this->__data[0][$var]) ? $this->__data[0][$var] : null;
 			//return @f_first($this->__data)->$var;
 		}
 	}
@@ -541,7 +541,7 @@ class SweetRow {
 		if(is_scalar($value)) {
 			$this->__data = array_map(
 				function($row) use($var, $value) {
-					$row->$var = $value;
+					$row[$var] = $value;
 					return $row;
 				},
 				$this->__data
