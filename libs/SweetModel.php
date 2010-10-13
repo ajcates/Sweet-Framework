@@ -87,13 +87,11 @@ class SweetModel extends App {
 	function create($item) {
 		//@todo change this to func_get_args ?
 		if($this->lib('databases/Query')->insert($item)->into($this->tableName)->go()) {
-			if(is_array($item)) {
-				$item[$this->pk] = $this->libs->Query->getLastInsert();
-				return new SweetRow($this, arrayToObj($item));
-			} else {
-				$item->{$this->pk} = $this->libs->Query->getLastInsert();
-				return new SweetRow($this, $item);
+			if(!is_array($item)) {
+				$item = (array)$item;
 			}
+			$item[$this->pk] = $this->libs->Query->getLastInsert();
+			return new SweetRow($this, $item);
 		}
 		return false;
 	}
@@ -111,12 +109,14 @@ class SweetModel extends App {
 		$pull = f_untree((array)@$this->_buildOptions['pull']);
 		//$pullRefernce = ;
 		while($item = $driver->fetch_assoc()) {
-			D::log($item, 'item');
+	//		D::log($item, 'item');
 			if(!empty($item)) {
 				if(isset($item[$this->pk]) && $item[$this->pk] === $last) {
+					D::log($item[$this->pk], 'passing');
 					f_call(array($returnItems[$i], 'pass'), array($item));
 				} else {
 					$i++;
+					D::log($item, 'not passing');
 					$returnItems[$i] = new SweetRow($this, $item, $pull);
 					$last = isset($item[$this->pk]) ? $item[$this->pk] : null;
 				}
@@ -227,7 +227,12 @@ class SweetModel extends App {
 					continue;
 				}
 				//regular join
+				if(!array_key_exists($pull, $this->relationships)) {
+					D::show($this->relationships, 'Current relationships');
+					D::warn($pull . ' can\'t be found in the ' . get_class($this) . ' model');
+				}
 				$pullRel = $this->relationships[$pull];
+				
 				
 				if(is_string($fKey = f_first(array_keys($pullRel)) )) {
 					$flName = $fKey;
@@ -466,6 +471,9 @@ class SweetRow {
 				//m2m
 				$model = SweetFramework::getClass('model', f_first($pullRel[$fKey]));
 				$returnItems = array();
+				$i = 0;
+				$last = null;
+				
 				foreach($this->__data as $row) {
 					$item = array();
 					
@@ -477,7 +485,13 @@ class SweetRow {
 					}
 					//D::log($item, 'm2m item');
 					if(!empty($item)) {
-						$returnItems[] = new SweetRow($model, $item, $pull);
+						if(isset($model->pk) && $item[$model->pk] === $last) {
+							f_call(array($returnItems[$i], 'pass'), array($item));
+						} else {
+							$i++;
+							$returnItems[$i] = new SweetRow($model, $item, $pull);
+							$last = isset($model->pk) ? $item[$model->pk] : null;
+						}
 					}
 				}
 				return $returnItems;
@@ -497,7 +511,6 @@ class SweetRow {
 							$returnItem->pass($item);
 							//f_call(array($returnItem, 'pass'), array($item));
 						} else {
-							//if()
 							$returnItem = new SweetRow($model, $item, $pull);
 							$last = $item[$model->pk];
 						}
