@@ -566,9 +566,10 @@ class SweetRow {
 	}
 	
 	function update($vals) {
-		f_keyMap(	
+		array_map(
 			array($this, '__set'),
-			array_flip((array)$vals)
+			array_keys((array)$vals),
+			array_values((array)$vals)
 		);
 		return $this;
 	}
