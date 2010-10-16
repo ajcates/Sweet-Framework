@@ -222,6 +222,18 @@ class Uri extends App {
 		}
 		return false;
 	}
+	
+	static function buildHeaders($headers) {
+		return join(
+			"\n",
+			f_keyMap(
+				function($v, $k) {
+					return $k . ': ' . $v;
+				},
+				$headers
+			)
+		);
+	}
 
 
 }

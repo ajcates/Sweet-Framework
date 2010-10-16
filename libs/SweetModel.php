@@ -112,11 +112,9 @@ class SweetModel extends App {
 	//		D::log($item, 'item');
 			if(!empty($item)) {
 				if(isset($item[$this->pk]) && $item[$this->pk] === $last) {
-					D::log($item[$this->pk], 'passing');
 					f_call(array($returnItems[$i], 'pass'), array($item));
 				} else {
 					$i++;
-					D::log($item, 'not passing');
 					$returnItems[$i] = new SweetRow($this, $item, $pull);
 					$last = isset($item[$this->pk]) ? $item[$this->pk] : null;
 				}
