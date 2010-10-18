@@ -115,6 +115,7 @@ class SweetModel extends App {
 					f_call(array($returnItems[$i], 'pass'), array($item));
 				} else {
 					$i++;
+					D::log($item, 'sweetrow - ' . $i);
 					$returnItems[$i] = new SweetRow($this, $item, $pull);
 					$last = isset($item[$this->pk]) ? $item[$this->pk] : null;
 				}
@@ -159,15 +160,15 @@ class SweetModel extends App {
 		//@todo replace @ with ternaries.
 		
 		return $this->lib('databases/Query')->select($select)->join($join)->from(
-				$this->tableName,
-				!empty($this->_buildOptions['limit']) ? $this->_buildOptions['limit'] : null
-			)->where(
-				$this->_buildFind(!empty($this->_buildOptions['find']) ? $this->_buildOptions['find'] : null)
-			)->limit(
-				!empty($this->_buildOptions['jlimit']) ? $this->_buildOptions['jlimit'] : null
-			)->orderBy(
-				!empty($this->_buildOptions['sort']) ? $this->_buildOptions['sort'] : null
-			)->go()->getDriver();
+			$this->tableName,
+			!empty($this->_buildOptions['limit']) ? $this->_buildOptions['limit'] : null
+		)->where(
+			$this->_buildFind(!empty($this->_buildOptions['find']) ? $this->_buildOptions['find'] : null)
+		)->limit(
+			!empty($this->_buildOptions['jlimit']) ? $this->_buildOptions['jlimit'] : null
+		)->orderBy(
+			!empty($this->_buildOptions['sort']) ? $this->_buildOptions['sort'] : null
+		)->go()->getDriver();
 	}
 	
 	function _buildFind($find=null) {
@@ -209,12 +210,6 @@ class SweetModel extends App {
 					$rfName = f_last(f_last($pullRel));
 				}
 				
-				/*
-				if $flName is an array
-					then $k is where its at?
-				 				 */
-				
-				
 				$builtPulls[] = $model->_buildPull($k, $pullRel, $on, $flName, $rfName);
 				
 				$builtPulls = array_merge($builtPulls, $model->_buildPulls((array)$pull, $k, f_push($k, (array)$with) ));
@@ -231,7 +226,6 @@ class SweetModel extends App {
 				}
 				$pullRel = $this->relationships[$pull];
 				
-				
 				if(is_string($fKey = f_first(array_keys($pullRel)) )) {
 					$flName = $fKey;
 					$model = $this->model(f_first($pullRel[$fKey]));
@@ -245,11 +239,9 @@ class SweetModel extends App {
 				}
 				$builtPulls[] = $model->_buildPull(join('$', f_push($pull, $with)), $pullRel, $on, $flName, $rfName);
 			}
-		}
-		
+		}	
 		return $builtPulls;
 	}
-	
 	
 	function _buildPull($pull, $pullRel, $tableName, $lfName=null, $rfName=null) {
 		$select = $join = array();
@@ -284,30 +276,6 @@ class SweetModel extends App {
 
 class SweetRow {
 
-	/*
-	
-	- What do i do if a pull wasn't called?
-			- how do i tell what pull was called?
-		- How do i update things with out pk's?
-	- How do i get rid of null tags?
-	////////
-	
-		what if I came up with the concept of sweet data?
-		sweetData vs sweetRow
-		basicly a data structure for indivual rows that is capable of retriving more rows
-		//what abilities would the sweetRow have?
-			magic reading methods…
-				would first return back a sub row
-				that would call the get_field methods correctly
-				
-			the ability to insert more data on the fly
-			
-			seprates out normal row data and sub row data;
-				
-			
-			ability to save data back into the db
-				do this keep edited data sperate main data
-	*/
 	public $__data = array();
 	public $__errors = array();
 	public $__pull; 
@@ -323,22 +291,6 @@ class SweetRow {
 	function pass($item) {
 		$this->__data[] = $item; 
 	}
-	
-	//function __set($var, $value) {
-		/*
-		$model = $this->_model;
-		if (is_callable(array($this->getLibrary(f_first($model::$objects[$var])), 'set_' . $model::$objects[$var][1]))) {
-			$value =  $this->getLibrary(f_first($model::$objects[$var]))->{'set_' . $model::$objects[$var][1]}( $var, f_last($model::$objects[$var]) );
-		}
-		if(count((array)$value) > 1) {
-			D::log($value, "Caught error");
-			$this->_errors[$var] = $value;
-		} else {
-			$this->_data[$var] = f_first((array)$value);
-			$this->$var = $this->_data[$var];
-		}
-		*/
-	//}
 	
 	static function mapExport($v) {
 		if(is_a($v, 'SweetRow')) {					
@@ -405,50 +357,6 @@ class SweetRow {
 	}
 	
 	function __get($var) {
-		/* 
-		ORM TODO:
-		- is this where i tell if  i have a m2m relation ship?
-			- does it make sense for Forigen Keys to exist like this?
-				- not really, if its how m2m relationships are defined.
-				
-			- do foreign keys always have a field in the current model?
-				- yes.
-				
-			- if it is a forigen key do i only need to return one sweet row item?
-				- yes.
-			- do m2m always need to return an array?
-				- yes.
-			- what advantages do i have for detecting m2m relationships
-				- the differnces between fk and m2m code?
-			- what does the pk mean?
-				- //? the pk is used so you dont get an array of all the same item.
-					-if it is the same item it passes it to the sweetRow obj
-				- do you need it on m2m?
-					- shouldn't matter.
-					?no
-					?not always.
-						- the comments example on the pages models proves that it can be avaible.
-				- do you need it on fk?
-					yes.
-						//in order for a fk to point to something, that something needs a pk.
-						
-					// for the most part the fk is gonna be the same for each row.
-						- when is it differnent?
-							//if its differnt does that mean there are 2 items?
-								//this shouldn't be possible correct?
-							//?on m2m?
-			
-		- how do i handle backwards relationships?
-			- how were they defined before?
-			- how were they handeled before?
-			
-			- do they even need to be defined?
-				-yes.
-			
-			- use cases for backwards relationships?
-				- m2m relationships are backwards fk relationships. they already work.
-		*/
-		//)
 		if(!empty($this->__pull) && (array_key_exists($var, $this->__pull) || in_array($var, $this->__pull)) ) {
 			
 			////// KEYS:
@@ -462,60 +370,69 @@ class SweetRow {
 			//D::log($keys, 'keys');
 			
 			$varL++;
-			$pullRel = $this->__model->relationships[$var];
 			$pull = array_key_exists($var, $this->__pull) ? $this->__pull[$var] : array();
 			
+			$pullRel = $this->__model->relationships[$var];
 			if(is_string($fKey = f_first(array_keys($pullRel)) )) {
 				//m2m
 				$model = SweetFramework::getClass('model', f_first($pullRel[$fKey]));
 				$returnItems = array();
-				$i = 0;
-				$last = null;
 				
-				foreach($this->__data as $row) {
-					$item = array();
-					
-					foreach($keys as $key) {
-						//D::log(substr($key, $varL), 'subkey');
-						if(!empty($row[$key])) {
-							$item[substr($key, $varL)] = $row[$key];
+				if(!isset($model->pk)) {
+					foreach($this->__data as $row) {
+						if(!empty($row)) {
+							$item = self::subRow2Item($keys, $row, $varL);
+							if(!empty($item)) {
+								$returnItems[] = new SweetRow($model, $item, $pull);
+							}
 						}
 					}
-					//D::log($item, 'm2m item');
-					if(!empty($item)) {
-						if(isset($model->pk) && $item[$model->pk] === $last) {
-							f_call(array($returnItems[$i], 'pass'), array($item));
-						} else {
-							$i++;
-							$returnItems[$i] = new SweetRow($model, $item, $pull);
-							$last = isset($model->pk) ? $item[$model->pk] : null;
+				} else {
+					foreach($this->__data as $row) {
+						if(!empty($row)) {
+							$item = self::subRow2Item($keys, $row, $varL);
+							if(!empty($item)) {
+								if(array_key_exists($item[$model->pk], $returnItems)) {
+									f_call(array($returnItems[$item[$model->pk]], 'pass'), array($item));
+								} else {
+									$returnItems[$item[$model->pk]] = new SweetRow($model, $item, $pull);
+								}
+							}
 						}
 					}
 				}
 				return $returnItems;
 			} else {
 				$model = SweetFramework::getClass('model', f_first($pullRel));
-				$last = null;
-			//	$returnItems = array();
-				foreach($this->__data as $row) {
-					if(!empty($row)) {
-						$item = array();
-						foreach($keys as $key) {
-							if($subKey = substr($key, $varL)) {
-								$item[$subKey] = $row[$key];
-							}
+				if(!isset($model->pk)) {
+					foreach($this->__data as $row) {
+						if(!empty($row)) {
+							$item = self::subRow2Item($keys, $row, $varL);
+							if(!empty($item)) {
+								if(isset($returnItem)) {
+									$returnItem->pass($item);
+								} else {
+									$returnItem = new SweetRow($model, $item, $pull);
+								}
+							}	
 						}
-						if(isset($returnItem) && $returnItem->{$model->pk} == $last) {
-							$returnItem->pass($item);
-							//f_call(array($returnItem, 'pass'), array($item));
-						} else {
-							$returnItem = new SweetRow($model, $item, $pull);
-							$last = $item[$model->pk];
+					}
+				} else {
+					foreach($this->__data as $row) {
+						if(!empty($row)) {
+							$item = self::subRow2Item($keys, $row, $varL);
+							if(!empty($item)) {
+								if(isset($returnItem) && $returnItem->{$model->pk} == $item[$model->pk]) {
+									$returnItem->pass($item);
+								} else {
+									$returnItem = new SweetRow($model, $item, $pull);
+								}
+							}
 						}
 					}
 				}
-				return $returnItem;
 			}
+			return isset($returnItem) ? $returnItem : null;		
 		} else if(array_key_exists($var, $this->__model->fields)) {
 			//basicly this @ is here to make sure you call any field on a SweetRow and it will just return null unless it's been set.
 			return !empty($this->__data[0][$var]) ? $this->__data[0][$var] : null;
@@ -524,30 +441,9 @@ class SweetRow {
 	}
 	
 	function __call($var, $args=array()) {
-		/*
-		@todo:
-			I think I'll have the lazy loading happen if you use the __call
-		---
-		$model = $this->_model;
-		if(array_key_exists($var, $model::$belongsTo)) {
-			//->find(array($model::$belongsTo[$var] => $this->_data[$model::$PK] ))->all()
-			//@todo add in a limit when im not working with fucktarded mssql
-			return $this->getModel($var)->find(array($model::$belongsTo[$var] => $this->_data[$model::$PK] ))->all();
-		} else if(array_key_exists($var, $model::$objects) && method_exists($this->getLibrary(f_first($model::$objects[$var])), 'get_' . $model::$objects[$var][1])) {
-			return $this->getLibrary(f_first($model::$objects[$var]))->{'get_' . $model::$objects[$var][1]}( $var, f_last($model::$objects[$var]) );
-		} else {
-			D::warn('wtf are you trying todo?');
-		}
-		*/
 	}
 	
 	function __set($var, $value) {
-		/*
-		$this->_data[$var] = $value;
-		return $this;
-		*/
-		
-		
 		$this->__update[$var] = $value;
 		if(is_scalar($value)) {
 			$this->__data = array_map(
@@ -557,10 +453,10 @@ class SweetRow {
 				},
 				$this->__data
 			);
+			return $value;
 		} else {
 			D::warn('SweetRows do not currently support non scalar values… yet.');
 		}
-		
 	}
 	
 	function update($vals) {
@@ -583,21 +479,18 @@ class SweetRow {
 		D::show(($this->__data), 'first data');
 	}
 	
-	function get($var, $fetch=false) {
-		/*
-		if(is_array($var) && 1 < count($var)) {
-			return $this->{f_first($var)}->get(f_rest($var), $fetch);
-		}
-		if($fetch) {
-			return $this->_data[f_first((array)$var)];
-		} else {
-			return $this->{f_first((array)$var)};
-		}
-		*/
-	}
-	
 	public function delete() {
 		return $this->__model->find($this->{$this->__model->pk})->delete();
+	}
+	
+	static function subRow2Item($keys, $row, $varL) {
+		$item = array();
+		foreach($keys as $key) {
+			if(!empty($row[$key])) {
+				$item[substr($key, $varL)] = $row[$key];
+			}
+		}
+		return $item;
 	}
 }
 
@@ -735,18 +628,88 @@ pull(
 ->sort($keyVal) How you would like to sort these objects from the db if you pass if just a string it will sort by that string DESC
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 */
+/*
+@todo:
+	I think I'll have the lazy loading happen if you use the __call
+---
+$model = $this->_model;
+if(array_key_exists($var, $model::$belongsTo)) {
+	//->find(array($model::$belongsTo[$var] => $this->_data[$model::$PK] ))->all()
+	//@todo add in a limit when im not working with fucktarded mssql
+	return $this->getModel($var)->find(array($model::$belongsTo[$var] => $this->_data[$model::$PK] ))->all();
+} else if(array_key_exists($var, $model::$objects) && method_exists($this->getLibrary(f_first($model::$objects[$var])), 'get_' . $model::$objects[$var][1])) {
+	return $this->getLibrary(f_first($model::$objects[$var]))->{'get_' . $model::$objects[$var][1]}( $var, f_last($model::$objects[$var]) );
+} else {
+	D::warn('wtf are you trying todo?');
+}
+*/
+/*
+	
+	- What do i do if a pull wasn't called?
+			- how do i tell what pull was called?
+		- How do i update things with out pk's?
+	- How do i get rid of null tags?
+	////////
+	
+		what if I came up with the concept of sweet data?
+		sweetData vs sweetRow
+		basicly a data structure for indivual rows that is capable of retriving more rows
+		//what abilities would the sweetRow have?
+			magic reading methods…
+				would first return back a sub row
+				that would call the get_field methods correctly
+				
+			the ability to insert more data on the fly
+			
+			seprates out normal row data and sub row data;
+				
+			
+			ability to save data back into the db
+				do this keep edited data sperate main data
+	*/
+	
+/* 
+		ORM TODO:
+		- is this where i tell if  i have a m2m relation ship?
+			- does it make sense for Forigen Keys to exist like this?
+				- not really, if its how m2m relationships are defined.
+				
+			- do foreign keys always have a field in the current model?
+				- yes.
+				
+			- if it is a forigen key do i only need to return one sweet row item?
+				- yes.
+			- do m2m always need to return an array?
+				- yes.
+			- what advantages do i have for detecting m2m relationships
+				- the differnces between fk and m2m code?
+			- what does the pk mean?
+				- //? the pk is used so you dont get an array of all the same item.
+					-if it is the same item it passes it to the sweetRow obj
+				- do you need it on m2m?
+					- shouldn't matter.
+					?no
+					?not always.
+						- the comments example on the pages models proves that it can be avaible.
+				- do you need it on fk?
+					yes.
+						//in order for a fk to point to something, that something needs a pk.
+						
+					// for the most part the fk is gonna be the same for each row.
+						- when is it differnent?
+							//if its differnt does that mean there are 2 items?
+								//this shouldn't be possible correct?
+							//?on m2m?
+			
+		- how do i handle backwards relationships?
+			- how were they defined before?
+			- how were they handeled before?
+			
+			- do they even need to be defined?
+				-yes.
+			
+			- use cases for backwards relationships?
+				- m2m relationships are backwards fk relationships. they already work.
+		*/
+		//)
