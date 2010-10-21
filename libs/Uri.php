@@ -25,6 +25,9 @@ class Uri extends App {
 			X Don't make it so coupled with $_SERVER['QUERY']
 		*/
 		//[0] => helldsdfs34&what=4
+		
+		D::log($_SERVER, 'SERVER');
+		
 		$this->request = $_SERVER['QUERY_STRING'];
 		//[HTTP_HOST] => localhost
 		$this->domain = $_SERVER['HTTP_HOST'];
