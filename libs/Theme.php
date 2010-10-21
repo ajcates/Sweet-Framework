@@ -45,7 +45,7 @@ class Theme extends App {
 	//	D::log(URL, 'URL');
 		if(is_dir(LOC . '/' . $newPlace)) {
 			if(substr(URL, -1) == '?') {
-				T::$url = $this->themeUrl = substr(URL, 0, -1) . $newPlace;
+				T::$url = $this->themeUrl = substr(URL, 0, -1) . $newPlace . '/';
 			} else {
 				T::$url = $this->themeUrl = URL . $newPlace . '/';
 			}
