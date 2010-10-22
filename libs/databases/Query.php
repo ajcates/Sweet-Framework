@@ -70,6 +70,7 @@ class Query extends App {
 		$this->_updateValue = null;
 		$this->_insert = null;
 		$this->_selectFunction = null;
+		return $this;
 	}
 
 	public function select($cols='*') {

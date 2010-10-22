@@ -139,7 +139,7 @@ class SweetModel extends App {
 	}
 	
 	function getTotalRows() {
-		return intval(f_first(f_flatten($this->lib('databases/Query')->select('*')->from($this->tableName)->count()->results('assoc'))));
+		return intval(f_first(f_flatten($this->lib('databases/Query')->reset()->select('*')->from($this->tableName)->count()->results('assoc'))));
 	}
 	
 	function _build() {

@@ -49,6 +49,7 @@ class SweetFramework extends App {
 		if(!defined('APP_FOLDER')) {
 			define('APP_FOLDER', $appInfo['folder']);
 		}
+		
 		foreach($appInfo['paths'] as $k => $v) {
 			if(!is_array(self::$paths[$k])) {
 				self::$paths[$k] = array();
