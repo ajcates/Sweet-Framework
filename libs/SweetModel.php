@@ -165,7 +165,7 @@ class SweetModel extends App {
 		)->where(
 			$this->_buildFind(!empty($this->_buildOptions['find']) ? $this->_buildOptions['find'] : null)
 		)->limit(
-			!empty($this->_buildOptions['jlimit']) ? $this->_buildOptions['jlimit'] : null
+			!empty($this->_buildOptions['jlimit']) ? D::show($this->_buildOptions['jlimit'], 'jlimit') : null
 		)->orderBy(
 			!empty($this->_buildOptions['sort']) ? $this->_buildOptions['sort'] : null
 		)->go()->getDriver();

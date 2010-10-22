@@ -70,6 +70,7 @@ class Query extends App {
 		$this->_updateValue = null;
 		$this->_insert = null;
 		$this->_selectFunction = null;
+		self::$_fromLimit = null;
 		return $this;
 	}
 
@@ -337,8 +338,8 @@ class Query extends App {
 				//adds in our select values				
 				//@todo Make the second parameter in `form()` actaully be a real "sub query"
 					//$this->
-				if(isset(Query::$_fromLimit)) {
-					Query::$_fromValue = '(SELECT * FROM ' . Query::$_fromValue . $this->_buildLimit(Query::$_fromLimit) . ') AS ' . Query::$_fromValue;
+				if(isset(self::$_fromLimit)) {
+					self::$_fromValue = '(SELECT * FROM ' . Query::$_fromValue . $this->_buildLimit(Query::$_fromLimit) . ') AS ' . Query::$_fromValue;
 				}
 				
 				
