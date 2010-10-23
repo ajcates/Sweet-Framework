@@ -359,7 +359,7 @@ class Query extends App {
 				*/
 				if(!is_array(f_first($this->_insert) )) {
 					$this->_insert = array($this->_insert);
-				}
+				};
 				$cols = array_map(function($v) { return Query::nullEscape($v, '`');}, array_keys(array_reduce($this->_insert, 'array_merge_recursive', array())));
 				
 				

@@ -131,7 +131,7 @@ class D {
 	}
 	
 	static function getDisplayMessage($var, $label=null) {
-		return '<div class="debug">' . "\n" . (!empty($label) ? '<h4>' . $label . "</h4>\n" : '') . '<pre>' . print_r($var, true) . '</pre>' . "\n</div>";
+		return '<div class="debug">' . "\n" . (!empty($label) ? '<h4>' . $label . "</h4>\n" : '') . '<pre>' . htmlentities(print_r($var, true)) . '</pre>' . "\n</div>";
 	}
 	
 	static function report($context, $error) {
