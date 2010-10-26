@@ -1,7 +1,7 @@
 <?
 
 class M {
-	//short cuts for model access
+	//short cuts for model access in templates. No one is really supposed to know about this.
 	public static function __callStatic($name, $arguments=array()) {
 		return SweetFramework::getClass('model', $name);
 	}
@@ -51,12 +51,12 @@ class B {
 
 class Template extends App {
 	
-	private $data = array();
+	public $data = array();
 	
 	public function __construct() {}
 	
 	public function __set($name, $value) {
-		$this->data[$name] = $value;
+		return ($this->data[$name] = $value);
 	}
 	
 	public function __get($name) {
