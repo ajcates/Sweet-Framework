@@ -20,6 +20,11 @@ class SweetModel extends App {
 		return $this;
 	}
 	
+	function not() {
+		$this->_buildOptions['not'] = func_get_args();
+		return $this;
+	}
+	
 	function relative($field) {
 		$pullRel = $this->relationships[$field];
 		if(is_string($fKey = f_first(array_keys($pullRel)) )) {
@@ -76,7 +81,10 @@ class SweetModel extends App {
 		
 	function save() {
 		if($this->_buildOptions['savemode'] == 'update') {
-			return $this->lib('databases/Query')->update($this->tableName)->where($this->_buildFind($this->_buildOptions['find']))->set($this->_buildOptions['update'])->go();
+			return $this->lib('databases/Query')->update($this->tableName)->where(
+				//$this->_buildFind($this->_buildOptions['find'])
+				$this->_buildWhere()
+			)->set($this->_buildOptions['update'])->go();
 		}
 		return false;
 	}
@@ -97,7 +105,10 @@ class SweetModel extends App {
 	}
 	
 	function delete() {
-		return $this->lib('databases/Query')->delete()->from($this->tableName)->where($this->_buildFind($this->_buildOptions['find']))->limit(@$this->_buildOptions['limit'])->go();
+		return $this->lib('databases/Query')->delete()->from($this->tableName)->where(
+			//$this->_buildFind($this->_buildOptions['find'])
+			$this->_buildWhere()
+		)->limit(@$this->_buildOptions['limit'])->go();
 	}
 	
 	function all() {
@@ -115,7 +126,6 @@ class SweetModel extends App {
 					f_call(array($returnItems[$i], 'pass'), array($item));
 				} else {
 					$i++;
-					D::log($item, 'sweetrow - ' . $i);
 					$returnItems[$i] = new SweetRow($this, $item, $pull);
 					$last = isset($item[$this->pk]) ? $item[$this->pk] : null;
 				}
@@ -163,7 +173,8 @@ class SweetModel extends App {
 			$this->tableName,
 			!empty($this->_buildOptions['limit']) ? $this->_buildOptions['limit'] : null
 		)->where(
-			$this->_buildFind(!empty($this->_buildOptions['find']) ? $this->_buildOptions['find'] : null)
+			$this->_buildWhere()
+			//$this->_buildFind(!empty($this->_buildOptions['find']) ? $this->_buildOptions['find'] : null)
 		)->limit(
 			!empty($this->_buildOptions['jlimit']) ? $this->_buildOptions['jlimit'] : null
 		)->orderBy(
@@ -186,7 +197,24 @@ class SweetModel extends App {
 				}
 			}
 		}
+		D::log($find, 'FINDERS FEE');
 		return $find;
+	}
+	
+	function _buildNot($not=array()) {
+		foreach($not as $k => $n) {
+			if(is_array($n)) {
+				$not[$k] = $this->_buildNot($n);
+			}
+		}
+		return f_push('!=', $not);
+	}
+	
+	function _buildWhere() {
+		return D::log(array_filter(array(
+			!empty($this->_buildOptions['find']) ? $this->_buildFind($this->_buildOptions['find']) : null,
+			!empty($this->_buildOptions['not']) ? $this->_buildNot($this->_buildOptions['not']) : null	
+		)), 'built where');
 	}
 	
 	function _buildPulls($pulls, $on=null, $with=array()) {
@@ -314,9 +342,7 @@ class SweetRow {
 		$item = array();
 		//$this->__model->relationships
 		//array_values()
-		D::log($this->__model->tableName, 'table export');
 		foreach(array_keys($this->__model->fields) as $field) {
-			D::log($field, 'field export');
 			//$item->$field = $this->$field;
 			$o = $this->__get($field);
 			if(isset($o)) {

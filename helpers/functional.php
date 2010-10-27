@@ -68,7 +68,7 @@ function f_construct($first, $rest) {
 	return $rest;
 }
 
-function f_push($i, $in) {
+function f_push($i, $in=array()) {
 	if(empty($in)) {
 		return array($i);
 	}
