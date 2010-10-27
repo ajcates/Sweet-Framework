@@ -210,9 +210,11 @@ class SweetModel extends App {
 					$rfName = f_last(f_last($pullRel));
 				}
 				
-				$builtPulls[] = $model->_buildPull($k, $pullRel, $on, $flName, $rfName);
+				//$builtPulls[] = $model->_buildPull($k, $pullRel, $on, $flName, $rfName);
+				$builtPulls[] = $model->_buildPull(join('$', f_push($k, $with)), $pullRel, $on, $flName, $rfName);
 				
-				$builtPulls = array_merge($builtPulls, $model->_buildPulls((array)$pull, $k, f_push($k, (array)$with) ));
+				
+				$builtPulls = array_merge($builtPulls, $model->_buildPulls((array)$pull, join('$', f_push($k, $with)), f_push($k, (array)$with) ));
 				
 			} else {
 				if(is_array($pull)) {
@@ -312,7 +314,9 @@ class SweetRow {
 		$item = array();
 		//$this->__model->relationships
 		//array_values()
+		D::log($this->__model->tableName, 'table export');
 		foreach(array_keys($this->__model->fields) as $field) {
+			D::log($field, 'field export');
 			//$item->$field = $this->$field;
 			$o = $this->__get($field);
 			if(isset($o)) {

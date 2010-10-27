@@ -118,7 +118,7 @@ class D {
 	}
 	static function show($var, $label='') {
 		echo self::getDisplayMessage($var, $label);
-		return $var;
+		return self::log($var, $label);
 	}
 	
 	static function export($var, $label='') {
