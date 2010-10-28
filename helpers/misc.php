@@ -30,6 +30,15 @@ function chain($baseItem, $items=array()) {
 	}
 }
 
+function multiKey($item, $keys, $default=null) {
+	foreach($keys as $key) {		
+		if(array_key_exists($key, $item) && !isEmpty(($trimmed = trim($item[$key])))) {
+			return $trimmed;
+		}
+	}
+	return $default;
+}
+
 function ifthereshow($test, $show, $else=null) {
 	if(!empty($test)) {
 		return $show;
