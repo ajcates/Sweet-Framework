@@ -153,9 +153,9 @@ class Uri extends App {
 			D::error('No Controller Found');
 		}
 		if(!empty($class::$urlPattern)) {
-			$page = $this->loadUrl($class::$urlPattern, $this->count);
+			$page = $this->loadUrl($class::$urlPattern);
 		} else {
-			$page = $this->loadUrl(array(), $this->count);
+			$page = $this->loadUrl(array());
 		}
 		
 		D::log($this->count, 'COUNT');
@@ -168,7 +168,7 @@ class Uri extends App {
 				if(method_exists($class, 'enRoute')) {
 					$class::enRoute();
 				}
-				return $this->loadController(f_first(f_first(f_last($page))), $this->count+=1);
+				return $this->loadController(f_first(f_first(f_last($page))) );
 			}
 			$page[$this->count] = f_first(f_last($page));
 		}
