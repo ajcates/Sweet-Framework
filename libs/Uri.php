@@ -89,7 +89,7 @@ class Uri extends App {
 	"you"
 	*/
 	function get($index) {
-		return rawurldecode($this->rawGet($index));
+		return rawurldecode(f_first((array)$this->rawGet($index)));
 	}
 	
 	/* If you don't like you crap pre url decoded */

@@ -2,7 +2,8 @@
 class SweetModel extends App {
 
 	var $model;
-	var $items;	
+	var $items;
+	var $rowMethods = array();
 	
 	function __construct() {
 		//$this->lib('databases/Query');
@@ -471,6 +472,10 @@ class SweetRow {
 	}
 	
 	function __call($var, $args=array()) {
+		if(array_key_exists($var, $this->__model->rowMethods)) {
+			//D::show(array_merge(array($this), $args), 'rowmethod');
+			return f_call($this->__model->rowMethods[$var], array_merge(array($this), $args));
+		}
 	}
 	
 	function __set($var, $value) {
