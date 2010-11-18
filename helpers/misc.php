@@ -23,7 +23,7 @@ function getTreeDir( $dr = '', $tree = array() ) {
 }
 
 function chain($baseItem, $items=array()) {
-	if(!empty($items)) {
+	if(!empty($items) && !empty($baseItem)) {
 		return chain($baseItem->{f_first($items)}, f_rest($items));	
 	} else {
 		return $baseItem;
