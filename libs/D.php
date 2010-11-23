@@ -117,12 +117,16 @@ class D {
 		return $var;
 	}
 	static function show($var, $label='') {
-		echo self::getDisplayMessage($var, $label);
+		if(self::$config['debug']) {
+			echo self::getDisplayMessage($var, $label);
+		}
 		return self::log($var, $label);
 	}
 	
 	static function export($var, $label='') {
-		echo self::getDisplayMessage(var_export($var, true), $label);
+		if(self::$config['debug']) {
+			echo self::getDisplayMessage(var_export($var, true), $label);
+		}
 		return $var;
 	}
 	
