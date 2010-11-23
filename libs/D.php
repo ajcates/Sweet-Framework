@@ -38,6 +38,7 @@ class Timer {
 class D {
 	protected static $handle;
 	protected static $growlr;
+	protected static $config;
 	
 	protected static $config = array(
 		'debug' => true,
