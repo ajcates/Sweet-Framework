@@ -226,23 +226,28 @@ class Query extends App {
 		$builtArray = f_keyMap(
 			function($value, $key) use($groupOperator, $operator, $escape) {
 				if(is_int($key) && is_array($value)) {
-					//Group? @todo double check to make sure OR is working
 					$bWhere = Query::_buildWhere($value, $groupOperator, $escape);
 					if(!empty($bWhere)) {
-						return '(' . "\n" . $bWhere . ')';
+						return '(' . "\n\t" . $bWhere . "\n" .')';
 					} else {
 						return null;
 					}
 				}
 				if(is_string($key)) {
-					static $escapeFunc = 'Query::nullEscape';
+					static $escapeFunc = array('Query' , 'nullEscape');
 					if(!$escape) {
 						$escapeFunc = 'nothing';
+					} else {
+						$escapeFunc = f_callable($escapeFunc);
 					}
-					//column
 					if(is_array($value)) {
-						//IN or group
-						return Query::escape($key) . ' IN (' . join(', ', array_map($escapeFunc, $value)) . ')'; 
+						$key = $escapeFunc($key);
+						if(f_first(array_keys($value)) !== 0) {
+							return join(' ' . $groupOperator . ' ', f_keyMap(function($v, $k) use($key, $escapeFunc) {
+								return $key . ' BETWEEN (' . $escapeFunc($k) . ' AND ' . $escapeFunc($v) . ')';
+							}, $value));
+						}
+						return $key . ' IN (' . join(', ', array_map($escapeFunc, $value)) . ')'; 
 					} else {
 						$value = call_user_func($escapeFunc, $value);
 						if($value === 'null') {
@@ -251,7 +256,6 @@ class Query extends App {
 							} else {
 								$operator = 'IS NOT';
 							}
-							
 						}
 						return Query::escape($key) . ' ' . $operator . ' ' . $value;
 					}
@@ -259,8 +263,6 @@ class Query extends App {
 			},
 			$group
 		);
-//		D::log($builtArray, 'built array');
-		
 		if(!empty($builtArray)) {
 			return join(' ' . $groupOperator . ' ', array_filter($builtArray));
 		}
@@ -429,8 +431,7 @@ class Query extends App {
 		}
 		return $sep . mysql_escape_string($var)  . $sep;
 	}
-	
-	
+		
 	/*
 	- where()
 		- $this->select('*')->where(array('item' => 5))->from('table')
@@ -443,6 +444,8 @@ class Query extends App {
 			- //SELECT * FROM table WHERE item != '5' OR thing != 'what'
 		- $this->select('*')->where(array('item' => array('what', 'who'))->from('table')
 			- //SELECT * FROM table WHERE item IN ('what', 'who')
+		- $this->select('*')->where(array('item' => array(10 => 30))->from('table')
+			- //SELECT * FROM table WHERE item BETWEEN (10 AND 30)
 	
 	- join()
 		- $this->select('*')->from('Club_RnD.dbo.Posts')->join('Club_RnD.dbo.Comments', array('Club_RnD.dbo.Posts.comments' => 'Club_RnD.dbo.Comments.id'))
