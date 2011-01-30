@@ -21,6 +21,11 @@ class SweetModel extends App {
 		return $this;
 	}
 	
+	public function where() {
+		$this->_buildOptions['where'] = func_get_args();
+		return $this;
+	}
+	
 	function not() {
 		$this->_buildOptions['not'] = func_get_args();
 		return $this;
@@ -212,10 +217,10 @@ class SweetModel extends App {
 	}
 	
 	function _buildWhere() {
-		return D::log(array_filter(array(
+		return empty($this->_buildOptions['where']) ? array_filter(array(
 			!empty($this->_buildOptions['find']) ? $this->_buildFind($this->_buildOptions['find']) : null,
 			!empty($this->_buildOptions['not']) ? $this->_buildNot($this->_buildOptions['not']) : null	
-		)), 'built where');
+		)) : $this->_buildOptions['where'];
 	}
 	
 	function _buildPulls($pulls, $on=null, $with=array()) {
@@ -252,7 +257,7 @@ class SweetModel extends App {
 				}
 				//regular join
 				if(!array_key_exists($pull, $this->relationships)) {
-					D::show($this->relationships, 'Current relationships');
+					//D::show($this->relationships, 'Current relationships');
 					D::warn($pull . ' can\'t be found in the ' . get_class($this) . ' model');
 				}
 				$pullRel = $this->relationships[$pull];

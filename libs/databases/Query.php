@@ -209,7 +209,29 @@ class Query extends App {
 			$this->_selectData
 		));
 	}
-	
+/*
+Array (
+    [slug] => articles
+    [0] => Array (
+        [children.published_on] => 1251788400
+        [0] => >
+    )
+    [1] => Array (
+        [children.published_on] => 1254380400
+        [0] => <
+    )
+)
+
+WHERE (
+	(
+		(
+			children.published_on < 1254380400
+		)
+		AND articles.slug < 'articles'
+		AND articles.id < 1254380400
+	)
+)
+*/
 	static function _buildWhere($group, $groupOperator='AND', $escape=true) {
 		//"Bitch I'll pick the world up and I'ma drop it on your f*ckin' head" - Lil Wayne.
 		$keys = array_keys($group);
@@ -241,10 +263,10 @@ class Query extends App {
 						$escapeFunc = f_callable($escapeFunc);
 					}
 					if(is_array($value)) {
-						$key = $escapeFunc($key);
+						$key = $escapeFunc($key, '');
 						if(f_first(array_keys($value)) !== 0) {
 							return join(' ' . $groupOperator . ' ', f_keyMap(function($v, $k) use($key, $escapeFunc) {
-								return $key . ' BETWEEN (' . $escapeFunc($k) . ' AND ' . $escapeFunc($v) . ')';
+								return $key . ' BETWEEN ' . $escapeFunc($k) . ' AND ' . $escapeFunc($v);
 							}, $value));
 						}
 						return $key . ' IN (' . join(', ', array_map($escapeFunc, $value)) . ')'; 
@@ -426,7 +448,7 @@ class Query extends App {
 	public static function escape($var, $sep='') {
 		//Databases::f('query', array($sql, $type));
 		//@todo change this.
-		if(is_bool($var) || is_int($var)) {
+		if(is_bool($var) || is_numeric($var)) {
 			return intval($var);
 		}
 		return $sep . mysql_escape_string($var)  . $sep;
