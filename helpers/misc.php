@@ -23,11 +23,20 @@ function getTreeDir( $dr = '', $tree = array() ) {
 }
 
 function chain($baseItem, $items=array()) {
-	if(!empty($items)) {
+	if(!empty($items) && !empty($baseItem)) {
 		return chain($baseItem->{f_first($items)}, f_rest($items));	
 	} else {
 		return $baseItem;
 	}
+}
+
+function multiKey($item, $keys, $default=null) {
+	foreach($keys as $key) {		
+		if(array_key_exists($key, $item) && !empty( $item[$key] )) {
+			return $item[$key];
+		}
+	}
+	return $default;
 }
 
 function ifthereshow($test, $show, $else=null) {
@@ -68,6 +77,27 @@ function properJsonDecode($json) {
 	
 	return $return;
 }
+
+
+function notRetardedParse_str($str, $r=array()) {
+	parse_str($str, $r);
+	return $r;
+}
+
+
+/*
+function sup($output) {
+	$output = str_replace('®', '<sup>®</sup>', $output);
+	$output = str_replace('®', '<sup>®</sup>', $output);
+	$output = str_replace('™', '<sup>™</sup>', $output);
+	$output = str_replace('™', '<sup>™</sup>', $output);
+	
+    return str_replace('™', '<sup>™</sup>', $output);
+    array('™', '®', '&reg;', '&trade;')
+   	
+}
+*/
+
 
 function foxy_utf8_to_nce($utf = '') {
 	//Orignally written by limalopex.eisfux.de - http://us2.php.net/manual/en/function.imagettftext.php#57416
@@ -170,7 +200,9 @@ function objToArray($obj) {
 function arrayToObj($array) {
 	$obj = new stdClass();
 	foreach($array as $k => $v) {
-		$obj->$k = $v;
+		if(!empty($k)) {
+			$obj->$k = $v;
+		}
 	}
 	return $obj;
 }
@@ -186,6 +218,10 @@ function extendFunction($callback, $function) {
 
 function notRetardedSort($sort, $type=SORT_REGULAR) {
 	sort($sort, $type);
+	return $sort;
+}
+function notRetardedKSort($sort, $type=SORT_REGULAR) {
+	ksort($sort, $type);
 	return $sort;
 }
 

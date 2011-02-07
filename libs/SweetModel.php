@@ -2,7 +2,8 @@
 class SweetModel extends App {
 
 	var $model;
-	var $items;	
+	var $items;
+	var $rowMethods = array();
 	
 	function __construct() {
 		$this->lib('databases/Query');
@@ -16,8 +17,18 @@ class SweetModel extends App {
 	);
 	
 	function find() {
-		$this->_buildOptions['find'] = D::log(func_get_args(), 'find args');
+		$this->_buildOptions['find'] = func_get_args();
 		
+		return $this;
+	}
+	
+	public function where() {
+		$this->_buildOptions['where'] = func_get_args();
+		return $this;
+	}
+	
+	function not() {
+		$this->_buildOptions['not'] = func_get_args();
 		return $this;
 	}
 	
@@ -74,6 +85,79 @@ class SweetModel extends App {
 		$this->_buildOptions['savemode'] = 'update';
 		return $this;
 	}
+		
+	function save() {
+		if($this->_buildOptions['savemode'] == 'update') {
+			return $this->lib('databases/Query')->update($this->tableName)->where(
+				//$this->_buildFind($this->_buildOptions['find'])
+				$this->_buildWhere()
+			)->set($this->_buildOptions['update'])->go();
+		}
+		return false;
+	}
+	/*
+	Takes in an array or an object and inserts it into the db.
+	returns back a SweetRow that has all the props you inserted, so like if you didn't inset the id of the item, its not safe to call $item->delete().
+	 	 */
+	function create($item) {
+		//@todo change this to func_get_args ?
+		if($this->lib('databases/Query')->insert($item)->into($this->tableName)->go()) {
+			if(!is_array($item)) {
+				$item = (array)$item;
+			}
+			$item[$this->pk] = $this->libs->Query->getLastInsert();
+			return new SweetRow($this, $item);
+		}
+		return false;
+	}
+	
+	function delete() {
+		return $this->lib('databases/Query')->delete()->from($this->tableName)->where(
+			//$this->_buildFind($this->_buildOptions['find'])
+			$this->_buildWhere()
+		)->limit(@$this->_buildOptions['limit'])->go();
+	}
+	
+	function all() {
+		$returnItems = array();
+		$i = 0;
+		$last = null;
+		$driver = $this->_build();
+		
+		$pull = f_untree((array)@$this->_buildOptions['pull']);
+		//$pullRefernce = ;
+		while($item = $driver->fetch_assoc()) {
+	//		D::log($item, 'item');
+			if(!empty($item)) {
+				if(isset($item[$this->pk]) && $item[$this->pk] === $last) {
+					f_call(array($returnItems[$i], 'pass'), array($item));
+				} else {
+					$i++;
+					$returnItems[$i] = new SweetRow($this, $item, $pull);
+					$last = isset($item[$this->pk]) ? $item[$this->pk] : null;
+				}
+			}
+		}
+		$this->_buildOptions = array();
+		return array_values($returnItems);
+	}
+	
+	function export() {
+		return array_map(
+			function($r) {
+				return $r->export();
+			},
+			$this->all()
+		);
+	}
+	
+	function one() {
+		return f_first($this->all());
+	}
+	
+	function getTotalRows() {
+		return intval(f_first(f_flatten($this->lib('databases/Query')->reset()->select('*')->from($this->tableName)->count()->results('assoc'))));
+	}
 	
 	function _build() {
 		$join = $select = array();
@@ -92,23 +176,52 @@ class SweetModel extends App {
 		//array_reverse()
 		//@todo replace @ with ternaries.
 		
-		return $this->lib('Query')->select($select)->join($join)->from($this->tableName, @$this->_buildOptions['limit'])->where($this->_buildFind($this->_buildOptions['find']))->limit( @$this->_buildOptions['jlimit'] )->orderBy(@$this->_buildOptions['sort'])->go()->getDriver();
+		return $this->lib('databases/Query')->select($select)->join($join)->from(
+			$this->tableName,
+			!empty($this->_buildOptions['limit']) ? $this->_buildOptions['limit'] : null
+		)->where(
+			$this->_buildWhere()
+			//$this->_buildFind(!empty($this->_buildOptions['find']) ? $this->_buildOptions['find'] : null)
+		)->limit(
+			!empty($this->_buildOptions['jlimit']) ? $this->_buildOptions['jlimit'] : null
+		)->orderBy(
+			!empty($this->_buildOptions['sort']) ? $this->_buildOptions['sort'] : null
+		)->go()->getDriver();
 	}
 	
-	function _buildFind($find=array()) {
-		foreach($find as $k => $arg) {
-			if(is_int($k) && is_array($arg)) {
-				unset($find[$k]);
-				$find = array_merge($find, $this->_buildFind($arg));
-			} else if(is_string($k) && array_key_exists($k, $this->fields)) {
-				unset($find[$k]);
-				$find[$this->tableName . '.' . $k] = $arg;
-			} else if(is_numeric($arg)) {
-				unset($find[$k]);
-				$find[$this->tableName . '.' . $this->pk] = $arg;
+	function _buildFind($find=null) {
+		if(isset($find)) {
+			foreach($find as $k => $arg) {
+				if(is_int($k) && is_array($arg)) {
+					unset($find[$k]);
+					$find = array_merge($find, $this->_buildFind($arg));
+				} else if(is_string($k) && array_key_exists($k, $this->fields)) {
+					unset($find[$k]);
+					$find[$this->tableName . '.' . $k] = $arg;
+				} else if(is_numeric($arg)) {
+					unset($find[$k]);
+					$find[$this->tableName . '.' . $this->pk] = $arg;
+				}
 			}
 		}
+		D::log($find, 'FINDERS FEE');
 		return $find;
+	}
+	
+	function _buildNot($not=array()) {
+		foreach($not as $k => $n) {
+			if(is_array($n)) {
+				$not[$k] = $this->_buildNot($n);
+			}
+		}
+		return f_push('!=', $not);
+	}
+	
+	function _buildWhere() {
+		return empty($this->_buildOptions['where']) ? array_filter(array(
+			!empty($this->_buildOptions['find']) ? $this->_buildFind($this->_buildOptions['find']) : null,
+			!empty($this->_buildOptions['not']) ? $this->_buildNot($this->_buildOptions['not']) : null	
+		)) : $this->_buildOptions['where'];
 	}
 	
 	function _buildPulls($pulls, $on=null, $with=array()) {
@@ -132,15 +245,11 @@ class SweetModel extends App {
 					$rfName = f_last(f_last($pullRel));
 				}
 				
-				/*
-				if $flName is an array
-					then $k is where its at?
-				 				 */
+				//$builtPulls[] = $model->_buildPull($k, $pullRel, $on, $flName, $rfName);
+				$builtPulls[] = $model->_buildPull(join('$', f_push($k, $with)), $pullRel, $on, $flName, $rfName);
 				
 				
-				$builtPulls[] = $model->_buildPull($k, $pullRel, $on, $flName, $rfName);
-				
-				$builtPulls = array_merge($builtPulls, $model->_buildPulls((array)$pull, $k, f_push($k, (array)$with) ));
+				$builtPulls = array_merge($builtPulls, $model->_buildPulls((array)$pull, join('$', f_push($k, $with)), f_push($k, (array)$with) ));
 				
 			} else {
 				if(is_array($pull)) {
@@ -148,7 +257,10 @@ class SweetModel extends App {
 					continue;
 				}
 				//regular join
-				D::log($pull, '$pull');
+				if(!array_key_exists($pull, $this->relationships)) {
+					//D::show($this->relationships, 'Current relationships');
+					D::warn($pull . ' can\'t be found in the ' . get_class($this) . ' model');
+				}
 				$pullRel = $this->relationships[$pull];
 				
 				if(is_string($fKey = f_first(array_keys($pullRel)) )) {
@@ -164,11 +276,9 @@ class SweetModel extends App {
 				}
 				$builtPulls[] = $model->_buildPull(join('$', f_push($pull, $with)), $pullRel, $on, $flName, $rfName);
 			}
-		}
-		
+		}	
 		return $builtPulls;
 	}
-	
 	
 	function _buildPull($pull, $pullRel, $tableName, $lfName=null, $rfName=null) {
 		$select = $join = array();
@@ -190,77 +300,15 @@ class SweetModel extends App {
 		
 		//SELECT CODE:
 		foreach(array_keys($this->fields) as $field) {
-			$select[$pull . '.' . $field] = str_replace('$', '.', $pull) . '.' . $field;
+			//$select[$pull . '.' . $field] = str_replace('$', '.', $pull) . '.' . $field;
+			$select[str_replace('$', '.', $pull) . '.' . $field] = $pull . '.' . $field;
 		}
 	//	D::log($select, 'built select');
 		return array(
 			'join' => $join,
 			'select' => $select
 		);
-	}
-	
-	function save() {
-		if($this->_buildOptions['savemode'] == 'update') {
-			return $this->lib('Query')->update($this->tableName)->where($this->_buildFind($this->_buildOptions['find']))->set($this->_buildOptions['update'])->go();
-		}
-		return false;
-	}
-	
-	function create($item) {
-		//@todo change this to func_get_args ?
-		if($this->lib('Query')->insert($item)->into($this->tableName)->go()) {
-			if(is_array($item)) {
-				return new SweetRow($this, arrayToObj($item));
-			} else {
-				return new SweetRow($this, $item);
-			}
-		}
-		return false;
-	}
-	
-	function delete() {
-		return $this->lib('Query')->delete()->from($this->tableName)->where($this->_buildFind($this->_buildOptions['find']))->limit(@$this->_buildOptions['limit'])->go();
-	}
-	
-	function all() {
-		$returnItems = array();
-		$i = 0;
-		$last = null;
-		$driver = $this->_build();
-		
-		$pull = f_untree((array)@$this->_buildOptions['pull']);
-		//$pullRefernce = ;
-		while($item = $driver->fetch_object()) {
-			if($item->{$this->pk} === $last) {
-				f_call(array($returnItems[$i], 'pass'), array($item));
-			} else {
-				$i++;
-				$returnItems[$i] = new SweetRow($this, $item, $pull);
-				$last = $item->{$this->pk};
-			}
-		}
-		$this->_buildOptions = $this->_orgBuildOptions;
-		return array_values($returnItems);
-	}
-	
-	function export() {
-		return array_map(
-			function($r) {
-				return $r->export();
-			},
-			$this->all()
-		);
-	}
-	
-	function one() {
-		return f_first($this->all());
-	}
-	
-	function getTotalRows() {
-		return intval(f_first(f_flatten($this->lib('Query')->select('*')->from($this->tableName)->count()->results('assoc'))));
-	}
-	
-	
+	}	
 }
 
 class SweetRow {
@@ -293,6 +341,7 @@ class SweetRow {
 	public $__errors = array();
 	public $__pull; 
 	public $__model;
+	public $__update = array();
 	
 	function __construct($model, $item, $pull=array()) {
 		$this->__data[] = $item;
@@ -302,22 +351,6 @@ class SweetRow {
 	
 	function pass($item) {
 		$this->__data[] = $item; 
-	}
-	
-	function __set($var, $value) {
-		/*
-		$model = $this->_model;
-		if (is_callable(array($this->getLibrary(f_first($model::$objects[$var])), 'set_' . $model::$objects[$var][1]))) {
-			$value =  $this->getLibrary(f_first($model::$objects[$var]))->{'set_' . $model::$objects[$var][1]}( $var, f_last($model::$objects[$var]) );
-		}
-		if(count((array)$value) > 1) {
-			D::log($value, "Caught error");
-			$this->_errors[$var] = $value;
-		} else {
-			$this->_data[$var] = f_first((array)$value);
-			$this->$var = $this->_data[$var];
-		}
-		*/
 	}
 	
 	static function mapExport($v) {
@@ -343,16 +376,16 @@ class SweetRow {
 		foreach(array_keys($this->__model->fields) as $field) {
 			//$item->$field = $this->$field;
 			$o = $this->__get($field);
-			if(isset($o)) {			
+			if(isset($o)) {
 				if(is_scalar($o)) {
 					$item[$field] = $o;
 				} else {
 					if(is_a($o, 'SweetRow')) {
 						$item[$field] = $o->export();
-					} elseif(is_array($o)) {					
-						$item[$field] = array_map('SweetRow::mapExport', $o);
+					} elseif(is_array($o)) {
+						$item[$field] = array_filter(array_map('SweetRow::mapExport', $o));
 					} else {
-						D::show('sweet model fup = ' . gettype($o) . ' ' . $field . B::br());
+						D::warn('sweet model fup = ' . gettype($o) . ' ' . $field . B::br());
 					}
 				}
 			}
@@ -375,7 +408,7 @@ class SweetRow {
 				if(is_a($o, 'SweetRow')) {
 					$item[$p] = $o->export();
 				} elseif(is_array($o)) {					
-					$item[$p] = array_map('SweetRow::mapExport', $o);
+					$item[$p] = array_filter(array_map('SweetRow::mapExport', $o));
 				}
 			}
 		}
@@ -442,98 +475,131 @@ class SweetRow {
 			//D::log($keys, 'keys');
 			
 			$varL++;
-			$pullRel = $this->__model->relationships[$var];
 			$pull = array_key_exists($var, $this->__pull) ? $this->__pull[$var] : array();
 			
+			$pullRel = $this->__model->relationships[$var];
 			if(is_string($fKey = f_first(array_keys($pullRel)) )) {
 				//m2m
 				$model = SweetFramework::getClass('model', f_first($pullRel[$fKey]));
+				$returnItems = array();
 				
-				foreach($this->__data as $row) {
-					$item = new stdClass();
-					foreach($keys as $key) {
-						//D::log(substr($key, $varL), 'subkey');
-						$item->{substr($key, $varL)} = $row->$key;
+				if(!isset($model->pk)) {
+					foreach($this->__data as $row) {
+						if(!empty($row)) {
+							$item = self::subRow2Item($keys, $row, $varL);
+							if(!empty($item)) {
+								$returnItems[] = new SweetRow($model, $item, $pull);
+							}
+						}
 					}
-					//D::log($item, 'm2m item');
-					$returnItems[] = new SweetRow($model, $item, $pull);
+				} else {
+					foreach($this->__data as $row) {
+						if(!empty($row)) {
+							$item = self::subRow2Item($keys, $row, $varL);
+							if(!empty($item)) {
+								if(array_key_exists($item[$model->pk], $returnItems)) {
+									f_call(array($returnItems[$item[$model->pk]], 'pass'), array($item));
+								} else {
+									$returnItems[$item[$model->pk]] = new SweetRow($model, $item, $pull);
+								}
+							}
+						}
+					}
 				}
 				return $returnItems;
 			} else {
 				$model = SweetFramework::getClass('model', f_first($pullRel));
-				$last = null;
-			//	$returnItems = array();
-				foreach($this->__data as $row) {
-					$item = new stdClass();
-					foreach($keys as $key) {
-						if($subKey = substr($key, $varL)) {
-							$item->$subKey = $row->$key;
+				if(!isset($model->pk)) {
+					foreach($this->__data as $row) {
+						if(!empty($row)) {
+							$item = self::subRow2Item($keys, $row, $varL);
+							if(!empty($item)) {
+								if(isset($returnItem)) {
+									$returnItem->pass($item);
+								} else {
+									$returnItem = new SweetRow($model, $item, $pull);
+								}
+							}	
 						}
 					}
-					if(isset($returnItem) && $returnItem->{$model->pk} == $last) {
-						$returnItem->pass($item);
-						//f_call(array($returnItem, 'pass'), array($item));
-					} else {
-						//if()
-						$returnItem = new SweetRow($model, $item, $pull);
-						$last = $item->{$model->pk};	
+				} else {
+					foreach($this->__data as $row) {
+						if(!empty($row)) {
+							$item = self::subRow2Item($keys, $row, $varL);
+							if(!empty($item)) {
+								if(isset($returnItem) && $returnItem->{$model->pk} == $item[$model->pk]) {
+									$returnItem->pass($item);
+								} else {
+									$returnItem = new SweetRow($model, $item, $pull);
+								}
+							}
+						}
 					}
 				}
-				return $returnItem;
 			}
+			return isset($returnItem) ? $returnItem : null;		
 		} else if(array_key_exists($var, $this->__model->fields)) {
-			return f_first($this->__data)->$var;
+			//basicly this @ is here to make sure you call any field on a SweetRow and it will just return null unless it's been set.
+			return !empty($this->__data[0][$var]) ? $this->__data[0][$var] : null;
+			//return @f_first($this->__data)->$var;
 		}
 	}
 	
 	function __call($var, $args=array()) {
-		/*
-		$model = $this->_model;
-		if(array_key_exists($var, $model::$belongsTo)) {
-			//->find(array($model::$belongsTo[$var] => $this->_data[$model::$PK] ))->all()
-			//@todo add in a limit when im not working with fucktarded mssql
-			return $this->getModel($var)->find(array($model::$belongsTo[$var] => $this->_data[$model::$PK] ))->all();
-		} else if(array_key_exists($var, $model::$objects) && method_exists($this->getLibrary(f_first($model::$objects[$var])), 'get_' . $model::$objects[$var][1])) {
-			return $this->getLibrary(f_first($model::$objects[$var]))->{'get_' . $model::$objects[$var][1]}( $var, f_last($model::$objects[$var]) );
-		} else {
-			D::warn('wtf are you trying todo?');
+		if(array_key_exists($var, $this->__model->rowMethods)) {
+			//D::show(array_merge(array($this), $args), 'rowmethod');
+			return f_call($this->__model->rowMethods[$var], array_merge(array($this), $args));
 		}
-		*/
 	}
 	
-	function set($var, $value) {
-		/*
-		$this->_data[$var] = $value;
+	function __set($var, $value) {
+		$this->__update[$var] = $value;
+		if(is_scalar($value)) {
+			$this->__data = array_map(
+				function($row) use($var, $value) {
+					$row[$var] = $value;
+					return $row;
+				},
+				$this->__data
+			);
+			return $value;
+		} else {
+			D::warn('SweetRows do not currently support non scalar values… yet.');
+		}
+	}
+	
+	function update($vals) {
+		array_map(
+			array($this, '__set'),
+			array_keys((array)$vals),
+			array_values((array)$vals)
+		);
 		return $this;
-		*/
-	}
-	
-	function get($var, $fetch=false) {
-		/*
-		if(is_array($var) && 1 < count($var)) {
-			return $this->{f_first($var)}->get(f_rest($var), $fetch);
-		}
-		if($fetch) {
-			return $this->_data[f_first((array)$var)];
-		} else {
-			return $this->{f_first((array)$var)};
-		}
-		*/
 	}
 	
 	function save() {
-		/* @todo figure out if this needs to return its self. */
-		/*
-		if(!empty($this->_errors)) {
-			return false;
+		if(!empty($this->__update)) {
+			return $this->__model->find(array('id' => $this->{$this->__model->pk}))->update($this->__update)->save();
 		}
-		$model = $this->_model;
-		return $this->getLibrary('Query')->update($model::$tableName)->where(array($model::$PK => $this->_data[$model::$PK]))->set($this->_data)->go();
-		*/
+	}
+	
+	function test() {
+		D::show($this->__pull, 'pull');
+		D::show(($this->__data), 'first data');
 	}
 	
 	public function delete() {
 		return $this->__model->find($this->{$this->__model->pk})->delete();
+	}
+	
+	static function subRow2Item($keys, $row, $varL) {
+		$item = array();
+		foreach($keys as $key) {
+			if(!empty($row[$key])) {
+				$item[substr($key, $varL)] = $row[$key];
+			}
+		}
+		return $item;
 	}
 }
 
@@ -671,18 +737,88 @@ pull(
 ->sort($keyVal) How you would like to sort these objects from the db if you pass if just a string it will sort by that string DESC
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 */
+/*
+@todo:
+	I think I'll have the lazy loading happen if you use the __call
+---
+$model = $this->_model;
+if(array_key_exists($var, $model::$belongsTo)) {
+	//->find(array($model::$belongsTo[$var] => $this->_data[$model::$PK] ))->all()
+	//@todo add in a limit when im not working with fucktarded mssql
+	return $this->getModel($var)->find(array($model::$belongsTo[$var] => $this->_data[$model::$PK] ))->all();
+} else if(array_key_exists($var, $model::$objects) && method_exists($this->getLibrary(f_first($model::$objects[$var])), 'get_' . $model::$objects[$var][1])) {
+	return $this->getLibrary(f_first($model::$objects[$var]))->{'get_' . $model::$objects[$var][1]}( $var, f_last($model::$objects[$var]) );
+} else {
+	D::warn('wtf are you trying todo?');
+}
+*/
+/*
+	
+	- What do i do if a pull wasn't called?
+			- how do i tell what pull was called?
+		- How do i update things with out pk's?
+	- How do i get rid of null tags?
+	////////
+	
+		what if I came up with the concept of sweet data?
+		sweetData vs sweetRow
+		basicly a data structure for indivual rows that is capable of retriving more rows
+		//what abilities would the sweetRow have?
+			magic reading methods…
+				would first return back a sub row
+				that would call the get_field methods correctly
+				
+			the ability to insert more data on the fly
+			
+			seprates out normal row data and sub row data;
+				
+			
+			ability to save data back into the db
+				do this keep edited data sperate main data
+	*/
+	
+/* 
+		ORM TODO:
+		- is this where i tell if  i have a m2m relation ship?
+			- does it make sense for Forigen Keys to exist like this?
+				- not really, if its how m2m relationships are defined.
+				
+			- do foreign keys always have a field in the current model?
+				- yes.
+				
+			- if it is a forigen key do i only need to return one sweet row item?
+				- yes.
+			- do m2m always need to return an array?
+				- yes.
+			- what advantages do i have for detecting m2m relationships
+				- the differnces between fk and m2m code?
+			- what does the pk mean?
+				- //? the pk is used so you dont get an array of all the same item.
+					-if it is the same item it passes it to the sweetRow obj
+				- do you need it on m2m?
+					- shouldn't matter.
+					?no
+					?not always.
+						- the comments example on the pages models proves that it can be avaible.
+				- do you need it on fk?
+					yes.
+						//in order for a fk to point to something, that something needs a pk.
+						
+					// for the most part the fk is gonna be the same for each row.
+						- when is it differnent?
+							//if its differnt does that mean there are 2 items?
+								//this shouldn't be possible correct?
+							//?on m2m?
+			
+		- how do i handle backwards relationships?
+			- how were they defined before?
+			- how were they handeled before?
+			
+			- do they even need to be defined?
+				-yes.
+			
+			- use cases for backwards relationships?
+				- m2m relationships are backwards fk relationships. they already work.
+		*/
+		//)

@@ -68,7 +68,7 @@ function f_construct($first, $rest) {
 	return $rest;
 }
 
-function f_push($i, $in) {
+function f_push($i, $in=array()) {
 	if(empty($in)) {
 		return array($i);
 	}
@@ -77,6 +77,7 @@ function f_push($i, $in) {
 }
 
 function f_map($transformer, $in) {
+	return array_map($transformer, $in);
 	//call $transformer with each item in $in
 /*
 	if(!empty($in)) {
@@ -93,10 +94,11 @@ function f_map($transformer, $in) {
 		return array();
 	}
 */
-	return array_map($transformer, $in);
 }
 
 function f_keyMap($transformer, $in, $keys=null) {
+	return array_map($transformer, $in, array_keys($in));
+/*
 	if(!empty($in)) {
 		if(!isset($keys)) {
 			$keys = array_keys($in);
@@ -108,6 +110,7 @@ function f_keyMap($transformer, $in, $keys=null) {
 	} else {
 		return array();
 	}
+*/
 }
 
 

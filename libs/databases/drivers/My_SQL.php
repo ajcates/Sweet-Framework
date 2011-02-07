@@ -53,7 +53,7 @@ class My_SQL {
 				D::warn('Could not select the database: ' . $this->settings['databaseName']);
 				return false;
 			}
-			D::log('DB Connected');
+			D::log($this->settings['databaseName'], 'Connected to the MYSQL database');
 			$this->connected = true;
 			return true;
 		}
@@ -135,6 +135,11 @@ get rid of this switch and use an array of functions instead.
 	function results($sql) {
 		//@todo figure wtf this is
 		return $this->query($sql);
+	}
+	
+	function lastInsert() {
+		return mysql_insert_id($this->connection);
+		
 	}
 	
 	function escape($value) {

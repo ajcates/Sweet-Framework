@@ -6,6 +6,6 @@ SweetFramework::getClass('lib', 'Config')->setAll('Session', array(
 	'cookieName' => 'sweet-hash',
 	'use' => array($_SERVER['REMOTE_ADDR']),
 	'sslCookies' => false,
-	'tableName' => 'Sessions',
-	'dataTableName' => 'SessionData'
+	'tableName' => 'sessions',
+	'dataTableName' => 'sessiondata'
 ));

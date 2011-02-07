@@ -9,24 +9,35 @@ come up with classier names then getSetting and setSetting
 */
 class Config {
 
-	public static $configArray;
+	//public static $configArray;
 	
 	private $configs;
 	
-	public function __construct() {}
+	public function __construct() {
+		//SweetEvent::bind('SweetFrameworkEnd', array($this, 'clearConfigs'));
+		$this->configs = array();
+	}
 	
+/*
+	public function clearConfigs() {
+		$this->configs = array();
+	}
+*/
+	
+/*
 	private $paths = array('/sweet-framework/settings/');
 	
 	public function addPath($path) {
 		array_push($this->paths, $path);
 	}
+*/
 	
 	public function get($className, $param=null) {
 		if(!isset($this->configs[$className])) {
-			Sweetframework::loadFileType('config', $className);
+			Sweetframework::loadFileType('config', $className, true);
 		}
 		if(isset($param)) {
-			return $this->configs[$className][$param];
+			return isset($this->configs[$className][$param]) ? $this->configs[$className][$param] : null;
 		} else {
 			return $this->configs[$className];
 		}
