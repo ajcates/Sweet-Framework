@@ -6,9 +6,10 @@ class SweetModel extends App {
 	
 	function __construct() {
 		$this->lib('databases/Query');
+		$this->_buildOptions = $this->_orgBuildOptions;
 	}
 	
-	var $_buildOptions = array(
+	var $_orgBuildOptions = array(
 		'saveMode' => 'update',
 		'find' => array(),
 		'update' => array()
@@ -238,7 +239,7 @@ class SweetModel extends App {
 				$last = $item->{$this->pk};
 			}
 		}
-	
+		$this->_buildOptions = $this->_orgBuildOptions;
 		return array_values($returnItems);
 	}
 	
