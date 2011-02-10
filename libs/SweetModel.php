@@ -475,7 +475,7 @@ class SweetRow {
 			//D::log($keys, 'keys');
 			
 			$varL++;
-			$pull = array_key_exists($var, $this->__pull) ? $this->__pull[$var] : array();
+			$pull = isset($this->__pull[$var]) ? $this->__pull[$var] : array();
 			
 			$pullRel = $this->__model->relationships[$var];
 			if(is_string($fKey = f_first(array_keys($pullRel)) )) {
