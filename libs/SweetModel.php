@@ -5,6 +5,8 @@ class SweetModel extends App {
 	var $items;
 	var $rowMethods = array();
 	
+	var $__relationships = array();
+	
 	function __construct() {
 		$this->lib('databases/Query');
 		$this->_buildOptions = $this->_orgBuildOptions;
@@ -466,21 +468,34 @@ class SweetRow {
 			
 			////// KEYS:
 			$varL = strlen($var);
+/*
 			$keys = array_filter(
 				array_keys((array)f_first($this->__data)),
 				function($k) use($var, $varL) {
 					return ($var == substr($k, 0, $varL));
 				}
 			);
+*/
+			$keys = array();
+			foreach(array_keys((array)f_first($this->__data)) as $k) {
+				if($var == substr($k, 0, $varL)) {
+					$keys[] = $k;
+				}
+			}
+			
 			//D::log($keys, 'keys');
 			
 			$varL++;
 			$pull = isset($this->__pull[$var]) ? $this->__pull[$var] : array();
-			
+			//!meh			
 			$pullRel = $this->__model->relationships[$var];
 			if(is_string($fKey = f_first(array_keys($pullRel)) )) {
 				//m2m
-				$model = SweetFramework::getClass('model', f_first($pullRel[$fKey]));
+				
+				//$model = SweetFramework::getClass('model', f_first($pullRel[$fKey]));
+				$model = f_first($pullRel[$fKey]);
+				$model = isset($this->__model->__relationships[$model]) ? $this->__model->__relationships[$model] : ($this->__model->__relationships[$model] = SweetFramework::getClass('model', $model));
+				
 				$returnItems = array();
 				
 				if(!isset($model->pk)) {
@@ -508,7 +523,12 @@ class SweetRow {
 				}
 				return $returnItems;
 			} else {
-				$model = SweetFramework::getClass('model', f_first($pullRel));
+				//$model = SweetFramework::getClass('model', f_first($pullRel));
+				$model = f_first($pullRel);
+				$model = isset($this->__model->__relationships[$model]) ? $this->__model->__relationships[$model] : ($this->__model->__relationships[$model] = SweetFramework::getClass('model', $model));
+				
+				
+				
 				if(!isset($model->pk)) {
 					foreach($this->__data as $row) {
 						if(!empty($row)) {

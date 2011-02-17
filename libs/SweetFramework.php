@@ -76,9 +76,11 @@ class SweetFramework extends App {
 	);
 	
 	public static function className($file) {
+/*
 		if(substr($file, -4) == '.php') {
 			return substr(strrchr('/' . $file, '/'), 1, -4);
 		}
+*/
 		return substr(strrchr('/' . $file, '/'), 1);
 	}
 	
