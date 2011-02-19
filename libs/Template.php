@@ -71,10 +71,10 @@ class Template extends App {
 	public function render($fileNameThatNoOneBetterUse, $data=null) {
 		if(isset($data)) {
 			extract($data);
-			include(T::$loc . '/templates/' . SweetFramework::fileLoc($fileNameThatNoOneBetterUse));
+			include(T::$loc . '/templates/' . $fileNameThatNoOneBetterUse . '.php');
 		} else {
 			extract($this->data);
-			include(T::$loc . '/templates/' . SweetFramework::fileLoc($fileNameThatNoOneBetterUse));	
+			include(T::$loc . '/templates/' . $fileNameThatNoOneBetterUse . '.php');
 			$this->data = array();
 		}
 	}

@@ -5,18 +5,21 @@ class SweetModel extends App {
 	var $items;
 	var $rowMethods = array();
 	
-	var $__relationships = array();
-	
-	function __construct() {
-		$this->lib('databases/Query');
-		$this->_buildOptions = $this->_orgBuildOptions;
-	}
-	
 	var $_orgBuildOptions = array(
 		'saveMode' => 'update',
 		'find' => array(),
-		'update' => array()
+		'update' => array(),
+		'fixFields' => true
 	);
+	
+	var $__relationships = array();
+	
+	function __construct() {}
+	
+	function __sweetConstruct() {
+		$this->lib('databases/Query');
+		$this->_buildOptions = $this->_orgBuildOptions;
+	}
 	
 	function find() {
 		$this->_buildOptions['find'] = func_get_args();
@@ -90,6 +93,9 @@ class SweetModel extends App {
 		
 	function save() {
 		if($this->_buildOptions['savemode'] == 'update') {
+			if($this->_buildOptions['fixFields']) {
+				$this->_buildOptions['update'] = $this->fixFields($this->_buildOptions['update']);
+			}
 			return $this->lib('databases/Query')->update($this->tableName)->where(
 				//$this->_buildFind($this->_buildOptions['find'])
 				$this->_buildWhere()
@@ -97,12 +103,58 @@ class SweetModel extends App {
 		}
 		return false;
 	}
+	
+	function fixData($meh) {
+		if(is_bool($meh)) {
+			$this->_buildOptions['fixFields'] = $meh;
+			
+		} else if(!is_scalar($meh)) {
+			$this->fixFields($meh);
+		}
+		return $this;
+	}
+	
+	function fixFields($data) {
+		//return f_keyMap(array($this, 'fixField'), $data);
+		if(is_array(f_first($data))) {
+			//prolly going to have to change this when we implement nested updating.
+			return array_map(array($this, 'fixFields'), $data);
+		}
+		foreach($data as $k => $d) {
+			$data[$k] = $this->fixField($d, $k);
+		}
+		return $data;
+	}
+	
+	function fixField($data, $field) {
+		switch(f_first($this->fields[$field])) {
+			case 'date':
+				if(empty($data)) {
+					return null;
+				}
+				try {
+					$date = new DateTime($data);
+				} catch(Exception $e) {
+					return null;
+				}
+				return $date->format('Y-m-d');
+			case 'datetime':
+				//$date = new ;
+				$date = new DateTime($data);
+				return $date->format('Y-m-d H:i:s');
+			default:
+				return $data;
+		}
+	}
 	/*
 	Takes in an array or an object and inserts it into the db.
 	returns back a SweetRow that has all the props you inserted, so like if you didn't inset the id of the item, its not safe to call $item->delete().
 	 	 */
 	function create($item) {
 		//@todo change this to func_get_args ?
+		if($this->_buildOptions['fixFields']) {
+			$item = $this->fixFields($item);
+		}
 		if($this->lib('databases/Query')->insert($item)->into($this->tableName)->go()) {
 			if(!is_array($item)) {
 				$item = (array)$item;
@@ -140,7 +192,7 @@ class SweetModel extends App {
 				}
 			}
 		}
-		$this->_buildOptions = array();
+		$this->_buildOptions = $this->_orgBuildOptions;
 		return array_values($returnItems);
 	}
 	

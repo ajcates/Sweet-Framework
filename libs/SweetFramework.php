@@ -96,15 +96,6 @@ class SweetFramework extends App {
 		return false;
 	}
 	
-
-	public static function fileLoc($name) {
-		if(substr($name, -4) != '.php') {
-			$name .= '.php';
-		}
-		return $name;
-	}
-
-	
 	public static function loadFileType($type, $name, $forceLoad=false) {
 		/*  @todo
 			- need to use a FileName function here #Maybe
@@ -127,11 +118,14 @@ class SweetFramework extends App {
 	
 	public static function getClass($type, $name, $params=array()) {
 		$cName = self::className($name);
-		if(!array_key_exists($type . $cName, self::$classes)) {
+		if(!array_key_exists(($tcName = $type . $cName), self::$classes)) {
 			self::loadFileType($type, $name);
-			self::$classes[$type . $cName] = new $cName($params);
+			self::$classes[$tcName] = new $cName($params);
+			if(method_exists(self::$classes[$tcName], '__sweetConstruct')) {
+				self::$classes[$tcName]->__sweetConstruct();
+			}
 		}
-		$return =& self::$classes[$type . $cName];
+		$return =& self::$classes[$tcName];
 		return $return;
 	}
 	
