@@ -33,9 +33,11 @@ class Theme extends App {
 	function __construct() {
 		//$this->lib('Config')->get('Theme');
 		
+		/*
 		if(!$this->set($this->lib('Config')->get('site', 'theme'))) {
 			D::error('Theme could not be found. Debug: $Config->getSetting(\'Site\', \'defaultTheme\') = ' . $this->config->get('Site', 'defaultTheme'));
 		}
+		*/
 	}
 
 	function set($name) {
@@ -44,11 +46,13 @@ class Theme extends App {
 		D::log($name, 'Theme Set');
 	//	D::log(URL, 'URL');
 		if(is_dir(LOC . '/' . $newPlace)) {
-			if(substr(URL, -1) == '?') {
-				T::$url = $this->themeUrl = substr(URL, 0, -1) . $newPlace . '/';
-			} else {
-				T::$url = $this->themeUrl = URL . $newPlace . '/';
-			}
+			if(defined('URL')) {
+				if(substr(URL, -1) == '?') {
+					T::$url = $this->themeUrl = substr(URL, 0, -1) . $newPlace . '/';
+				} else {
+					T::$url = $this->themeUrl = URL . $newPlace . '/';
+				}
+			}			
 			T::$loc = LOC . '/' . $newPlace;
 			//$this->libs->Config->set('site', 'theme', $newPlace);
 			return true;

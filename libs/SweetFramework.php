@@ -60,6 +60,11 @@ class SweetFramework extends App {
 		if($mainApp == true && !defined('APP_FOLDER')) {
 			define('APP_FOLDER', $appInfo['folder']);
 			$this->lib(array('Theme', $this->libs->Config->get('site', 'autoload')) );
+			
+			if(!$this->libs->Theme->set($this->libs->Config->get('site', 'theme'))) {
+				D::error('Theme could not be found. Debug: $Config->getSetting(\'Site\', \'defaultTheme\') = ' . $this->libs->Config->get('site', 'defaultTheme'));
+			}
+			
 		}
 		return $this;
 	}
