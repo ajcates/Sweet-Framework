@@ -38,27 +38,29 @@ class SweetFramework extends App {
 		
 		D::initialize($this->libs->Config->get('Debug')); //start the debugger up with some config options
 		D::time('App', 'SweetFramework - ' . date('F j, Y, g:i a')); //Write what time the framework starts to the log
+		$this->lib('Uri');
 	}
 	
-	function loadApp($appSettingName) {
+	function loadApp($appSettingName, $mainApp=false) {
 	
 		$appInfo = $this->libs->Config->get('SweetFramework', $appSettingName); //get the current app's settings
 		
 	//	D::show($this->libs->Config->get('SweetFramework'), 'sweet-framework settings');
 		
-		if(!defined('APP_FOLDER')) {
-			define('APP_FOLDER', $appInfo['folder']);
-		}
+		
 		
 		foreach($appInfo['paths'] as $k => $v) {
 			if(!is_array(self::$paths[$k])) {
 				self::$paths[$k] = array();
 			}
 			//add in the applications folders to the frameworks file loader
-			self::$paths[$k][] = '/' . APP_FOLDER . '/' . $v .'/';
+			self::$paths[$k][] = '/' . $appInfo['folder'] . '/' . $v .'/';
 			//self::$paths[$k][] = join('/', array(LOC, $appInfo['folder'], $v)) .'/'; @todo A/B test these two.
 		}
-		$this->lib(array_merge(array('Uri', 'Theme'), $this->libs->Config->get('site', 'autoload') ));
+		if($mainApp == true && !defined('APP_FOLDER')) {
+			define('APP_FOLDER', $appInfo['folder']);
+			$this->lib(array('Theme', $this->libs->Config->get('site', 'autoload')) );
+		}
 		return $this;
 	}
 	

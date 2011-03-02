@@ -27,48 +27,47 @@ class Uri extends App {
 		//[0] => helldsdfs34&what=4
 		
 		D::log($_SERVER, 'SERVER');
-		
-		$this->request = $_SERVER['QUERY_STRING'];
-		//[HTTP_HOST] => localhost
-		$this->domain = $_SERVER['HTTP_HOST'];
-		//http or https?
-		$this->protocol = strtolower(strstr($_SERVER['SERVER_PROTOCOL'], '/', true));;
-
-		
-		if(!defined('URL')) {
-			if($this->lib('Config')->get('site', 'prettyUrls')) {
-				$folder = $_SERVER['REQUEST_URI'];
-				if($this->request) {
-					define('URL', $this->protocol . '://' . $this->domain . substr($folder, 0, -strlen($this->request)) );
+		if(array_key_exists('HTTP_HOST', $_SERVER)) {
+			$this->request = $_SERVER['QUERY_STRING'];
+			//[HTTP_HOST] => localhost
+			$this->domain = $_SERVER['HTTP_HOST'];
+			//http or https?
+			$this->protocol = strtolower(strstr($_SERVER['SERVER_PROTOCOL'], '/', true));;
+	
+			
+			if(!defined('URL')) {
+				if($this->lib('Config')->get('site', 'prettyUrls')) {
+					$folder = $_SERVER['REQUEST_URI'];
+					if($this->request) {
+						define('URL', $this->protocol . '://' . $this->domain . substr($folder, 0, -strlen($this->request)) );
+					} else {
+						define('URL', $this->protocol . '://' . $this->domain . $folder );
+					}
+					define('SITE_URL', URL);
 				} else {
+					$folder = strstr($_SERVER['REQUEST_URI'] .'?', '?', true);
 					define('URL', $this->protocol . '://' . $this->domain . $folder );
+					define('SITE_URL', URL . '?');
 				}
-				define('SITE_URL', URL);
-			} else {
-				$folder = strstr($_SERVER['REQUEST_URI'] .'?', '?', true);
-				define('URL', $this->protocol . '://' . $this->domain . $folder );
-				define('SITE_URL', URL . '?');
 			}
+			
+			D::log(SITE_URL . $this->request, 'URI Library Loaded');
+			D::log(SITE_URL, 'SITE_URL');
+			D::log($this->request, 'Request');
 		}
-		
-		D::log(SITE_URL . $this->request, 'URI Library Loaded');
-		D::log(SITE_URL, 'SITE_URL');
-		D::log($this->request, 'Request');
-		
-		$this->contorllerFile = $this->lib('Config')->get('site', 'mainController');
+		//$this->contorllerFile = $this->lib('Config')->get('site', 'mainController');
 	}
 	/*
 	Calls a specfic route. As in you type in a relative url inside your application and the framework will fire up the controller and call its function and everything for you.
 	Watch out it actaully Echos out the content of the controller that is called.
 	*/
-	function callRoute($request=null) {
+	function callRoute($request=null, $controller=null) {
 		if(isset($request)) {
 			$this->request = $request;
 		}
 		echo f_call($this->loadController());
 	}
 	
-	/*	Just a little nicer way of asking for the request… I might take this thing out, I would suggest just useing `Uri->rquest` for now. */
 	function getRequest() {
 		return $this->request;
 	}
@@ -144,6 +143,9 @@ class Uri extends App {
 	function loadController($controller=null) {
 		if(isset($controller)) {
 			$this->contorllerFile = $controller;
+		}
+		if(empty($this->contorllerFile)) {
+			$this->contorllerFile = $this->lib('Config')->get('site', 'mainController');
 		}
 		
 		$class = SweetFramework::className($this->contorllerFile);
