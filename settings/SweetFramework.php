@@ -11,5 +11,15 @@ SweetFramework::getClass('lib', 'Config')->setAll('SweetFramework', array(
 			'helper' => 'helpers',
 			'controller' => 'controllers'
 		)
+	),
+	'sweet-cmd' => array(
+		'folder' => 'sweet-cmd',
+		'paths' => array(
+			'config' => 'settings',
+			'lib' => 'libs',
+			'model' => 'models',
+			'helper' => 'helpers',
+			'controller' => 'controllers'
+		)
 	)
 ));
