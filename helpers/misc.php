@@ -209,7 +209,7 @@ function arrayToObj($array) {
 	return $obj;
 }
 
-function nothing($arg) {
+function nothing($arg=null) {
 	return $arg;
 }
 
