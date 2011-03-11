@@ -227,6 +227,16 @@ function notRetardedKSort($sort, $type=SORT_REGULAR) {
 	return $sort;
 }
 
+function notRetardedASort($sort, $type=SORT_REGULAR) {
+	asort($sort, $type);
+	return $sort;
+}
+
+function notRetardedUSort($sort, $func) {
+	usort($sort, $func);
+	return $sort;
+}
+
 function sortBy($objects_array, $p) {
 	uasort(
 		$objects_array,
