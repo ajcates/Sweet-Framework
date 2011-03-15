@@ -95,6 +95,7 @@ class SweetModel extends App {
 		if($this->_buildOptions['savemode'] == 'update') {
 			if($this->_buildOptions['fixFields']) {
 				$this->_buildOptions['update'] = $this->fixFields($this->_buildOptions['update']);
+				
 			}
 			return $this->lib('databases/Query')->update($this->tableName)->where(
 				//$this->_buildFind($this->_buildOptions['find'])
