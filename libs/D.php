@@ -30,7 +30,7 @@ class Timer {
 		return (microtime(true)) - $this->total; 
 	} 
 	
-	public function reset() { 
+	public function reset() {
 		$this->total=$this->time=(microtime(true));
 	} 
 }
@@ -115,6 +115,37 @@ class D {
             }
 		}
 		return $var;
+	}
+	
+	static function copy($var) {
+		/*
+		if(self::$config['debug']) {
+			if(!is_string($var)) {
+				$copy =  var_export($var, true);
+			} else {
+				$copy = $var;
+			}
+			D::growl(exec('whoami'));
+			//exec('env ');
+			//escapeshellarg(
+			
+			
+			//$cmd = 'echo "do shell script' . addslashes('echo \"' . escapeshellarg($copy) . '\" | pbcopy') . '" | osascript';
+			$copy = 'thing to put on your clipboard';
+			$apple = 'do shell script "' . addcslashes('echo ' . escapeshellarg($copy) . ' | pbcopy', '"') . '"';
+			$cmd = 'echo ' . escapeshellarg($apple) . ' | osascript';			
+			echo "\n\n" . $cmd . "\n\n" . $apple . "\n\n";
+			exec($cmd);
+			
+			
+			
+			
+			
+			//exec("echo 'hmmmmmm' | /usr/bin/pbcopy");
+			
+		}
+		return self::log($var, 'Copied');
+	*/
 	}
 	static function show($var, $label='') {
 		if(self::$config['debug']) {

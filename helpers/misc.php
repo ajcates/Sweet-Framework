@@ -209,7 +209,7 @@ function arrayToObj($array) {
 	return $obj;
 }
 
-function nothing($arg) {
+function nothing($arg=null) {
 	return $arg;
 }
 
@@ -224,6 +224,16 @@ function notRetardedSort($sort, $type=SORT_REGULAR) {
 }
 function notRetardedKSort($sort, $type=SORT_REGULAR) {
 	ksort($sort, $type);
+	return $sort;
+}
+
+function notRetardedASort($sort, $type=SORT_REGULAR) {
+	asort($sort, $type);
+	return $sort;
+}
+
+function notRetardedUSort($sort, $func) {
+	usort($sort, $func);
 	return $sort;
 }
 
