@@ -1,5 +1,5 @@
 <?
-if(stristr($_SERVER['HTTP_HOST'], 'local') !== false || stristr($_SERVER['HTTP_HOST'], 'dev') !== false) {
+if(!isset($_SERVER['HTTP_HOST']) || (stristr($_SERVER['HTTP_HOST'], 'local') !== false || stristr($_SERVER['HTTP_HOST'], 'dev') !== false)) {
 	SweetFramework::getClass('lib', 'Config')->setAll('Debug', array(
 		'debug' => true,
 		'warnings' => true,
