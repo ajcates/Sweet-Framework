@@ -57,7 +57,9 @@ class SweetFramework extends App {
 			//self::$paths[$k][] = join('/', array(LOC, $appInfo['folder'], $v)) .'/'; @todo A/B test these two.
 		}
 		if($mainApp == true && !defined('APP_FOLDER')) {
-			define('APP_FOLDER', LOC . '/' . $appInfo['folder']);
+			define('APP_NAME', $appInfo['folder']);
+			define('APP_FOLDER', LOC . '/' . APP_NAME);
+			
 			//$this->lib();
 			$this->lib(array('Uri', 'Theme', $this->libs->Config->get('site', 'autoload')) );
 			

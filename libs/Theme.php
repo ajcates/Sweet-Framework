@@ -43,18 +43,18 @@ class Theme extends App {
 
 	function set($name) {
 		//@todo rename this to just set
-		$newPlace = '/themes/' . $name;
+		$newPlace = 'themes/' . $name;
 		D::log($name, 'Theme Set');
 	//	D::log(URL, 'URL');
-		if(is_dir($newPlace)) {
+		if(is_dir(APP_FOLDER . '/' . $newPlace)) {
 			if(defined('URL')) {
 				if(substr(URL, -1) == '?') {
-					T::$url = $this->themeUrl = substr(URL, 0, -1) . $newPlace . '/';
+					T::$url = $this->themeUrl = substr(URL, 0, -1) . APP_NAME . '/' . $newPlace . '/';
 				} else {
-					T::$url = $this->themeUrl = URL . $newPlace . '/';
+					T::$url = $this->themeUrl = URL . APP_NAME . '/' . $newPlace . '/';
 				}
 			}			
-			T::$loc =  $this->themeLoc = APP_FOLDER . $newPlace;
+			T::$loc =  $this->themeLoc = APP_FOLDER . '/' . $newPlace;
 			//$this->libs->Config->set('site', 'theme', $newPlace);
 			return true;
 		} else {
