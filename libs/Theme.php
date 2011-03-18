@@ -29,6 +29,7 @@ class V {
 class Theme extends App {
 	
 	var $themeUrl;
+	var $themeLoc;
 	
 	function __construct() {
 		//$this->lib('Config')->get('Theme');
@@ -42,7 +43,7 @@ class Theme extends App {
 
 	function set($name) {
 		//@todo rename this to just set
-		$newPlace = APP_FOLDER . '/themes/' . $name;
+		$newPlace = '/themes/' . $name;
 		D::log($name, 'Theme Set');
 	//	D::log(URL, 'URL');
 		if(is_dir($newPlace)) {
@@ -53,7 +54,7 @@ class Theme extends App {
 					T::$url = $this->themeUrl = URL . $newPlace . '/';
 				}
 			}			
-			T::$loc = $newPlace;
+			T::$loc =  $this->themeLoc = APP_FOLDER . $newPlace;
 			//$this->libs->Config->set('site', 'theme', $newPlace);
 			return true;
 		} else {
