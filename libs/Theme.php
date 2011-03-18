@@ -45,7 +45,7 @@ class Theme extends App {
 		$newPlace = APP_FOLDER . '/themes/' . $name;
 		D::log($name, 'Theme Set');
 	//	D::log(URL, 'URL');
-		if(is_dir(LOC . '/' . $newPlace)) {
+		if(is_dir($newPlace)) {
 			if(defined('URL')) {
 				if(substr(URL, -1) == '?') {
 					T::$url = $this->themeUrl = substr(URL, 0, -1) . $newPlace . '/';
@@ -53,7 +53,7 @@ class Theme extends App {
 					T::$url = $this->themeUrl = URL . $newPlace . '/';
 				}
 			}			
-			T::$loc = LOC . '/' . $newPlace;
+			T::$loc = $newPlace;
 			//$this->libs->Config->set('site', 'theme', $newPlace);
 			return true;
 		} else {
