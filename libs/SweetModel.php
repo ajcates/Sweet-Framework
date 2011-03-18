@@ -517,7 +517,7 @@ class SweetRow {
 				- m2m relationships are backwards fk relationships. they already work.
 		*/
 		//)
-		if(!empty($this->__pull) && (array_key_exists($var, $this->__pull) || in_array($var, $this->__pull)) ) {
+		if(!empty($this->__pull) && ( isset($var[$this->__pull]) || in_array($var, $this->__pull)) ) {
 			
 			////// KEYS:
 			$varL = strlen($var);
@@ -565,7 +565,7 @@ class SweetRow {
 						if(!empty($row)) {
 							$item = self::subRow2Item($keys, $row, $varL);
 							if(!empty($item)) {
-								if(array_key_exists($item[$model->pk], $returnItems)) {
+								if(isset($returnItems[$item[$model->pk]])) {
 									f_call(array($returnItems[$item[$model->pk]], 'pass'), array($item));
 								} else {
 									$returnItems[$item[$model->pk]] = new SweetRow($model, $item, $pull);
@@ -579,9 +579,6 @@ class SweetRow {
 				//$model = SweetFramework::getClass('model', f_first($pullRel));
 				$model = f_first($pullRel);
 				$model = isset($this->__model->__relationships[$model]) ? $this->__model->__relationships[$model] : ($this->__model->__relationships[$model] = SweetFramework::getClass('model', $model));
-				
-				
-				
 				if(!isset($model->pk)) {
 					foreach($this->__data as $row) {
 						if(!empty($row)) {
@@ -611,7 +608,7 @@ class SweetRow {
 				}
 			}
 			return isset($returnItem) ? $returnItem : null;		
-		} else if(array_key_exists($var, $this->__model->fields)) {
+		} else if(isset($this->__model->fields[$var])) {
 			//basicly this @ is here to make sure you call any field on a SweetRow and it will just return null unless it's been set.
 			return !empty($this->__data[0][$var]) ? $this->__data[0][$var] : null;
 			//return @f_first($this->__data)->$var;

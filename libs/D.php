@@ -30,7 +30,7 @@ class Timer {
 		return (microtime(true)) - $this->total; 
 	} 
 	
-	public function reset() { 
+	public function reset() {
 		$this->total=$this->time=(microtime(true));
 	} 
 }

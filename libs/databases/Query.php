@@ -416,6 +416,7 @@ WHERE (
 		self::$last = $this->_build();
 		$this->reset();
 		if(!self::$_driver->query(self::$last)) {
+			D::warn('Query Failed: ' . self::$last);
 			return false;
 		}
 		return $this;
