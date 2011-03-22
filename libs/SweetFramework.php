@@ -38,6 +38,7 @@ class SweetFramework extends App {
 		
 		D::initialize($this->libs->Config->get('Debug')); //start the debugger up with some config options
 		D::time('App', 'SweetFramework - ' . date('F j, Y, g:i a')); //Write what time the framework starts to the log
+		//register_shutdown_function('SweetFramework::end');
 	}
 	
 	function loadApp($appSettingName, $mainApp=false) {
@@ -150,7 +151,7 @@ class SweetFramework extends App {
 	 * @static
 	 * @return void
 	 */
-	static function end() {
+	static function end($exit=false) {
 		SweetEvent::trigger('SweetFrameworkEnd');
 		
 		SweetEvent::$events = array();
@@ -166,8 +167,9 @@ class SweetFramework extends App {
 			'config' => array('/sweet-framework/settings/')
 		);
 		self::$classes = array();
-		
-		//exit;
+		if($exit) {
+			exit;
+		}
 	}
 }
 

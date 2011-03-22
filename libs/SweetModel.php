@@ -517,7 +517,7 @@ class SweetRow {
 				- m2m relationships are backwards fk relationships. they already work.
 		*/
 		//)
-		if(!empty($this->__pull) && ( isset($var[$this->__pull]) || in_array($var, $this->__pull)) ) {
+		if(!empty($this->__pull) && ( isset($this->__pull[$var]) || in_array($var, $this->__pull)) ) {
 			
 			////// KEYS:
 			$varL = strlen($var);
