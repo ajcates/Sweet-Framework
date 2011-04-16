@@ -16,7 +16,7 @@ function redirect($uri = '', $method = 'location', $http_response_code = 302) {
 			break;
 	}
 	/* @todo you should call an app end event here.*/
-	SweetFramework::end();
+	SweetFramework::end(true);
 	//exit;
 }
 

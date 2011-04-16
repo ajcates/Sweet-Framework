@@ -412,17 +412,26 @@ WHERE (
 		return $this->sql;
 	}
 	
-	public function go() {
-		self::$last = $this->_build();
+	public function go($query=null) {
+		if(!isset($query)) {
+			self::$last = $this->_build();
+		} else {
+			self::$last = $query;
+		}
 		$this->reset();
 		if(!self::$_driver->query(self::$last)) {
+			D::warn('Query Failed: ' . self::$last);
 			return false;
 		}
 		return $this;
 	}
 	
-	public function results($type='object') {
-		self::$last = $this->_build();
+	public function results($type='object', $query=null) {
+		if(!isset($query)) {
+			self::$last = $this->_build();
+		} else {
+			self::$last = $query;
+		}
 		$this->reset();
 		return self::$_driver->query(self::$last, $type);
 	}

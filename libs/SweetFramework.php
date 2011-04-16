@@ -38,7 +38,7 @@ class SweetFramework extends App {
 		
 		D::initialize($this->libs->Config->get('Debug')); //start the debugger up with some config options
 		D::time('App', 'SweetFramework - ' . date('F j, Y, g:i a')); //Write what time the framework starts to the log
-		$this->lib('Uri');
+		//register_shutdown_function('SweetFramework::end');
 	}
 	
 	function loadApp($appSettingName, $mainApp=false) {
@@ -58,8 +58,11 @@ class SweetFramework extends App {
 			//self::$paths[$k][] = join('/', array(LOC, $appInfo['folder'], $v)) .'/'; @todo A/B test these two.
 		}
 		if($mainApp == true && !defined('APP_FOLDER')) {
-			define('APP_FOLDER', $appInfo['folder']);
-			$this->lib(array('Theme', $this->libs->Config->get('site', 'autoload')) );
+			define('APP_NAME', $appInfo['folder']);
+			define('APP_FOLDER', LOC . '/' . APP_NAME);
+			
+			//$this->lib();
+			$this->lib(array('Uri', 'Theme', $this->libs->Config->get('site', 'autoload')) );
 			
 			if(!$this->libs->Theme->set($this->libs->Config->get('site', 'theme'))) {
 				D::error('Theme could not be found. Debug: $Config->getSetting(\'Site\', \'defaultTheme\') = ' . $this->libs->Config->get('site', 'defaultTheme'));
@@ -148,7 +151,7 @@ class SweetFramework extends App {
 	 * @static
 	 * @return void
 	 */
-	static function end() {
+	static function end($exit=false) {
 		SweetEvent::trigger('SweetFrameworkEnd');
 		
 		SweetEvent::$events = array();
@@ -164,8 +167,9 @@ class SweetFramework extends App {
 			'config' => array('/sweet-framework/settings/')
 		);
 		self::$classes = array();
-		
-		//exit;
+		if($exit) {
+			exit;
+		}
 	}
 }
 

@@ -120,7 +120,7 @@ class Uri extends App {
 		} else {
 			header('Location: ' . $uri, TRUE, $http_response_code);
 			/* @todo you should call an app end event here.*/
-			SweetFramework::end();
+			SweetFramework::end(true);
 		}	
 	}
 	
