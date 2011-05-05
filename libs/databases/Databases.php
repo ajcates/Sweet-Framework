@@ -10,7 +10,7 @@ new idea you have Databases object which holds differnt database objects, this a
 class Databases extends App {
 	
 	protected $databases = array();
-	protected $currentDatabase;
+	public $currentDatabase;
 	
 	function __construct() {
 		if($defaultDb = $this->lib('Config')->get('site', 'database')) {
