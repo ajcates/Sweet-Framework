@@ -451,15 +451,21 @@ WHERE (
 		if(is_bool($var) || is_int($var)) {
 			return intval($var);
 		}
+        if(is_float($var)) {
+            return floatval($var);
+        }
 		return self::escape($var, $sep);
 	}
 	
 	public static function escape($var, $sep='') {
 		//Databases::f('query', array($sql, $type));
 		//@todo change this.
-		if(is_bool($var) || is_numeric($var)) {
+		if(is_bool($var) || is_int($var)) {
 			return intval($var);
 		}
+        if(is_float($var)) {
+            return floatval($var);
+        }
 		return $sep . mysql_escape_string($var)  . $sep;
 	}
 		
