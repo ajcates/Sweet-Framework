@@ -138,11 +138,17 @@ class Uri extends App {
 	
 	This function uses the current request to detrime what controller function it needs to call.
 	This is a really low level framework uri routing feature that not many will need to use.
+
+    @todo
+    - Make this thing way way way smaller and modular, maybe split it into 2, loadUrl and loadController
 	*/
 	
-	function loadController($controller=null) {
+	function loadController($controller=null, $request=null) {
 		if(isset($controller)) {
 			$this->contorllerFile = $controller;
+		}
+		if(isset($request)) {
+			$this->request = $request;
 		}
 		if(empty($this->contorllerFile)) {
 			$this->contorllerFile = $this->lib('Config')->get('site', 'mainController');
@@ -168,6 +174,7 @@ class Uri extends App {
 				$this->request = f_first($page);
 				D::log($this->request, 'Request Reduced');
 				if(method_exists($class, 'enRoute')) {
+                    //@todo document this feature.
 					$class::enRoute();
 				}
 				return $this->loadController(f_first(f_first(f_last($page))) );
