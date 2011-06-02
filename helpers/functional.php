@@ -26,6 +26,18 @@ function f_function($v) {
 	return function() use($v) { return $v; };
 }
 
+function f_curry($func, $args=array()) {
+    return function($arg) use($func, $args) {
+        return call_user_func_array($func, f_push($arg, $args));
+    };
+}
+
+function f_purry($func, $args=array()) {
+    return function($arg) use($func, $args) {
+        return f_call($func, f_construct($arg, $args));
+    };
+}
+
 function f_first($in) {
 	//gets the first item of an array
 	if(empty($in) || !is_array($in)) {
