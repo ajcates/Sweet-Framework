@@ -33,3 +33,27 @@ function parseQuery($queryString) {
 	parse_str($queryString, $returnArray);
 	return $returnArray;
 }
+
+if(!function_exists('http_parse_headers')) {
+    function http_parse_headers($headers) {
+        D::show($headers, 'headers');
+        $headers = explode('\n', str_replace('\r','', $headers));
+        D::show($headers, 'headers');
+        $headerdata = array();
+
+        foreach($headers as $value) {
+            $header = explode(':', $value);
+            if($header[0] && !isset($header[1])) {
+                $headerdata['status'] = $header[0];
+            } elseif($header[0] && $header[1]) {
+                if(isset($headerdata[$header[0]])) {
+                    $headerdata[$header[0]] = f_push($header[1], (array)$headerdata[$header[0]]);
+                } else {
+                    $headerdata[$header[0]] = $header[1];
+                }
+            }
+        }
+        return $headerdata;
+    }
+}
+
