@@ -117,6 +117,7 @@ class Uri extends App {
 		//@todo make this be set off with the debug switch. and if debugging is on it should show a link to the page it would have forwarded to.
 		if(headers_sent()) {
 			D::show('Headers already sent.', B::a(array('href' => $uri), $uri));
+			SweetFramework::end(true);
 		} else {
 			header('Location: ' . $uri, TRUE, $http_response_code);
 			/* @todo you should call an app end event here.*/

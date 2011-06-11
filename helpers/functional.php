@@ -23,24 +23,32 @@ function f_callable($func) {
 }
 
 function f_function($v) {
+    //create a function from a value
 	return function() use($v) { return $v; };
 }
 
 function f_curry($func, $args=array()) {
+    //create a function from a function but with fixed appened args
     return function($arg) use($func, $args) {
         return call_user_func_array($func, f_push($arg, $args));
     };
 }
 
 function f_purry($func, $args=array()) {
+    //create a function from a function but with fixed prepended args
     return function($arg) use($func, $args) {
         return f_call($func, f_construct($arg, $args));
     };
 }
 
+function f_inverse($func) {
+    //create a function that returns a functions value but inversed
+    return function() use($func) { return !f_call($func, func_get_args()); };
+}
+
 function f_first($in) {
 	//gets the first item of an array
-	if(empty($in) || !is_array($in)) {
+	if(!is_array($in) || empty($in)) {
 		return null;
 	} else {
 		return array_shift($in);
@@ -48,7 +56,7 @@ function f_first($in) {
 }
 
 function f_last($in) {
-	if(empty($in)) {
+	if(!is_array($in) || empty($in)) {
 		return null;
 	} else {
 		return array_pop($in);
