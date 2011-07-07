@@ -30,7 +30,7 @@ class B {
 			//D::log($values[0], '0 values');
 			$attributes = ' ' . join(' ', f_keyMap(
 				function($v, $k) {
-					if(!empty($v)) {
+					if(isset($v)) {
 						return $k . '="' . join(', ', (array)$v)  . '"';
 					}
 				},

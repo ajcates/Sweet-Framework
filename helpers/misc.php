@@ -312,3 +312,11 @@ function arraySortBy($array, $p) {
 	);
 	return $array;
 }
+
+
+function checkbox_value($key) {
+  //Orginally written by TGuarriello
+  //http://iamcam.wordpress.com/2008/01/15/unchecked-checkbox-values/#comment-6861
+  return (isset($_REQUEST[$key]) && ($_REQUEST[$key]=='1'))?true:false;
+}
+
