@@ -31,7 +31,15 @@ class B {
 			$attributes = ' ' . join(' ', f_keyMap(
 				function($v, $k) {
 					if(isset($v)) {
-						return $k . '="' . join(', ', (array)$v)  . '"';
+            return $k . '="' . (
+              is_array($v)
+                ? join(', ', $v)
+                : (
+                  is_bool($v)
+                    ? var_export($v, true)
+                    : $v
+                )
+            ) . '"';
 					}
 				},
 				$values[0]
