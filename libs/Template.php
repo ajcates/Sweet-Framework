@@ -27,7 +27,6 @@ class B {
 	public static function __callStatic($tagName, $values=array()) {
 		
 		if(isset($values[0]) && is_array($values[0])) {
-			//D::log($values[0], '0 values');
 			$attributes = ' ' . join(' ', f_keyMap(
 				function($v, $k) {
 					if(isset($v)) {
