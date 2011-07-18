@@ -27,16 +27,23 @@ function f_function($v) {
 	return function() use($v) { return $v; };
 }
 
+function f_urry($func, $args=array()) {
+    //create a function from a function but with fixed args
+    return function() use($func, $args) {
+        return call_user_func_array($func, $args);
+    };
+}
+
 function f_curry($func, $args=array()) {
     //create a function from a function but with fixed appened args
-    return function($arg) use($func, $args) {
+    return function($arg=null) use($func, $args) {
         return call_user_func_array($func, f_push($arg, $args));
     };
 }
 
 function f_purry($func, $args=array()) {
     //create a function from a function but with fixed prepended args
-    return function($arg) use($func, $args) {
+    return function($arg=null) use($func, $args) {
         return f_call($func, f_construct($arg, $args));
     };
 }
