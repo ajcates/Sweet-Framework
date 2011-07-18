@@ -83,6 +83,7 @@ class My_SQL {
 		$this->prepared = false;
 		
 		if(!$this->result) {
+            D::show($sql);
 			D::stack();
 			D::log(mysql_error($this->connection), 'SQL Errors');
 			return false;
