@@ -35,7 +35,7 @@ class Databases extends App {
 		
 		$this->databases[$name] = Sweetframework::loadClass('lib', 'databases/drivers/' . $database['driver'],  $database);     //new $database['driver']($database);
 		if(!$this->databases[$name]->connect()) {
-			D::warn('failed to connect to the db');
+			D::show('failed to connect to the db');
 		}
 	}
 	

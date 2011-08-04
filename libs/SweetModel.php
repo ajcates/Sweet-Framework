@@ -610,7 +610,7 @@ class SweetRow {
 			return isset($returnItem) ? $returnItem : null;		
 		} else if(isset($this->__model->fields[$var])) {
 			//basicly this @ is here to make sure you call any field on a SweetRow and it will just return null unless it's been set.
-			return !empty($this->__data[0][$var]) ? $this->__data[0][$var] : null;
+			return isset($this->__data[0][$var]) ? $this->__data[0][$var] : null;
 			//return @f_first($this->__data)->$var;
 		}
 	}
