@@ -1,15 +1,18 @@
 <?
+//Get my base class that I use for loading crap, anything that uses the framework extends this class, I try and keep it as simple as possible.
 require_once('App.php');
 /*
 @todo
 	- Make the fileLoading functions support multiple folder levels
-	- Get the framework to load a controller
+	- Get the framework to load a controller instead of the Uri class.
 	- Make sure the app/framework split is working correctly
 	- 
 */
+
+//A cool little static singlton for events.
 class SweetEvent {
 	static $events = array();
-	
+	//Binds a function to an event name.
 	static function bind($name, $func) {
 		if(!isset(self::$events[$name])) {
 			self::$events[$name] = array($func);
@@ -17,7 +20,7 @@ class SweetEvent {
 			self::$events[$name][] = $func;
 		}
 	}
-
+    //Triggers an event with what name you pass it and calls all the functions associoted with it.
 	static function trigger($name) {
 		D::log('Triggering Event: ' . $name);
 		if(isset(self::$events[$name])) {
@@ -25,15 +28,14 @@ class SweetEvent {
 		}
 	}
 }
-
+//K this thing does cool stuff
 class SweetFramework extends App {
 	
 	static $classes = array();
 
 	function __construct() {
-		//crap we need for the framework
-		//$GLOBALS['app'] = $this; //stop this.
-		$this->helper('functional'); //makes my life oh so much easier :)
+		//Load our functional helper cuase functional programing kicks ass.
+		$this->helper('functional'); 
 		$this->lib(array('D', 'Config')); //Get the debuger and the config loader
 		
 		D::initialize($this->libs->Config->get('Debug')); //start the debugger up with some config options
