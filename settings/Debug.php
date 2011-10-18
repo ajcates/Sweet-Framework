@@ -1,5 +1,6 @@
 <?php
-if(strstr(`hostname`, 'local') !== FALSE || strstr(LOC, 'dev') !== FALSE) {
+if(stristr(@$_SERVER['USER'], 'ajcates') || stristr(@$_SERVER['HTTP_HOST'], 'ajcates') || stristr(@$_SERVER['HTTP_HOST'], 'localhost')) {
+  //dev mode:
   SweetFramework::getClass('lib', 'Config')->setAll('Debug', array(
     'debug' => true,
     'warnings' => true,
@@ -11,7 +12,7 @@ if(strstr(`hostname`, 'local') !== FALSE || strstr(LOC, 'dev') !== FALSE) {
   ));
 } else {
   SweetFramework::getClass('lib', 'Config')->setAll('Debug', array(
-    'debug' => false,
+    'debug' => true,
     'warnings' => false,
     'logfile' => LOC . '/sweet-framework/logs/main.log',
     'growl' => array(

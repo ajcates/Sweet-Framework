@@ -29,13 +29,11 @@ class Databases extends App {
 		//Sweetframework::getClass('lib', 'databases/drivers/' . $database['driver'],  );
 		//App::includeLibrary('Databases/Drivers/' . $database['driver'] . '.php');
 		
-		
-		
 		$this->setCurrentDb($name);
 		
 		$this->databases[$name] = Sweetframework::loadClass('lib', 'databases/drivers/' . $database['driver'],  $database);     //new $database['driver']($database);
 		if(!$this->databases[$name]->connect()) {
-			D::show('failed to connect to the db');
+			D::warn('failed to connect to the db');
 		}
 	}
 	
