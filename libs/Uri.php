@@ -156,7 +156,7 @@ class Uri extends App {
 		}
 		
 		$class = SweetFramework::className($this->contorllerFile);
-		D::log($class, 'Controller Loaded');
+		D::log($class, $this->controllerFile . ' Controller Loaded');
 		
 		if(!SweetFramework::loadFileType('controller', $this->contorllerFile)) {
 			D::error('No Controller Found');
@@ -167,8 +167,8 @@ class Uri extends App {
 			$page = $this->loadUrl(array());
 		}
 		
-		D::log($this->count, 'COUNT');
-		D::log($page, 'page');
+		//D::log($this->count, 'COUNT');
+		//D::log($page, 'page');
 		
 		if(is_array(f_last($page))) {
 			if(is_array( f_first(f_last($page)) )) {

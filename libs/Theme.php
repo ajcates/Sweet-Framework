@@ -28,41 +28,30 @@ class V {
 
 class Theme extends App {
 	
-	var $themeUrl;
-	var $themeLoc;
+	protected static $themeUrl;
+	protected static $themeLoc;
 	
-	function __construct() {
-		//$this->lib('Config')->get('Theme');
-		
-		/*
-		if(!$this->set($this->lib('Config')->get('site', 'theme'))) {
-			D::error('Theme could not be found. Debug: $Config->getSetting(\'Site\', \'defaultTheme\') = ' . $this->config->get('Site', 'defaultTheme'));
-		}
-		*/
-	}
+	function __construct() {}
 
-	function set($name) {
-		//@todo rename this to just set
+	static function set($name) {
 		$newPlace = 'themes/' . $name;
-		D::log($name, 'Theme Set');
-	//	D::log(URL, 'URL');
 		if(is_dir(APP_FOLDER . '/' . $newPlace)) {
 			if(defined('URL')) {
 				if(substr(URL, -1) == '?') {
-					T::$url = $this->themeUrl = substr(URL, 0, -1) . APP_NAME . '/' . $newPlace . '/';
+					T::$url = self::$themeUrl = substr(URL, 0, -1) . APP_NAME . '/' . $newPlace . '/';
 				} else {
-					T::$url = $this->themeUrl = URL . APP_NAME . '/' . $newPlace . '/';
+					T::$url = self::$themeUrl = URL . APP_NAME . '/' . $newPlace . '/';
 				}
 			}			
-			T::$loc =  $this->themeLoc = APP_FOLDER . '/' . $newPlace;
-			//$this->libs->Config->set('site', 'theme', $newPlace);
+			T::$loc =  self::$themeLoc = APP_FOLDER . '/' . $newPlace;
+			D::log($name, 'Theme Set');
 			return true;
 		} else {
 			D::error('Theme doesn\'t exist');
 		}
 	}
 	
-	function loadSnippets($names) {
+	static function loadSnippets($names) {
 		foreach((array)$names as $name) {
 			require_once(T::$loc . 'snippets/' . $name . '.php' );
 		}
