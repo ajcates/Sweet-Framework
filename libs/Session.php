@@ -14,14 +14,12 @@ class Session extends App {
 	private $_flashRemove = array();
 	private $_flashAdd = array();
 	private $_flash = array();
+	private $_config = array();
 	
 	function __construct() {
-		$this->lib(array('Config', 'databases/Query'));
-		
-		//$this->libs->Config->get('Session', 'sessionTableName')
-		
-		//$this->libs->Config->get('Session', 'sessionDataTableName')
+		$this->lib(array('databases/Query'));
 		D::log('Session is starting');
+		$this->_config = (object) Config::get('Session');//@todo make $this->_config an actual array.
 		$this->start();
 		
 		SweetEvent::bind('SweetFrameworkEnd', array($this, 'save'));
@@ -47,16 +45,16 @@ class Session extends App {
 			return true;
 		}
 		
-		$cookieName = $this->libs->Config->get('Session', 'cookieName');
+		$cookieName = $this->_config->cookieName;
 		if(isset($_COOKIE[$cookieName])) {
 			//D::log($_COOKIE[$cookieName], 'Cookie Set');
 			$cookie = explode('_', $_COOKIE[$cookieName]);
-			$row = f_first($this->libs->Query->select('*')->from($this->libs->Config->get('Session', 'tableName'))->where(array('id' => f_first($cookie)))->results());
+			$row = f_first($this->libs->Query->select('*')->from($this->_config->tableName)->where(array('id' => f_first($cookie)))->results());
 			if(!empty($row) && $this->encryptCheckString($row->uid) === f_last($cookie)) {
 				if($this->encryptCheckString($this->getCheckString($row->uid)) === $row->checkString) {
 					$this->_valid = true;
 					$this->_id = $row->id;
-					$this->loadData($this->libs->Query->select('*')->from($this->libs->Config->get('Session', 'dataTableName'))->where(array('session' => $this->_id))->results());
+					$this->loadData($this->libs->Query->select('*')->from($this->_config->dataTableName)->where(array('session' => $this->_id))->results());
 					D::log($this->_data, 'cookie is good. heres some data:');
 					return true;
 				}
@@ -77,10 +75,10 @@ class Session extends App {
 	
 	function getCheckString($uid) {
 		//return hash_hmac($this->libs->Config->get('Session', 'hashFunction'), $checkString, $this->libs->Config->get('Session', 'cookieSecret'));
-		return $uid . '_' . join('', $this->libs->Config->get('Session', 'use'));
+		return $uid . '_' . join('', $this->_config->checkString);
 	}
 	function encryptCheckString($checkString) {
-		return hash_hmac($this->libs->Config->get('Session', 'hashFunction'), $checkString, $this->libs->Config->get('Session', 'cookieSecret'));
+		return hash_hmac($this->_config->hashFunction, $checkString, $this->_config->cookieSecret);
 	}
 	
 	function generateCookie($checkString, $uid) {
@@ -89,14 +87,14 @@ class Session extends App {
 			'checkString' => $this->encryptCheckString($checkString),
 			'created' => time(),
 			'uid' => $uid
-		))->into($this->libs->Config->get('Session', 'tableName'))->go()->getDriver()->query('SELECT max(@@IDENTITY) AS \'id\' FROM ' . $this->libs->Config->get('Session', 'tableName'), 'assoc') )) . '_' . $this->encryptCheckString($uid);
+		))->into($this->_config->tableName)->go()->getDriver()->query('SELECT max(@@IDENTITY) AS \'id\' FROM ' . $this->_config->tableName, 'assoc') )) . '_' . $this->encryptCheckString($uid);
 	}
 	
 	function saveCookie($info) {
 		//@todo pull out into a cookie library.
 		//setcookie($cookieName, $encyptedCookieString, $expire, $path, $domain, $secure);
 		D::log($info, 'Setting cookie');
-		return setcookie($this->libs->Config->get('Session', 'cookieName'), $info, time() + $this->libs->Config->get('Session', 'timeout'), '/', null, $this->libs->Config->get('Session', 'sslCookies'));
+		return setcookie($this->_config->cookieName, $info, time() + $this->_config->timeout, '/', null, $this->_config->sslCookies);
 	}
 	
 	function data($key, $value=null) {
@@ -131,7 +129,7 @@ class Session extends App {
 				return $this->flash(f_last($key));
 			}
 			$this->_flash[$key] = $value;
-			$this->libs->Query->insert(array('name' => $key, 'value' => serialize($this->_flash[$key]), 'session' => $this->_id, 'flash' => 1))->into($this->libs->Config->get('Session', 'dataTableName'))->go();
+			$this->libs->Query->insert(array('name' => $key, 'value' => serialize($this->_flash[$key]), 'session' => $this->_id, 'flash' => 1))->into($this->_config->dataTableName)->go();
 		//}
 	}
 	
@@ -140,20 +138,20 @@ class Session extends App {
 	//	if($this->checkCookie()) {
 			D::log($this->_data, 'data');
 			foreach($this->_changed as $key) {
-				$this->libs->Query->update($this->libs->Config->get('Session', 'dataTableName'))->where(array('name' => $key, 'session' => $this->_id))->set(array('value' => serialize($this->_data[$key])))->go();
+				$this->libs->Query->update($this->_config->dataTableName)->where(array('name' => $key, 'session' => $this->_id))->set(array('value' => serialize($this->_data[$key])))->go();
 			}
 			foreach($this->_new as $key) {
-				$this->libs->Query->insert(array('name' => $key, 'value' => serialize($this->_data[$key]), 'session' => $this->_id))->into($this->libs->Config->get('Session', 'dataTableName'))->go();
+				$this->libs->Query->insert(array('name' => $key, 'value' => serialize($this->_data[$key]), 'session' => $this->_id))->into($this->_config->dataTableName)->go();
 			}
 			if(!empty($this->_flashRemove)) {
-				$this->libs->Query->delete()->where(array('name' => $this->_flashRemove, 'session' => $this->_id, 'flash' => 1))->from($this->libs->Config->get('Session', 'dataTableName'))->go();
+				$this->libs->Query->delete()->where(array('name' => $this->_flashRemove, 'session' => $this->_id, 'flash' => 1))->from($this->_config->dataTableName)->go();
 			}
 	//	}
 	}
 	
 	function destroy() {
-		setcookie ($this->libs->Config->get('Session', 'cookieName'), '', time() - 86400);
-		$this->libs->Query->delete()->where(array('id' => $this->_id))->from($this->libs->Config->get('Session', 'tableName'))->go();
+		setcookie ($this->_config->cookieName, '', time() - 86400);
+		$this->libs->Query->delete()->where(array('id' => $this->_id))->from($this->_config->tableName)->go();
 		$this->_changed = array();
 		$this->_new = array();
 		$this->_data = array();

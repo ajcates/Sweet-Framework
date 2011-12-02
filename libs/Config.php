@@ -11,16 +11,18 @@ class Config {
 
 	//public static $configArray;
 	
-	private $configs;
+	static protected $configs = array();
 	
+/*
 	public function __construct() {
 		//SweetEvent::bind('SweetFrameworkEnd', array($this, 'clearConfigs'));
-		$this->configs = array();
+		self::$configs = array();
 	}
+*/
 	
 /*
 	public function clearConfigs() {
-		$this->configs = array();
+		self::$configs = array();
 	}
 */
 	
@@ -28,27 +30,27 @@ class Config {
 	private $paths = array('/sweet-framework/settings/');
 	
 	public function addPath($path) {
-		array_push($this->paths, $path);
+		array_push(self::$paths, $path);
 	}
 */
 	
 	public function get($className, $param=null) {
-		if(!isset($this->configs[$className])) {
+		if(!isset(self::$configs[$className])) {
 			Sweetframework::loadFileType('config', $className, true);
 		}
 		if(isset($param)) {
-			return isset($this->configs[$className][$param]) ? $this->configs[$className][$param] : null;
+			return isset(self::$configs[$className][$param]) ? self::$configs[$className][$param] : null;
 		} else {
-			return $this->configs[$className];
+			return self::$configs[$className];
 		}
 	}
 	
 	public function setAll($nameSpace, $values) {
-		$this->configs[$nameSpace] = $values;
+		self::$configs[$nameSpace] = $values;
 	}
 	
 	public function set($nameSpace, $item, $value) {
-		$this->configs[$nameSpace][$item] = $value;
+		self::$configs[$nameSpace][$item] = $value;
 	}
 }
 /*/------------------------------------------

@@ -7,9 +7,8 @@ class SweetMongo extends App {
 	private $collection;
 
 	function __construct() {
-		$this->lib('Config');
-		$this->connection = new Mongo($this->libs->Config->get('mongo', 'host') . ':' . $this->libs->Config->get('mongo', 'port'));
-		$this->db = $this->connection->selectDB($this->libs->Config->get('mongo', 'database'));
+		$this->connection = new Mongo(Config::get('mongo', 'host') . ':' . Config::get('mongo', 'port'));
+		$this->db = $this->connection->selectDB(Config::get('mongo', 'database'));
 	}
 	
 	function getCollection($name) {

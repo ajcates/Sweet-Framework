@@ -36,7 +36,7 @@ class Uri extends App {
 	
 			
 			if(!defined('URL')) {
-				if($this->lib('Config')->get('site', 'prettyUrls')) {
+				if(Config::get('site', 'prettyUrls')) {
 					$folder = $_SERVER['REQUEST_URI'];
 					if($this->request) {
 						define('URL', $this->protocol . '://' . $this->domain . substr($folder, 0, -strlen($this->request)) );
@@ -55,7 +55,6 @@ class Uri extends App {
 			D::log(SITE_URL, 'SITE_URL');
 			D::log($this->request, 'Request');
 		}
-		//$this->contorllerFile = $this->lib('Config')->get('site', 'mainController');
 	}
 	/*
 	Calls a specfic route. As in you type in a relative url inside your application and the framework will fire up the controller and call its function and everything for you.
@@ -148,7 +147,7 @@ class Uri extends App {
 			$this->request = $request;
 		}
 		if(empty($this->contorllerFile)) {
-			$this->contorllerFile = $this->lib('Config')->get('site', 'mainController');
+			$this->contorllerFile = Config::get('site', 'mainController');
 		}
 		
 		$class = SweetFramework::className($this->contorllerFile);

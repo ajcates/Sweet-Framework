@@ -38,18 +38,14 @@ class SweetFramework extends App {
 		$this->helper('functional'); 
 		$this->lib(array('D', 'Config')); //Get the debuger and the config loader
 		
-		D::initialize($this->libs->Config->get('Debug')); //start the debugger up with some config options
+		D::initialize(Config::get('Debug')); //start the debugger up with some config options
 		D::time('App', 'SweetFramework - ' . date('F j, Y, g:i a')); //Write what time the framework starts to the log
 		//register_shutdown_function('SweetFramework::end');
 	}
 	
 	function loadApp($appSettingName, $mainApp=false) {
 	
-		$appInfo = $this->libs->Config->get('SweetFramework', $appSettingName); //get the current app's settings
-		
-	//	D::show($this->libs->Config->get('SweetFramework'), 'sweet-framework settings');
-		
-		
+		$appInfo = Config::get('SweetFramework', $appSettingName); //get the current app's settings		
 		
 		foreach($appInfo['paths'] as $k => $v) {
 			if(!is_array(self::$paths[$k])) {
@@ -64,10 +60,10 @@ class SweetFramework extends App {
 			define('APP_FOLDER', LOC . '/' . APP_NAME);
 			
 			//$this->lib();
-            $this->lib( array_merge(array('Uri', 'Theme'), $this->libs->Config->get('site', 'autoload') ?: array()) );
+            $this->lib( array_merge(array('Uri', 'Theme'), Config::get('site', 'autoload') ?: array()) );
 			
-			if(!$this->libs->Theme->set($this->libs->Config->get('site', 'theme'))) {
-				D::error('Theme could not be found. Debug: $Config->getSetting(\'Site\', \'defaultTheme\') = ' . $this->libs->Config->get('site', 'defaultTheme'));
+			if(!Theme::set(Config::get('site', 'theme'))) {
+				D::error('Theme could not be found. Debug: $Config->getSetting(\'Site\', \'defaultTheme\') = ' . Config::get('site', 'defaultTheme'));
 			}
 			
 		}

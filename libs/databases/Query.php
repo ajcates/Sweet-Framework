@@ -38,7 +38,6 @@ class Query extends App {
 	static $last = '';
 		
 	public function __construct() {
-		//$this->getLibrary('Config');
 		$this->helper('misc');
 		self::$_driver = $this->lib('databases/Databases')->getCurrentDb();
 	}

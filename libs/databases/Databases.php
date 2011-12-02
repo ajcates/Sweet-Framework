@@ -13,7 +13,7 @@ class Databases extends App {
 	public $currentDatabase;
 	
 	function __construct() {
-		if($defaultDb = $this->lib('Config')->get('site', 'database')) {
+		if($defaultDb = Config::get('site', 'database')) {
 			$this->newDb($defaultDb);
 		}
 	}
@@ -25,7 +25,7 @@ class Databases extends App {
 	
 	public function newDb($name) {
 		
-		$database = $this->libs->Config->get('databases', $name);
+		$database = Config::get('databases', $name);
 		//Sweetframework::getClass('lib', 'databases/drivers/' . $database['driver'],  );
 		//App::includeLibrary('Databases/Drivers/' . $database['driver'] . '.php');
 		

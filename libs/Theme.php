@@ -7,6 +7,9 @@ class T {
 	public static function get($name, $arguments=array()) {
 		return SweetFramework::getClass('lib', 'Template')->get($name, $arguments);
 	}
+	public static function set($arguments=array()) {
+		return SweetFramework::getClass('lib', 'Template')->set($arguments);
+	}
 	public static function __callStatic($name, $arguments=array()) {
 		return SweetFramework::getClass('lib', 'Template')->$name;
 	}
@@ -20,6 +23,7 @@ class V {
 		include(T::$loc . '/views/' . $reallyHopeNoOneNamesThereVaribleThis . '.php' );
 		return ob_get_clean();
 	}
+	
 	public static function __callStatic($varName, $values=array()) {
 		return SweetFramework::getClass('lib', 'Template')->$varName;
 		//f_call(array(, 'get'), $args)

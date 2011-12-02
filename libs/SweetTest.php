@@ -31,11 +31,11 @@ class SweetFramework extends App {
 		//$GLOBALS['app'] = $this; //stop this.
 		$this->helper('functional'); //makes my life oh so much easier :)
 		$this->lib(array('D', 'Config')); //Get the debuger and the config loader
-		D::initialize($this->libs->Config->get('Debug')); //start the debugger up with some config options
+		D::initialize(Config::get('Debug')); //start the debugger up with some config options
 		D::time('App', 'SweetFramework - ' . date("F j, Y, g:i a")); //Write what time the app starts to the log
 		
 		
-		$appInfo = $this->libs->Config->get('SweetFramework', $appSettingName); //get the current app's settings
+		$appInfo = Config::get('SweetFramework', $appSettingName); //get the current app's settings
 		define('APP_FOLDER', $appInfo['folder']); //@todo make this load from the __construct, then get the apps settings from its settings folder…
 		
 		foreach($appInfo['paths'] as $k => $v) {
@@ -47,7 +47,7 @@ class SweetFramework extends App {
 			//self::$paths[$k][] = join('/', array(LOC, $appInfo['folder'], $v)) .'/'; @todo A/B test these two.
 		}
 		
-		$this->lib(array_merge(array('Uri', 'Theme'),  $this->libs->Config->get('site', 'autoload')));
+		$this->lib(array_merge(array('Uri', 'Theme'),  Config::get('site', 'autoload')));
 
 		//$this->libs->Uri->callRoute();
 		
