@@ -104,10 +104,6 @@ class Uri extends App {
 	function redirect($uri = '', $http_response_code = 302) {
 		if(substr($uri, 0, 7) != 'http://') {
 			//@todo fix this so it works with https
-/*
-			$this->callRoute($uri);
-			exit;
-*/
 			if($uri == '/') {
 				$uri = SITE_URL;	
 			} else {
