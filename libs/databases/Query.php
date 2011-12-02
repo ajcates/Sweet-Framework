@@ -55,6 +55,7 @@ class Query extends App {
 	
 	public function reset() {
 		$this->_mode = 'select';
+		//@todo turn the following properties into one array.
 		self::$_fromValue = null;
 		$this->_whereData = array();
 		$this->_selectData = null;
@@ -469,37 +470,55 @@ WHERE (
 	}
 		
 	/*
-	- where()
-		- $this->select('*')->where(array('item' => 5))->from('table')
-			- //SELECT * FROM table WHERE item = '5'
-		- $this->select('*')->where(array('item' => 5, 'thing' => 'what'))->from('table')
-			- //SELECT * FROM table WHERE item = '5' AND thing = 'what'
-		- $this->select('*')->where(array('OR', 'item' => 5, 'thing' => 'what'))->from('table')
-			- //SELECT * FROM table WHERE item = '5' OR thing = 'what'
-		- $this->select('*')->where(array('item' => 5, 'thing' => 'what', '!='))->from('table')
-			- //SELECT * FROM table WHERE item != '5' OR thing != 'what'
-		- $this->select('*')->where(array('item' => array('what', 'who'))->from('table')
-			- //SELECT * FROM table WHERE item IN ('what', 'who')
-		- $this->select('*')->where(array('item' => array(10 => 30))->from('table')
-			- //SELECT * FROM table WHERE item BETWEEN (10 AND 30)
+	###`select()`
 	
-	- join()
-		- $this->select('*')->from('Club_RnD.dbo.Posts')->join('Club_RnD.dbo.Comments', array('Club_RnD.dbo.Posts.comments' => 'Club_RnD.dbo.Comments.id'))
-			- //SELECT * FROM Club_RnD.dbo.Posts LEFT JOIN Club_RnD.dbo.Comments ON Club_RnD.dbo.Posts.comments = Club_RnD.dbo.Comments.id
+	`$this->select('*')`
+	:	SELECT *
+
+	`$this->select('colName', 'otherCol')`
+	:	SELECT colName, otherCol
+
+	`$this->select(array('colName', 'otherCol'))`
+	:	SELECT colName, otherCol
+
+	###`where()`
+		
+	`$this->select('*')->where(array('item' => 5))->from('table')`
+	:	SELECT * FROM table WHERE item = '5'
 	
-	- select()
-		- $this->select('*')
-			- //SELECT *
-		- $this->select('colName', 'otherCol')
-			- //SELECT colName, otherCol
-		- $this->select(array('colName', 'otherCol'))
-			- //SELECT colName, otherCol
+	`$this->select('*')->where(array('item' => 5, 'thing' => 'what'))->from('table')`
+	:	SELECT * FROM table WHERE item = '5' AND thing = 'what'
+
+	`$this->select('*')->where(array(
+		'OR',
+		'item' => 5,
+		'thing' => 'what'
+	))->from('table')`
+	:	SELECT * FROM table WHERE item = '5' OR thing = 'what'
+
+	`$this->select('*')->where(array('item' => 5, 'thing' => 'what', '!='))->from('table')`
+	:	SELECT * FROM table WHERE item != '5' OR thing != 'what'
+
+	`$this->select('*')->where(array('item' => array('what', 'who'))->from('table')`
+	:	SELECT * FROM table WHERE item IN ('what', 'who')
+
+	`$this->select('*')->where(array('item' => array(10 => 30))->from('table')`
+	:	SELECT * FROM table WHERE item BETWEEN (10 AND 30)
 	
-	->delete()
-		- $this->delete()->from('tableName')
-			- //DELETE FROM tableName
+	###`join()`
+
+	`$this->select('*')->from('Club_RnD.dbo.Posts')->join('Club_RnD.dbo.Comments', array('Club_RnD.dbo.Posts.comments' => 'Club_RnD.dbo.Comments.id'))`
+	:	SELECT * FROM Club_RnD.dbo.Posts LEFT JOIN Club_RnD.dbo.Comments ON Club_RnD.dbo.Posts.comments = Club_RnD.dbo.Comments.id
 	
-	->set()
-		$this->set(array('key' => 'value') //SET key = 'value'
+	
+	###`delete()`
+	
+	`$this->delete()->from('tableName')`
+	:	DELETE FROM tableName
+	
+	###`set()`
+	
+	`$this->set(array('key' => 'value')`
+	:	SET key = 'value'
 	*/
 }
