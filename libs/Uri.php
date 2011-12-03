@@ -9,6 +9,9 @@ class Uri extends App {
 	//new:
 	public $domain;
 	public $request;
+	public $request_method;
+	public $referer = '';
+	public $referer_internal = false;
 	public $count = 0;
 	public $contorller;
 
@@ -27,7 +30,10 @@ class Uri extends App {
 		//[0] => helldsdfs34&what=4
 		
 		D::log($_SERVER, 'SERVER');
-		if(array_key_exists('HTTP_HOST', $_SERVER)) {
+		//if(array_key_exists('HTTP_HOST', )) {
+		if(isset($_SERVER['HTTP_HOST'])) {
+			$this->request_method = $_SERVER['REQUEST_METHOD'];
+			
 			$this->request = $_SERVER['QUERY_STRING'];
 			//[HTTP_HOST] => localhost
 			$this->domain = $_SERVER['HTTP_HOST'];
@@ -49,10 +55,20 @@ class Uri extends App {
 					define('URL', $this->protocol . '://' . $this->domain . $folder );
 					define('SITE_URL', URL . '?');
 				}
+				
+				//mixed str_ireplace ( mixed $search , mixed $replace , mixed $subject [, int &$count ] )
+				if(isset($_SERVER['HTTP_REFERER'])) {
+					$this->referer = str_replace(SITE_URL, '', $_SERVER['HTTP_REFERER']);
+					
+					$this->referer_internal = (strlen($this->referer) < strlen($_SERVER['HTTP_REFERER']));
+				}
 			}
 			
 			D::log(SITE_URL . $this->request, 'URI Library Loaded');
 			D::log(SITE_URL, 'SITE_URL');
+			
+			D::log($this->referer, 'Referer');
+			D::log($this->referer_internal, 'Referer Internal');
 			D::log($this->request, 'Request');
 		}
 	}
@@ -115,7 +131,7 @@ class Uri extends App {
 			SweetFramework::end(true);
 		} else {
 			header('Location: ' . $uri, TRUE, $http_response_code);
-			/* @todo you should call an app end event here.*/
+			// @todo you should call an app end event here.
 			SweetFramework::end(true);
 		}	
 	}

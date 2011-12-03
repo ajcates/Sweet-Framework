@@ -13,6 +13,7 @@ class Session extends App {
 	private $_data = array();
 	private $_flashRemove = array();
 	private $_flashAdd = array();
+	private $_flashKeep = array();
 	private $_flash = array();
 	private $_config = array();
 	
@@ -33,7 +34,7 @@ class Session extends App {
 		foreach($data as $d) {
 			if($d->flash) {
 				$this->_flash[$d->name] = unserialize($d->value);
-				$this->_flashRemove[] = $d->name;
+				$this->_flashRemove[$d->name] = true;
 			} else {
 				$this->_data[$d->name] = unserialize($d->value);
 			}
@@ -120,7 +121,7 @@ class Session extends App {
 	function flash($key, $value=null) {
 		//if($this->checkCookie()) {
 			if(!isset($value)) {
-				return @$this->_flash[$key];
+				return isset($this->_flash[$key]) ? $this->_flash[$key] : null;
 			}
 			if(is_array($key)) {
 				foreach($key as $k => $v) {
@@ -133,24 +134,48 @@ class Session extends App {
 		//}
 	}
 	
+	/**
+	 * keepflash function.
+	 * A function lets you keep flash data items for one more additional page load
+	 * @access public
+	 * @param mixed $key. (default: null)
+	 * @return $this
+	 */
+	function keepflash($key=null) {
+		if(is_array($key)) {
+			array_map(array($this, __METHOD__), $key);
+		} else {
+			$this->_flashKeep[$key] = true;
+		}
+		return $this;
+	}
+	
 	function save() {
 		D::log('saving session');
 	//	if($this->checkCookie()) {
-			D::log($this->_data, 'data');
 			foreach($this->_changed as $key) {
 				$this->libs->Query->update($this->_config->dataTableName)->where(array('name' => $key, 'session' => $this->_id))->set(array('value' => serialize($this->_data[$key])))->go();
 			}
 			foreach($this->_new as $key) {
 				$this->libs->Query->insert(array('name' => $key, 'value' => serialize($this->_data[$key]), 'session' => $this->_id))->into($this->_config->dataTableName)->go();
 			}
-			if(!empty($this->_flashRemove)) {
-				$this->libs->Query->delete()->where(array('name' => $this->_flashRemove, 'session' => $this->_id, 'flash' => 1))->from($this->_config->dataTableName)->go();
+			$flashRemove = array_diff_key($this->_flashRemove, $this->_flashKeep);
+			if(!empty($flashRemove)) {
+				$this->libs->Query->delete()->where(array('name' => array_keys($flashRemove), 'session' => $this->_id, 'flash' => 1))->from($this->_config->dataTableName)->go();
 			}
 	//	}
 	}
 	
 	function destroy() {
 		setcookie ($this->_config->cookieName, '', time() - 86400);
+/*
+		try {
+			
+		} catch(Exception $e) {
+			D::log($e, 'Session destruction notice.');
+		}
+*/
+		$this->libs->Query->delete()->where(array('session' => $this->_id))->from($this->_config->dataTableName)->go();
 		$this->libs->Query->delete()->where(array('id' => $this->_id))->from($this->_config->tableName)->go();
 		$this->_changed = array();
 		$this->_new = array();
