@@ -100,7 +100,7 @@ class SweetModel extends App {
 			return $this->lib('databases/Query')->update($this->tableName)->where(
 				//$this->_buildFind($this->_buildOptions['find'])
 				$this->_buildWhere()
-			)->set($this->_buildOptions['update'])->go();
+			)->set($this->_buildOptions['update'])->go() ? $this : false;
 		}
 		return false;
 	}
