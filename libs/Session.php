@@ -84,11 +84,13 @@ class Session extends App {
 	
 	function generateCookie($checkString, $uid) {
 		//@todo remove the mssql depencdy here.
-		return f_first(f_first( $this->libs->Query->insert(array(
+		$this->libs->Query->insert(array(
 			'checkString' => $this->encryptCheckString($checkString),
 			'created' => time(),
 			'uid' => $uid
-		))->into($this->_config->tableName)->go()->getDriver()->query('SELECT max(@@IDENTITY) AS \'id\' FROM ' . $this->_config->tableName, 'assoc') )) . '_' . $this->encryptCheckString($uid);
+		))->into($this->_config->tableName)->go();
+		
+		return (f_first( $this->libs->Query->getDriver()->query('SELECT max(@@IDENTITY) AS \'id\' FROM ' . $this->_config->tableName, 'assoc') )) . '_' . $this->encryptCheckString($uid);
 	}
 	
 	function saveCookie($info) {

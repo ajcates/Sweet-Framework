@@ -413,6 +413,7 @@ WHERE (
 	}
 	
 	public function go($query=null) {
+		
 		if(!isset($query)) {
 			self::$last = $this->_build();
 		} else {
@@ -423,6 +424,7 @@ WHERE (
 			D::warn('Query Failed: ' . self::$last);
 			return false;
 		}
+		
 		return $this;
 	}
 	

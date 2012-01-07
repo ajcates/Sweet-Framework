@@ -1,5 +1,5 @@
 <?php
-if(stristr(@$_SERVER['USER'], 'ajcates') || stristr(@$_SERVER['HTTP_HOST'], 'ajcates') || stristr(@$_SERVER['HTTP_HOST'], 'localhost')) {
+if(stristr(@$_SERVER['USER'], 'ajcates') || stristr(@$_SERVER['HTTP_HOST'], 'ajcates') || stristr(@$_SERVER['HTTP_HOST'], 'localhost') || stristr(@$_SERVER['HTTP_HOST'], 'site')) {
   //dev mode:
   Config::setAll('Debug', array(
     'debug' => true,

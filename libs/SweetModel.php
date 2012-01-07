@@ -183,6 +183,7 @@ class SweetModel extends App {
 		//$pullRefernce = ;
 		while($item = $driver->fetch_assoc()) {
 	//		D::log($item, 'item');
+//		foreach($item as $driver) {
 			if(!empty($item)) {
 				if(isset($item[$this->pk]) && $item[$this->pk] === $last) {
 					f_call(array($returnItems[$i], 'pass'), array($item));
@@ -231,7 +232,7 @@ class SweetModel extends App {
 		//array_reverse()
 		//@todo replace @ with ternaries.
 		
-		return $this->lib('databases/Query')->select($select)->join($join)->from(
+		$go = $this->lib('databases/Query')->select($select)->join($join)->from(
 			$this->tableName,
 			!empty($this->_buildOptions['limit']) ? $this->_buildOptions['limit'] : null
 		)->where(
@@ -241,7 +242,12 @@ class SweetModel extends App {
 			!empty($this->_buildOptions['jlimit']) ? $this->_buildOptions['jlimit'] : null
 		)->orderBy(
 			!empty($this->_buildOptions['sort']) ? $this->_buildOptions['sort'] : null
-		)->go()->getDriver();
+		)->go();
+		
+		return $this->libs->Query->getDriver();
+		
+		//return $go;
+//		return Query::getDriver();
 	}
 	
 	function _buildFind($find=null) {
