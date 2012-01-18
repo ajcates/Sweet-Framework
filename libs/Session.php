@@ -89,8 +89,8 @@ class Session extends App {
 			'created' => time(),
 			'uid' => $uid
 		))->into($this->_config->tableName)->go();
-		
-		return (f_first( $this->libs->Query->getDriver()->query('SELECT max(@@IDENTITY) AS \'id\' FROM ' . $this->_config->tableName, 'assoc') )) . '_' . $this->encryptCheckString($uid);
+		$lastId = $this->libs->Query->getLastInsert();
+		return $lastId . '_' . $this->encryptCheckString($uid);
 	}
 	
 	function saveCookie($info) {
@@ -132,7 +132,12 @@ class Session extends App {
 				return $this->flash(f_last($key));
 			}
 			$this->_flash[$key] = $value;
-			$this->libs->Query->insert(array('name' => $key, 'value' => serialize($this->_flash[$key]), 'session' => $this->_id, 'flash' => 1))->into($this->_config->dataTableName)->go();
+			$this->libs->Query->insert(array(
+				'name' => $key,
+				'value' => serialize($this->_flash[$key]),
+				'session' => $this->_id,
+				'flash' => 1
+			))->into($this->_config->dataTableName)->go();
 		//}
 	}
 	
@@ -150,6 +155,10 @@ class Session extends App {
 			$this->_flashKeep[$key] = true;
 		}
 		return $this;
+	}
+	
+	function keepAllFlash() {
+		return $this->keepflash(array_keys($this->_flash));
 	}
 	
 	function save() {

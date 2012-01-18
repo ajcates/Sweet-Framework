@@ -127,7 +127,8 @@ class Uri extends App {
 		}
 		//@todo make this be set off with the debug switch. and if debugging is on it should show a link to the page it would have forwarded to.
 		if(Config::get('Debug', 'debug')) {
-			D::show('Debug mode on.', B::a(array('href' => $uri), $uri));
+			D::show('Debug mode on.', 'Redirect: ' . B::a(array('href' => $uri), $uri));
+			$this->lib('Session')->keepAllFlash();
 			SweetFramework::end(true);
 		} else {
 			header('Location: ' . $uri, TRUE, $http_response_code);
